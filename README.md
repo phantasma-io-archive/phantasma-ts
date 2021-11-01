@@ -1,2 +1,2 @@
 # phantasma-ts
-A TypeScript sdk for the Phantasma chain
+A TypeScript SDK for the Phantasma blockchain
