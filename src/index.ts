@@ -1,5 +1,10 @@
-import * as api from './core/index';
+//Imports PhantasmaJS
+import * as backBone from './core/index';
 
+//Exports PhantasmaJS
+export * as backBone from './core/index';
+
+//Exports Host Config Generator
 export class hostConfiguration {
 
     //Variable Initilizers
@@ -8,6 +13,7 @@ export class hostConfiguration {
     nexus: string;
     chain: string;
 
+    //Constructs The Host Config
     constructor(
         
         //Set Defualt Values
@@ -28,12 +34,12 @@ export class hostConfiguration {
 
 };
 
-
+//Exports The SDK
 export class phantasma {
 
     //Initillize Some Variables
     config: hostConfiguration;
-    rpc: api.PhantasmaAPI;
+    rpc: backBone.PhantasmaAPI;
 
     //Constructs The BigBoi
     constructor(config: hostConfiguration = new hostConfiguration) {
@@ -42,7 +48,8 @@ export class phantasma {
         this.config = config;
 
         //Sets The RPC Host
-        this.rpc = new api.PhantasmaAPI(this.config.rpc, this.config.peerList);
+        this.rpc = new backBone.PhantasmaAPI(this.config.rpc, this.config.peerList);
     };
 
+    
 };
