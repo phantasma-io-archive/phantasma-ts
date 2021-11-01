@@ -1,6 +1,6 @@
 import * as api from './core/index';
 
-class hostConfiguration {
+export class hostConfiguration {
 
     //Variable Initilizers
     rpc: string;
@@ -29,7 +29,7 @@ class hostConfiguration {
 };
 
 
-class phantasma {
+export class phantasma {
 
     //Initillize Some Variables
     config: hostConfiguration;
