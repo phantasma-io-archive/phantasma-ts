@@ -23,5 +23,10 @@
     "elliptic": "^6.5.4",
     "typescript": "^4.4.4",
     "wif": "^2.0.6"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.1",
+    "@types/elliptic": "^6.4.13",
+    "@types/wif": "^2.0.2"
   }
 }
