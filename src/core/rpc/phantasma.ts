@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const fetch = require("cross-fetch");
+import fetch from "cross-fetch";
 
 export interface Balance {
   chain: string;

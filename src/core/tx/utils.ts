@@ -1,6 +1,6 @@
-const WIF = require("wif");
-const { eddsa } = require("elliptic");
-const base58 = require("bs58");
+import WIF from "wif";
+import { eddsa } from "elliptic";
+import base58 from "bs58";
 const curve = new eddsa("ed25519");
 
 function ab2hexstring(arr: ArrayBuffer | ArrayLike<number>): string {

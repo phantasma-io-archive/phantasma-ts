@@ -1,4 +1,4 @@
-const { eddsa } = require("elliptic");
+import { eddsa } from "elliptic";
 import { ScriptBuilder } from "../vm";
 const curve = new eddsa("ed25519");
 
