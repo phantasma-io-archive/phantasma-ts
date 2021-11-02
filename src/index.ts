@@ -17,10 +17,10 @@ export class hostConfiguration {
     constructor(
         
         //Set Defualt Values
-        rpcURL: string = 'https://seed.ghostdevs.com:7077/rpc',
-        jsonPeerList: string = 'https://ghostdevs.com/getpeers.json',
         nexus: string = 'mainnet',
-        chain: string = 'main'
+        chain: string = 'main',
+        rpcURL: string = 'https://seed.ghostdevs.com:7077/rpc',
+        jsonPeerList: string = 'https://ghostdevs.com/getpeers.json'
 
     ) {
 
@@ -35,7 +35,7 @@ export class hostConfiguration {
 };
 
 //Exports The SDK
-export class phantasma {
+export class phantasmaSDK {
 
     //Initillize Some Variables
     config: hostConfiguration;
@@ -48,8 +48,22 @@ export class phantasma {
         this.config = config;
 
         //Sets The RPC Host
-        this.rpc = new backBone.PhantasmaAPI(this.config.rpc, this.config.peerList);
+        this.rpc = new backBone.PhantasmaAPI(this.config.rpc, this.config.peerList, this.config.nexus);
     };
 
-    
+    //Creates A New Transaction
+    async newTransaction(script: string, payload: string = null, expiration: number = 5){
+
+        //Sets Default 5 Min Tx Expiration
+        let getCurrentDate = new Date();
+        let expirationDate = new Date(getCurrentDate.getTime() + expiration * 60000);
+
+        //Creates New Transaction
+        let tx = new backBone.Transaction(this.config.nexus, this.config.chain, script, expirationDate, payload);
+
+        //Returns Your Newly Created Transaction
+        return tx;
+    }
+
 };
+
