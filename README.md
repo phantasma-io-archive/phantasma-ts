@@ -49,23 +49,113 @@ class hostConfiguration {
 
 }
 ```
-
+---
+# Dependancies
 ---
 ## PhantasmaJS
 The Phantasma TypeScript SDK relies heavily on PhantasmaJS as a backbone for the framework. If you want to access PhantasmaJS directly, you can do that by using the 'backBone' namespace.
+
+### Building a Transaction
+
+### Building a Script with Script Builder
+
+These functions, ```.callContract``` and ```.callInterop```, are your bread and butter for creating new scripts.
+
+``` .callContract(contractName: string, methodName: string, [arguments]: array)```
+
+``` .callInterop(functionName: string, [arguments]: array)```
+
+
+- You can find out all the diffrent ```.callInterop``` functions below.
+
+- For ```.callContract```, you will have to look through the ABI's of all the diffrent smart contracts currently deployed on the Phantasma 'mainnet': [Link Here]('https://explorer.phantasma.io/chain/main#tab_contracts')
+
+#### Example:
+```javascript
+//Creating a new Script Builder Object
+let sb = new backBone.ScriptBuilder();
+
+//Here is an example of a Transactional Script
+    sb
+    .callContract('gas', 'AllowGas', ['fromAddress', sb.nullAddress, '100000', '900'])
+    .callInterop("Runtime.TransferTokens", ['fromAddress', 'toAddress', 'KCAL', 10000000000]) //10000000000 = 1 KCAL
+    .callContract('gas', 'SpendGas', ['fromAddress'])
+    .endScript();
+
+--- OR ----
+
+//Here is an example of a non Transactional Script
+
+    sb
+    .callContract('account', 'LookUpName', ['accountName'])
+    .endScript();
+
+```
+#### Interop Functions:
+Here are some Interop functions that are used to interact with the core functionality of the Phantasma blockchain. Use these inside your script to add extra functionality.
+```javascript
+sb.callInterop("Runtime.MintTokens", [from: string, target: string, tokenSymbol: string , amount: number]);
+```
+
+```javascript     
+sb.callInterop("Runtime.TransferTokens", [from: string, to: string, tokenSymbol: string, amount: number]);
+```
+    
+```javascript
+sb.callInterop("Runtime.TransferBalance", [from: string, to: string, tokenSymbol: string]);
+```
+
+```javascript
+sb.callInterop("Runtime.TransferToken", [from: string, to: string, tokenSymbol: string, tokenId: number]);
+```
+
+```javascript
+sb.callInterop("Runtime.SendTokens", [destinationChain: string, from: string, to: string, tokenSymbol: string, amount: number);
+```
+
+```javascript
+sb.callInterop("Runtime.SendToken", [destinationChain: string, from: string, to: string, tokenSymbol: string, tokenId: number]);
+```
+
+### Utility Functions
+Just some standard useful functions that you probably will end up using at some point.
+```javascript
+backBone.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>);
+```
+
+```javascript
+backBone.getAddressFromWif(wif: string);
+```
+
+```javascript
+backBone.getPrivateKeyFromWif(wif: string);
+```
+
+```javascript
+backBone.hexToByteArray(hexBytes: string);
+```
+
+```javascript
+backBone.reverseHex(hex: string);
+```
+
+```javascript
+backBone.signData(msgHex: string, privateKey: string);
+```
+
 
 ### Using RPC 
 ```javascript
 let RPC = new backBone.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 ```
-#### Utillities
+#### Utillities:
 - ``` RPC.JSONRPC(method: string, params: Array<any>); ``` <- Used to make any Phantasma RPC call
 - ``` RPC.updateRpc()```
 - ``` RPC.setRpcHost(rpcHost: string)```
 - ``` RPC.setRpcByName(rpcName: string)```
 - ``` RPC.setNexus(nexus: string)```
 - ``` RPC.convertDecimals(amount: number, decimals: number)```
-#### All RPC Functions
+#### All RPC Function Calls:
 ```javascript
 await RPC.getAccount(account: string); //Returns the account name and balance of given address.
 ```

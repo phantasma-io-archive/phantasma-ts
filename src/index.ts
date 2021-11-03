@@ -1,5 +1,6 @@
 //Imports PhantasmaJS
 import * as backBone from './core/index';
+import { ScriptBuilder } from './core/index';
 
 //Exports PhantasmaJS
 export * as backBone from './core/index';
@@ -64,6 +65,16 @@ export class phantasmaSDK {
         //Returns Your Newly Created Transaction
         return tx;
     }
+
+
+
+    async test(){
+
+        
+
+    }
+
+
 
 };
 
