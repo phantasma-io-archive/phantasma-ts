@@ -7,14 +7,14 @@ A TypeScript SDK for the Phantasma blockchain.
 Use the package manager [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) to install phatasma-ts.
 
 ```bash
-npm install https://github.com/phantasma-io/phantasma-ts.git
+npm install phantasma-ts
 ```
 
 
 ## Importing
 
 ```javascript
-import { phantasmaJS } from 'phantasma-ts';
+const { phantasmaJS } = require('phantasma-ts')
 
 ```
 
@@ -126,7 +126,7 @@ async function sendTransaction() {
         let sb = new phantasmaJS.ScriptBuilder();
 
         //Creating RPC Connection
-        let RPC = new phantasmaJS.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
         //Making a Script
         sb
