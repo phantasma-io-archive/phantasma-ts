@@ -10,54 +10,47 @@ Use the package manager [npm](https://docs.npmjs.com/downloading-and-installing-
 npm install https://github.com/phantasma-io/phantasma-ts.git
 ```
 
----
 
 ## Importing
 
 ```javascript
-import { hostConfiguration, phantasmaSDK, backBone } from 'phantasma-ts';
+import { phantasmaJS } from 'phantasma-ts';
 
---- OR ----
-
-const { hostConfiguration, phatnasmaSDK, backBone } = require('phantasma-ts');
 ```
 
----
-## Usage
-
-To use the Phantasma TypeScript SDK, create a new instance of phantasmaSDK.
-```javascript
-const phantasma = new phantasmaSDK();
-```
-If you want to customize the config for the phantasmaSDK, create a new 'hostConfiguration' object and pass it through as an argument. 
-```javascript 
-//Create a new Host Config
-let hostConfig = new hostConfiguration('mainnet', 'main', 'https://seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json');
-
-//Initiate phantasmaSDK
-const phantasma = new phantasmaSDK(hostConfig);
-```
-### Host Configuration Options
-Here you can see some of the options that you can use when constructing the hostConfig. Please check the Vocabulary section if you don't know what a word means (Example: 'nexus', or 'chain').
-```javascript
-class hostConfiguration {
-    
-    nexus: string     // 'mainnet', 'simnet', 'testnet'
-    chain: string     // 'main' or any other future chains
-    rpc: string       // URL for RPC Node
-    peerList: string  // URL for List of Peers in JSON Format
-
-}
-```
----
-# Dependancies
 ---
 ## PhantasmaJS
-The Phantasma TypeScript SDK relies heavily on PhantasmaJS as a backbone for the framework. If you want to access PhantasmaJS directly, you can do that by using the 'backBone' namespace.
+The Phantasma TypeScript SDK transpiles into phantasmaJS. Use phantasmaJS to interact with the Phantasma blockchain directly.
 
-### Building a Transaction
+### Utility Functions
+Just some standard useful functions that you probably will end up using at some point.
+```javascript
+phantasmaJS.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>); //Turns a Byte Array into Serialized Hex
+```
+
+```javascript
+phantasmaJS.getAddressFromWif(wif: string); //Get's Public Address from WIF (Wallet Import Format)
+```
+
+```javascript
+phantasmaJS.getPrivateKeyFromWif(wif: string); //Get's Private Key from WIF (Wallet Import Format)
+```
+
+```javascript
+phantasmaJS.hexToByteArray(hexBytes: string); //Turns Serialized Hex into Byte Array
+```
+
+```javascript
+phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
+```
+
+```javascript
+phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
+```
 
 ### Building a Script with Script Builder
+
+Building a script is the most important part of interacting with the Phantasma blockchain. Without a propper script, the Phantasma blockchain will not know what you are trying to do. 
 
 These functions, ```.callContract``` and ```.callInterop```, are your bread and butter for creating new scripts.
 
@@ -73,7 +66,7 @@ These functions, ```.callContract``` and ```.callInterop```, are your bread and 
 #### Example:
 ```javascript
 //Creating a new Script Builder Object
-let sb = new backBone.ScriptBuilder();
+let sb = new phantasmaJS.ScriptBuilder();
 
 //Here is an example of a Transactional Script
     sb
@@ -117,36 +110,64 @@ sb.callInterop("Runtime.SendTokens", [destinationChain: string, from: string, to
 sb.callInterop("Runtime.SendToken", [destinationChain: string, from: string, to: string, tokenSymbol: string, tokenId: number]);
 ```
 
-### Utility Functions
-Just some standard useful functions that you probably will end up using at some point.
-```javascript
-backBone.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>);
-```
+### Building a Transaction
+To build a transaction you will first need to build a script.
 
+Note, building a Transaction is for transactional scripts only. Non transactional scripts should use the RPC function ```RPC.invokeRawScript(chainInput: string, scriptData: string)```
 ```javascript
-backBone.getAddressFromWif(wif: string);
-```
 
-```javascript
-backBone.getPrivateKeyFromWif(wif: string);
-```
+async function sendTransaction() {
+        let privateKey = 'yourPrivateKey'; //In Hex Format
 
-```javascript
-backBone.hexToByteArray(hexBytes: string);
-```
+        let fromAddress = 'yourPublicWalletAddress';
+        let toAddress = 'addressYourSendingTo';
 
-```javascript
-backBone.reverseHex(hex: string);
-```
+        //Creating a new Script Builder Object
+        let sb = new phantasmaJS.ScriptBuilder();
 
-```javascript
-backBone.signData(msgHex: string, privateKey: string);
-```
+        //Creating RPC Connection
+        let RPC = new phantasmaJS.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
+        //Making a Script
+        sb
+            .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, '100000', '900'])
+            .callInterop("Runtime.TransferTokens", [fromAddress, toAddress, 'KCAL', 10000000000]) //10000000000 = 1 KCAL
+            .callContract('gas', 'SpendGas', [fromAddress])
+            .endScript();
+
+        //Gives us a string version of the Script
+        let script = sb.str;
+
+        //Used to set expiration date
+        let expiration = 5; //This is in miniutes
+        let getTime = new Date();
+        let date = new Date(getTime.getTime() + expiration * 60000);
+
+        let payload = '7068616e7461736d612d7473' //Says 'Phantasma-ts' in hex
+
+        //Creating New Transaction Object
+        let transaction = new phantasmaJS.Transaction(
+            'mainnet', //Nexus Name
+            'main',    //Chain
+            script,    //In string format
+            date,      //Expiration Date
+            payload);  //Extra Info to attach to Transaction in Serialized Hex
+
+        //Sign's Transaction with Private Key
+        await transaction.sign(privateKey);
+
+        //Send Transaction
+        let txHash = await RPC.sendRawTransaction(transaction.toString(true));
+
+        //Return Transaction Hash
+        return txHash;
+    }
+
+```
 
 ### Using RPC 
 ```javascript
-let RPC = new backBone.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+let RPC = new phantasmaJS.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 ```
 #### Utillities:
 - ``` RPC.JSONRPC(method: string, params: Array<any>); ``` <- Used to make any Phantasma RPC call
