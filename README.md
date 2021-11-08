@@ -61,7 +61,7 @@ These functions, ```.callContract``` and ```.callInterop```, are your bread and 
 
 - You can find out all the diffrent ```.callInterop``` functions below.
 
-- For ```.callContract```, you will have to look through the ABI's of all the diffrent smart contracts currently deployed on the Phantasma 'mainnet': [Link Here]('https://explorer.phantasma.io/chain/main#tab_contracts')
+- For ```.callContract```, you will have to look through the ABI's of all the diffrent smart contracts currently deployed on the Phantasma 'mainnet': [Link Here](https://explorer.phantasma.io/chain/main#tab_contracts)
 
 #### Example:
 ```javascript
