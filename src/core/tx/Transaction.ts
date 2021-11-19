@@ -27,7 +27,7 @@ export class Transaction {
     this.chainName = chainName;
     this.script = script;
     this.expiration = expiration;
-    this.payload = payload == null || payload == "" ? "454354" : payload;
+    this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
 
     this.signatures = [];
   }
@@ -67,7 +67,7 @@ export class Transaction {
     if (withSignature) {
       sb.emitVarInt(this.signatures.length);
       this.signatures.forEach((sig) => {
-        console.log("adding signature ", sig);
+        //console.log("adding signature ", sig);
         if (sig.kind == 1) {
           sb.appendByte(1); // Signature Type
           sb.emitVarInt(sig.signature.length / 2);
@@ -82,6 +82,11 @@ export class Transaction {
     }
     return sb.str;
   }
+
+  //public addPOW(targetDifficulty: Number){
+
+
+  //}
 
   private getSign(msgHex: string, privateKey: string): string {
     const msgHashHex = Buffer.from(msgHex, "hex");
