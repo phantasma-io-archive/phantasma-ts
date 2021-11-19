@@ -10,7 +10,7 @@ var Transaction = /** @class */ (function () {
         this.chainName = chainName;
         this.script = script;
         this.expiration = expiration;
-        this.payload = payload == null || payload == "" ? "454354" : payload;
+        this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
         this.signatures = [];
     }
     Transaction.prototype.sign = function (privateKey) {
@@ -36,7 +36,7 @@ var Transaction = /** @class */ (function () {
         if (withSignature) {
             sb.emitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
-                console.log("adding signature ", sig);
+                //console.log("adding signature ", sig);
                 if (sig.kind == 1) {
                     sb.appendByte(1); // Signature Type
                     sb.emitVarInt(sig.signature.length / 2);
@@ -52,6 +52,8 @@ var Transaction = /** @class */ (function () {
         }
         return sb.str;
     };
+    //public addPOW(targetDifficulty: Number){
+    //}
     Transaction.prototype.getSign = function (msgHex, privateKey) {
         var msgHashHex = Buffer.from(msgHex, "hex");
         var privateKeyBuffer = Buffer.from(privateKey, "hex");
