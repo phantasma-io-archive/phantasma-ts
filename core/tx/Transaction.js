@@ -73,7 +73,7 @@ var Transaction = /** @class */ (function () {
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
                 this.payload = deepCopy.payload;
-                console.log('It took ' + nonce + ' iterations to get a difficulty of ' + difficulty);
+                console.log('It took ' + nonce + ' iterations to get a difficulty of >' + difficulty);
                 return;
             }
             nonce++;

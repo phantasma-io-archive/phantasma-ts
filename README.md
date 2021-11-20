@@ -87,11 +87,11 @@ let sb = new phantasmaJS.ScriptBuilder();
 #### Interop Functions:
 Here are some Interop functions that are used to interact with the core functionality of the Phantasma blockchain. Use these inside your script to add extra functionality.
 ```javascript
-sb.callInterop("Runtime.MintTokens", [from: string, target: string, tokenSymbol: string , amount: number]);
+sb.callInterop("Runtime.MintTokens", [from: string, target: string, tokenSymbol: string , amount: number]); //Used for Fungible Tokens
 ```
 
 ```javascript     
-sb.callInterop("Runtime.TransferTokens", [from: string, to: string, tokenSymbol: string, amount: number]);
+sb.callInterop("Runtime.TransferTokens", [from: string, to: string, tokenSymbol: string, amount: number]); //Used for Fungible Tokens
 ```
     
 ```javascript
@@ -99,15 +99,19 @@ sb.callInterop("Runtime.TransferBalance", [from: string, to: string, tokenSymbol
 ```
 
 ```javascript
-sb.callInterop("Runtime.TransferToken", [from: string, to: string, tokenSymbol: string, tokenId: number]);
+sb.callInterop("Runtime.TransferToken", [from: string, to: string, tokenSymbol: string, tokenId: number]); //Used for Non Fungible Tokens
 ```
 
 ```javascript
-sb.callInterop("Runtime.SendTokens", [destinationChain: string, from: string, to: string, tokenSymbol: string, amount: number);
+sb.callInterop("Runtime.SendTokens", [destinationChain: string, from: string, to: string, tokenSymbol: string, amount: number); //Used for Fungible Tokens
 ```
 
 ```javascript
-sb.callInterop("Runtime.SendToken", [destinationChain: string, from: string, to: string, tokenSymbol: string, tokenId: number]);
+sb.callInterop("Runtime.SendToken", [destinationChain: string, from: string, to: string, tokenSymbol: string, tokenId: number]); //Used for Non Fungible Tokens
+```
+
+```javascript
+sb..callInterop("Runtime.DeployContract", [from: string, contractName: string, pvm: hexString, abi: hexString]);
 ```
 
 ### Building a Transaction
@@ -162,6 +166,68 @@ async function sendTransaction() {
         //Return Transaction Hash
         return txHash;
     }
+
+```
+
+### Deploying a Contract
+```javascript
+async function deployContract() {
+    
+    //Wallet Stuff
+    let privateKey = 'privateKey'; //In Hex Format
+    let fromAddress = 'publicAddress';
+
+    //Contract Stuff
+    let pvm = 'PVM HEX String';
+    let abi = 'ABI HEX String';
+    let contractName = 'ContractName' //Whatever you want
+
+    //Creating a new Script Builder Object
+    let sb = new phantasmaJS.ScriptBuilder();
+
+    //Creating RPC Connection, use ('http://testnet.phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'testnet') for testing
+    let RPC = new phantasmaJS.PhantasmaAPI('http://phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+
+    //Making a Script
+    sb
+        .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, '10000000', '900'])
+        .callInterop("Runtime.DeployContract", [fromAddress, contractName, pvm, abi])
+        .callContract('gas', 'SpendGas', [fromAddress])
+        .endScript();
+
+    //Gives us a string version of the Script
+    let script = sb.str;
+
+    //Used to set expiration date
+    let expiration = 5; //This is in miniutes
+    let getTime = new Date();
+    let date = new Date((getTime.getTime() + expiration * 60000));
+    
+    //Setting Temp Payload
+    let payload = null;
+
+
+    //Creating New Transaction Object
+    let transaction = new phantasmaJS.Transaction(
+        'testnet', //Nexus Name
+        'main',    //Chain
+        script,    //In string format
+        date,      //Expiration Date
+        payload    //Extra Info to attach to Transaction in Serialized Hex
+    );
+
+    //Deploying Contract Requires POW -- Use a value of 5 to increase the hash difficulty by at least 5
+    transaction.mineTransaction(5);
+
+    //Signs Transaction with your private key
+    transaction.sign(privateKey);
+
+    //Sends Transaction
+    let txHash = await RPC.sendRawTransaction(transaction.toString(true));
+
+    //Returns Transaction Hash
+    return txHash;
+}
 
 ```
 

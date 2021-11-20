@@ -111,7 +111,7 @@ export class Transaction {
     while (true) {
       if (getDifficulty(deepCopy.getHash()) >= difficulty) {
         this.payload = deepCopy.payload;
-        console.log('It took ' + nonce +' iterations to get a difficulty of ' + difficulty)
+        console.log('It took ' + nonce +' iterations to get a difficulty of >' + difficulty)
         return;
       }
 
