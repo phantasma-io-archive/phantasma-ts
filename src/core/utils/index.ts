@@ -9,6 +9,12 @@ export function hexToByteArray(hexBytes: string) {
   return res;
 }
 
+export function hexStringToBytes(hexString: string) {
+  for (var bytes = [], c = 0; c < hexString.length; c += 2)
+      bytes.push(parseInt(hexString.substr(c, 2), 16));
+  return bytes;
+}
+
 export function byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>): string {
   if (typeof arr !== "object") {
     throw new Error(`ba2hex expects an array.Input was ${arr}`);
@@ -29,4 +35,20 @@ export function reverseHex(hex: string): string {
     out += hex.substr(i, 2);
   }
   return out;
+}
+
+export function getDifficulty(transactionHash: string) {
+  let bytes = hexStringToBytes(this.toString(false)).reverse()
+  let result = 0;
+
+  for (let i = 0; i < bytes.length; i++) {
+    var n = bytes[i];
+    for (let j = 0; j < 8; j++) {
+      if ((bytes[i] & (1 << j)) != 0) {
+        result = 1 + (i << 3) + j;
+      }
+    }
+  }
+
+  return (256 - result);
 }
