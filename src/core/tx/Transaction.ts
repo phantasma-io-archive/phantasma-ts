@@ -91,7 +91,7 @@ export class Transaction {
     return byteArrayToHex(hexStringToBytes(generatedHash.toString(hexEncoding)).reverse());
   }
 
-  public async mineTransaction(difficulty: number) {
+  public mineTransaction(difficulty: number) {
     if(difficulty < 0 || difficulty > 256){
       console.log("Error adding difficulty");
       return;
@@ -102,7 +102,7 @@ export class Transaction {
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
       JSON.parse(JSON.stringify(this.script)),
-      new Date(this.expiration),
+      this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );
     let payload = Buffer.alloc(4)
