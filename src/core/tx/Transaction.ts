@@ -70,7 +70,7 @@ export class Transaction {
     if (withSignature) {
       sb.emitVarInt(this.signatures.length);
       this.signatures.forEach((sig) => {
-        //console.log("adding signature ", sig);
+        console.log("adding signature ", sig);
         if (sig.kind == 1) {
           sb.appendByte(1); // Signature Type
           sb.emitVarInt(sig.signature.length / 2);
@@ -109,7 +109,7 @@ export class Transaction {
 
 
     while (true) {
-      if (getDifficulty(deepCopy.toString(false)) >= difficulty) {
+      if (getDifficulty(deepCopy.getHash()) >= difficulty) {
         this.payload = deepCopy.payload;
         console.log('It took ' + nonce +' iterations to get a difficulty of ' + difficulty)
         return;

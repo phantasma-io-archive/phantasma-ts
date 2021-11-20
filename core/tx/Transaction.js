@@ -42,7 +42,7 @@ var Transaction = /** @class */ (function () {
         if (withSignature) {
             sb.emitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
-                //console.log("adding signature ", sig);
+                console.log("adding signature ", sig);
                 if (sig.kind == 1) {
                     sb.appendByte(1); // Signature Type
                     sb.emitVarInt(sig.signature.length / 2);
@@ -71,7 +71,7 @@ var Transaction = /** @class */ (function () {
         var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
         var payload = Buffer.alloc(4);
         while (true) {
-            if ((0, utils_1.getDifficulty)(deepCopy.toString(false)) >= difficulty) {
+            if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
                 this.payload = deepCopy.payload;
                 console.log('It took ' + nonce + ' iterations to get a difficulty of ' + difficulty);
                 return;
