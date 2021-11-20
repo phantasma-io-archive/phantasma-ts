@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reverseHex = exports.byteArrayToHex = exports.hexToByteArray = void 0;
+exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -25,6 +25,12 @@ function hexToByteArray(hexBytes) {
     return res;
 }
 exports.hexToByteArray = hexToByteArray;
+function hexStringToBytes(hexString) {
+    for (var bytes = [], c = 0; c < hexString.length; c += 2)
+        bytes.push(parseInt(hexString.substr(c, 2), 16));
+    return bytes;
+}
+exports.hexStringToBytes = hexStringToBytes;
 function byteArrayToHex(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
@@ -58,3 +64,17 @@ function reverseHex(hex) {
     return out;
 }
 exports.reverseHex = reverseHex;
+function getDifficulty(transactionHash) {
+    var bytes = hexStringToBytes(this.toString(false)).reverse();
+    var result = 0;
+    for (var i = 0; i < bytes.length; i++) {
+        var n = bytes[i];
+        for (var j = 0; j < 8; j++) {
+            if ((bytes[i] & (1 << j)) != 0) {
+                result = 1 + (i << 3) + j;
+            }
+        }
+    }
+    return (256 - result);
+}
+exports.getDifficulty = getDifficulty;
