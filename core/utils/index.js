@@ -65,7 +65,7 @@ function reverseHex(hex) {
 }
 exports.reverseHex = reverseHex;
 function getDifficulty(transactionHash) {
-    var bytes = hexStringToBytes(this.toString(false)).reverse();
+    var bytes = hexStringToBytes(transactionHash).reverse();
     var result = 0;
     for (var i = 0; i < bytes.length; i++) {
         var n = bytes[i];

@@ -70,7 +70,7 @@ export class Transaction {
     if (withSignature) {
       sb.emitVarInt(this.signatures.length);
       this.signatures.forEach((sig) => {
-        //console.log("adding signature ", sig);
+        console.log("adding signature ", sig);
         if (sig.kind == 1) {
           sb.appendByte(1); // Signature Type
           sb.emitVarInt(sig.signature.length / 2);
@@ -91,7 +91,7 @@ export class Transaction {
     return byteArrayToHex(hexStringToBytes(generatedHash.toString(hexEncoding)).reverse());
   }
 
-  public async mineTransaction(difficulty: number) {
+  public mineTransaction(difficulty: number) {
     if(difficulty < 0 || difficulty > 256){
       console.log("Error adding difficulty");
       return;
@@ -102,16 +102,16 @@ export class Transaction {
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
       JSON.parse(JSON.stringify(this.script)),
-      new Date(this.expiration),
+      this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );
     let payload = Buffer.alloc(4)
 
 
     while (true) {
-      if (getDifficulty(deepCopy.toString(false)) >= difficulty) {
+      if (getDifficulty(deepCopy.getHash()) >= difficulty) {
         this.payload = deepCopy.payload;
-        console.log('It took ' + nonce +' iterations to get a difficulty of ' + difficulty)
+        console.log('It took ' + nonce +' iterations to get a difficulty of >' + difficulty)
         return;
       }
 

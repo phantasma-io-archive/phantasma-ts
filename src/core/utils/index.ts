@@ -38,7 +38,7 @@ export function reverseHex(hex: string): string {
 }
 
 export function getDifficulty(transactionHash: string) {
-  let bytes = hexStringToBytes(this.toString(false)).reverse()
+  let bytes = hexStringToBytes(transactionHash).reverse()
   let result = 0;
 
   for (let i = 0; i < bytes.length; i++) {
