@@ -13,3 +13,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./ScriptBuilder"), exports);
 __exportStar(require("./Opcode"), exports);
 __exportStar(require("./VMType"), exports);
+__exportStar(require("./EventData"), exports);
