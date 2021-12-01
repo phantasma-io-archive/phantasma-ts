@@ -43,3 +43,12 @@ export function signData(msgHex: string, privateKey: string): string {
     "01" + (numBytes < 16 ? "0" : "") + numBytes.toString(16) + sig.toHex()
   );
 }
+
+export function verifyData(msgHex: string, phaSig: string, address: string): boolean {
+  const msgBytes = Buffer.from(msgHex, "hex");
+  const realSig = phaSig.substring(4)
+  const pubKey = base58.decode(address.substring(1)).slice(2)
+    
+  return curve.verify(msgBytes, realSig, pubKey.toString("hex"))
+}
+

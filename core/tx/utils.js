@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signData = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
+exports.verifyData = exports.signData = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
 var elliptic_1 = require("elliptic");
 var bs58_1 = __importDefault(require("bs58"));
@@ -64,3 +64,10 @@ function signData(msgHex, privateKey) {
     return ("01" + (numBytes < 16 ? "0" : "") + numBytes.toString(16) + sig.toHex());
 }
 exports.signData = signData;
+function verifyData(msgHex, phaSig, address) {
+    var msgBytes = Buffer.from(msgHex, "hex");
+    var realSig = phaSig.substring(4);
+    var pubKey = bs58_1.default.decode(address.substring(1)).slice(2);
+    return curve.verify(msgBytes, realSig, pubKey.toString("hex"));
+}
+exports.verifyData = verifyData;
