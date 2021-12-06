@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getString = exports.getInfusionEventData = exports.getMarketEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
+exports.getMarketEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.decodeVMObject = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
 var big_integer_1 = __importDefault(require("big-integer"));
 var VMType_1 = require("./VMType");
 var EventKind;
@@ -97,9 +97,6 @@ var Decoder = /** @class */ (function () {
     function Decoder(str) {
         this.str = str;
     }
-    Decoder.prototype.isEnd = function () {
-        return this.str.length == 0;
-    };
     Decoder.prototype.readCharPair = function () {
         var res = this.str.substr(0, 2);
         this.str = this.str.slice(2);
@@ -162,13 +159,32 @@ var Decoder = /** @class */ (function () {
         });
         return res.toString();
     };
-    Decoder.prototype.readVmObject = function () {
+    Decoder.prototype.readVMObject = function () {
         var type = this.readByte();
+        console.log('type', type);
         switch (type) {
             case VMType_1.VMType.String:
                 return this.readString();
             case VMType_1.VMType.Number:
                 return this.readBigIntAccurate();
+            case VMType_1.VMType.Bool:
+                return this.readByte() != 0;
+            case VMType_1.VMType.Struct:
+                var numFields = this.readVarInt();
+                var res = {};
+                for (var i = 0; i < numFields; ++i) {
+                    var key = this.readVMObject();
+                    console.log('  key', key);
+                    var value = this.readVMObject();
+                    console.log('  value', value);
+                    res[key] = value;
+                }
+                return res;
+            case VMType_1.VMType.Enum:
+                return this.readVarInt();
+            case VMType_1.VMType.Object:
+                var numBytes = this.readVarInt();
+                return this.read(numBytes);
             default:
                 return "unsupported type " + type;
         }
@@ -176,11 +192,16 @@ var Decoder = /** @class */ (function () {
     return Decoder;
 }());
 exports.Decoder = Decoder;
+function decodeVMObject(str) {
+    var dec = new Decoder(str);
+    return dec.readVMObject();
+}
+exports.decodeVMObject = decodeVMObject;
 function getTokenEventData(str) {
     var dec = new Decoder(str);
     return {
         symbol: dec.readString(),
-        value: dec.readBigIntAccurate(),
+        value: dec.readBigInt(),
         chainName: dec.readString(),
     };
 }
@@ -219,22 +240,6 @@ function getMarketEventData(str) {
         quoteSymbol: dec.readString(),
         id: dec.readBigIntAccurate(),
         amount: dec.readBigInt(),
-        endAmount: dec.isEnd() ? 0 : dec.readBigInt()
     };
 }
 exports.getMarketEventData = getMarketEventData;
-function getInfusionEventData(str) {
-    var dec = new Decoder(str);
-    return {
-        baseSymbol: dec.readString(),
-        TokenID: dec.readBigIntAccurate(),
-        InfusedSymbol: dec.readString(),
-        InfusedValue: dec.readBigIntAccurate(),
-        ChainName: dec.readString(),
-    };
-}
-exports.getInfusionEventData = getInfusionEventData;
-function getString(str) {
-    return new Decoder(str).readString();
-}
-exports.getString = getString;

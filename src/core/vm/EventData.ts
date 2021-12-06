@@ -64,14 +64,11 @@ export enum TypeAuction {
 }
 
 export class Decoder {
+
   str: string;
 
   constructor(str: string) {
     this.str = str;
-  }
-
-  isEnd() {
-    return this.str.length == 0;
   }
 
   readCharPair() {
@@ -84,13 +81,13 @@ export class Decoder {
     return parseInt(this.readCharPair(), 16);
   }
 
-  read(numBytes: number): string {
+  read(numBytes: number) {
     var res = this.str.substr(0, numBytes * 2);
     this.str = this.str.slice(numBytes * 2);
     return res;
   }
 
-  readString(): string {
+  readString() {
     var len = this.readVarInt();
     return this.readStringBytes(len);
   }
@@ -107,17 +104,17 @@ export class Decoder {
     var len = this.readByte();
     var res = 0;
     if (len === 0xfd) {
-      [...(this.read(2).match(/.{1,2}/g) as any)]
+      [...this.read(2).match(/.{1,2}/g)]
         .reverse()
         .forEach((c) => (res = res * 256 + parseInt(c, 16)));
       return res;
     } else if (len === 0xfe) {
-      [...(this.read(4).match(/.{1,2}/g) as any)]
+      [...this.read(4).match(/.{1,2}/g)]
         .reverse()
         .forEach((c) => (res = res * 256 + parseInt(c, 16)));
       return res;
     } else if (len === 0xff) {
-      [...(this.read(8).match(/.{1,2}/g) as any)]
+      [...this.read(8).match(/.{1,2}/g)]
         .reverse()
         .forEach((c) => (res = res * 256 + parseInt(c, 16)));
       return res;
@@ -130,7 +127,7 @@ export class Decoder {
     var len = this.readVarInt();
     var res = 0;
     var stringBytes = this.read(len);
-    [...(stringBytes.match(/.{1,2}/g) as any)]
+    [...stringBytes.match(/.{1,2}/g)]
       .reverse()
       .forEach((c) => (res = res * 256 + parseInt(c, 16)));
     return res;
@@ -140,23 +137,47 @@ export class Decoder {
     var len = this.readVarInt();
     var res = bigInt();
     var stringBytes = this.read(len);
-    [...(stringBytes.match(/.{1,2}/g) as any)].reverse().forEach((c) => {
+    [...stringBytes.match(/.{1,2}/g)].reverse().forEach((c) => {
       res = res.times(256).plus(parseInt(c, 16));
     });
     return res.toString();
   }
 
-  readVmObject() {
+  readVMObject() {
     const type = this.readByte();
+    console.log('type', type)
     switch (type) {
       case VMType.String:
         return this.readString();
       case VMType.Number:
         return this.readBigIntAccurate();
+      case VMType.Bool:
+        return this.readByte() != 0
+      case VMType.Struct:
+        const numFields = this.readVarInt();
+        let res = {}
+        for (let i = 0; i < numFields; ++i) {
+          const key: any = this.readVMObject()
+          console.log('  key', key)
+          const value = this.readVMObject()
+          console.log('  value', value)
+          res[key] = value
+        }
+        return res
+      case VMType.Enum:
+        return this.readVarInt()
+      case VMType.Object:
+        const numBytes = this.readVarInt();
+        return this.read(numBytes)
       default:
         return "unsupported type " + type;
     }
   }
+}
+
+export function decodeVMObject(str: string) {
+  var dec = new Decoder(str);
+  return dec.readVMObject();
 }
 
 export function getTokenEventData(str: string) {
@@ -164,7 +185,7 @@ export function getTokenEventData(str: string) {
 
   return {
     symbol: dec.readString(),
-    value: dec.readBigIntAccurate(),
+    value: dec.readBigInt(),
     chainName: dec.readString(),
   };
 }
@@ -203,21 +224,5 @@ export function getMarketEventData(str: string) {
     quoteSymbol: dec.readString(),
     id: dec.readBigIntAccurate(),
     amount: dec.readBigInt(),
-    endAmount: dec.isEnd() ? 0 : dec.readBigInt()
   };
-}
-
-export function getInfusionEventData(str: string) {
-  var dec = new Decoder(str);
-  return {
-    baseSymbol: dec.readString(),
-    TokenID: dec.readBigIntAccurate(),
-    InfusedSymbol: dec.readString(),
-    InfusedValue: dec.readBigIntAccurate(),
-    ChainName: dec.readString(),
-  };
-}
-
-export function getString(str: string) {
-  return new Decoder(str).readString();
 }
