@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMarketEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.decodeVMObject = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
+exports.getString = exports.getMarketEventData = exports.getInfusionEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.decodeVMObject = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
 var big_integer_1 = __importDefault(require("big-integer"));
 var VMType_1 = require("./VMType");
 var EventKind;
@@ -97,6 +97,9 @@ var Decoder = /** @class */ (function () {
     function Decoder(str) {
         this.str = str;
     }
+    Decoder.prototype.isEnd = function () {
+        return this.str.length == 0;
+    };
     Decoder.prototype.readCharPair = function () {
         var res = this.str.substr(0, 2);
         this.str = this.str.slice(2);
@@ -159,7 +162,7 @@ var Decoder = /** @class */ (function () {
         });
         return res.toString();
     };
-    Decoder.prototype.readVMObject = function () {
+    Decoder.prototype.readVmObject = function () {
         var type = this.readByte();
         console.log('type', type);
         switch (type) {
@@ -173,9 +176,9 @@ var Decoder = /** @class */ (function () {
                 var numFields = this.readVarInt();
                 var res = {};
                 for (var i = 0; i < numFields; ++i) {
-                    var key = this.readVMObject();
+                    var key = this.readVmObject();
                     console.log('  key', key);
-                    var value = this.readVMObject();
+                    var value = this.readVmObject();
                     console.log('  value', value);
                     res[key] = value;
                 }
@@ -194,14 +197,14 @@ var Decoder = /** @class */ (function () {
 exports.Decoder = Decoder;
 function decodeVMObject(str) {
     var dec = new Decoder(str);
-    return dec.readVMObject();
+    return dec.readVmObject();
 }
 exports.decodeVMObject = decodeVMObject;
 function getTokenEventData(str) {
     var dec = new Decoder(str);
     return {
         symbol: dec.readString(),
-        value: dec.readBigInt(),
+        value: dec.readBigIntAccurate(),
         chainName: dec.readString(),
     };
 }
@@ -230,9 +233,21 @@ function getGasEventData(str) {
         address: dec.read(dec.readByte()),
         price: dec.readBigInt(),
         amount: dec.readBigInt(),
+        endAmount: dec.isEnd() ? 0 : dec.readBigInt()
     };
 }
 exports.getGasEventData = getGasEventData;
+function getInfusionEventData(str) {
+    var dec = new Decoder(str);
+    return {
+        baseSymbol: dec.readString(),
+        TokenID: dec.readBigIntAccurate(),
+        InfusedSymbol: dec.readString(),
+        InfusedValue: dec.readBigIntAccurate(),
+        ChainName: dec.readString(),
+    };
+}
+exports.getInfusionEventData = getInfusionEventData;
 function getMarketEventData(str) {
     var dec = new Decoder(str);
     return {
@@ -243,3 +258,7 @@ function getMarketEventData(str) {
     };
 }
 exports.getMarketEventData = getMarketEventData;
+function getString(str) {
+    return new Decoder(str).readString();
+}
+exports.getString = getString;
