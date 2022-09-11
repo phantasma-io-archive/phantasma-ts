@@ -18,9 +18,36 @@ const { phantasmaJS } = require('phantasma-ts')
 
 ```
 
+## Standalone HTML Import
+```html
+<script src="https://cdn.jsdelivr.net/gh/phantasma-io/phantasma-ts/html/phantasma.js"></script>
+```
+```javascript
+phantasma.phantasmaJS // To use PhantasmaJS
+phantasma.phantasmaLink // To use PhantasmaLink
+```
+
 ---
-## PhantasmaJS
-The Phantasma TypeScript SDK transpiles into phantasmaJS. Use phantasmaJS to interact with the Phantasma blockchain directly.
+## PhantasmaJS & PhantasmaLink
+The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use phantasmaJS to interact with the Phantasma blockchain directly. Use phantasmaLink to interact with phantasma based wallets.
+
+### PhantasmaLink
+For more information on phantasmaLink, please check the main repo: [Link Here](https://github.com/phantasma-io/PhantasmaLink)
+Here is some example code to initate a wallet connection.
+```javascript
+let link = new phantasmaLink;
+
+//Use this code snippet to connect to a phantasma wallet 
+link.login(function (success) {
+            //Console Logging for Debugging Purposes
+            if (success) {
+                console.log('Connected to account ' + this.account.address + ' via ' + this.wallet);
+            } else {
+                console.log('Connection Failed');
+            };
+        }, 2, 'phantasma', 'ecto'); //Swap out ecto for 'poltergeist' if wanting to connect to Poltergeist Wallet
+```
+
 
 ### Utility Functions
 Just some standard useful functions that you probably will end up using at some point.
