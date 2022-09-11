@@ -34,7 +34,7 @@ exports.hexStringToBytes = hexStringToBytes;
 function byteArrayToHex(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
-        throw new Error("ba2hex expects an array.Input was " + arr);
+        throw new Error("ba2hex expects an array.Input was ".concat(arr));
     }
     var result = "";
     var intArray = new Uint8Array(arr);

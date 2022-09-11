@@ -370,6 +370,12 @@ export class ScriptBuilder {
     this.str += this.byteToHex(byte);
   }
 
+  appendBytes(bytes: byte[]) {
+    for (let i = 0; i < bytes.length; i++) {
+      this.appendByte(bytes[i]);
+    }
+  }
+
   appendUshort(ushort: number) {
     this.str +=
       this.byteToHex(ushort & 0xff) + this.byteToHex((ushort >> 8) & 0xff);

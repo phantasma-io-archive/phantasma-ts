@@ -350,6 +350,11 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.appendByte = function (byte) {
         this.str += this.byteToHex(byte);
     };
+    ScriptBuilder.prototype.appendBytes = function (bytes) {
+        for (var i = 0; i < bytes.length; i++) {
+            this.appendByte(bytes[i]);
+        }
+    };
     ScriptBuilder.prototype.appendUshort = function (ushort) {
         this.str +=
             this.byteToHex(ushort & 0xff) + this.byteToHex((ushort >> 8) & 0xff);
