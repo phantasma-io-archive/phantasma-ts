@@ -33,6 +33,7 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use 
 
 ### PhantasmaLink
 For more information on phantasmaLink, please check the main repo: [Link Here](https://github.com/phantasma-io/PhantasmaLink)
+
 Here is some example code to initate a wallet connection.
 ```javascript
 let link = new phantasmaLink;
