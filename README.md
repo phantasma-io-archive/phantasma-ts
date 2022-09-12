@@ -36,7 +36,7 @@ For more information on phantasmaLink, please check the main repo: [Link Here](h
 
 Here is some example code to initate a wallet connection.
 ```javascript
-let link = new phantasmaLink;
+let link = new phantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
 
 //Use this code snippet to connect to a phantasma wallet 
 link.login(function (success) {
