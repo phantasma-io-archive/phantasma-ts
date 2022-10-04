@@ -1,2 +1,2 @@
-export * as phantasmaJS from './core/index'
-export {phantasmaLink} from './core/link/phantasmaLink'
+export * as phantasmaJS from './core/index';
+export { PhantasmaLink } from './core/link/phantasmaLink';

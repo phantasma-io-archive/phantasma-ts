@@ -1,6 +1,6 @@
 import { ScriptBuilder } from "../vm";
 
-export class phantasmaLink {
+export class PhantasmaLink {
 
     onMessage = (msg) => {
         console.log(msg)
