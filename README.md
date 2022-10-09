@@ -28,84 +28,27 @@ phantasma.PhantasmaLink // To use PhantasmaLink
 phantasma.EasyConnect   // To use EasyConnect, an easy to use PhantasmaLink wrapper
 ```
 
+## Table Of Contents
+The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and EasyConnect.
+[PhantasmaJS](#phantasmajs)
+    - [Utility Functions](#PhantasmaJS-Utility-Functions)
+    - [Script Builder](#Building-a-Script-with-Script-Builder)
+        - [Interop Commands](#Interop-Functions:)
+        - [Building Transaction](#Building-a-Transaction)
+        - [Deploying Smart Contract](#Deploying-a-Contract)
+    - [RPC](#Using-RPC)
+[PhantasmaLink](#phantasmalink)
+    - [Functions](#functions:)
+    - [Exsamples](#Exsample-Code)
+[EasyConnect](#easyconnect)
+    - []
+    - []
+[Misc]
+    - [Vocab](#Vocab)
+
 ---
-## PhantasmaJS & PhantasmaLink
-The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use phantasmaJS to interact with the Phantasma blockchain directly. Use phantasmaLink to interact with Phantasma based wallets.
-
-### PhantasmaLink
-PhantasmaLink is a core connecting piece that allows you to interact with Phantasma based Wallets. PhantasmaLink is a building block to help you connect with wallets, however if you are more interested in using a more simple plug and play product, please see [EasyConnect](#easyconnect)
-
-
-Since phantasmaLink is a Class we are going to initiate a new phantasmaLink object.
-```javascript
-let dappID = "Dapp Name";   //This is just the name you want to give the connection
-let consoleLogging = true;  //This is if you want console logging for Debugging Purposes [Default is set to true]
-
-let link = new PhantasmaLink(dappID, consoleLogging); 
-```
-#### Vocab
-- ``` Callback - Function that gets called on after a success``` 
-- ``` onErrorCallback - Function that gets called on after a failure```
-- ``` Script - A set of instructions for that PhantasmaChain to decode that lies inside of a transaction object``` See [ScriptBuilder](#building-a-script-with-script-builder)
-- ``` Nexus - The chain on Phantasma that is being used: Either 'mainnet' or 'testnet'```
-- ``` Payload - Extra data attached to a transaction object```
-- ``` ProviderHint - Tells PhantasmaLink which wallet you intend to connect with```
-
-#### Functions:
-```javascript
-link.login(onLoginCallback, onErrorCallback, providerHint);  //Provider Hint can be 'ecto' or 'poltergeist'
-```
-
-```javascript
-link.invokeScript(script, callback);  //Allows you to do a ReadOnly script operation on the Phantasma Blockchain (Sends results as an Argument to Callback Function)
-```
-
-```javascript
-link.signTx(nexus, script, payload, callback, onErrorCallback);  //Signs a Transaction via Wallet (payload can be Null) (Sends results as an Argument to Callback Function)
-```
-
-```javascript
-link.signData(data, callback, onErrorCallback);  //Allows you to sign some data via your Wallet (Sends results as an Argument to Callback Function)
-```
-
-```javascript
-link.toggleMessageLogging();  //Toggles Console Message Logging 
-```
-
-```javascript
-link.dappID();  //Returns DappID
-```
-
-```javascript
-link.sendLinkRequest(request, callback);  //Used internally and sends wallet instructions through socket, you probably won't use it unless you know what your doing
-```
-
-```javascript
-link.createSocket();  //Used internally to connect to wallet, you probably won't use it unless you know what your doing
-link.retry();         //Used internally to retry socket connection, you probably won't use it unless you know what your doing
-```
-
-```javascript
-link.disconnect(message); //Disconnects From Socket (You can add a reason with the Message Argument)
-```
-
-
-#### Exsample Code
-Here is some example code to initate a wallet connection.
-```javascript
-let link = new PhantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
-
-//Use this code snippet to connect to a phantasma wallet 
-link.login(function (success) {
-            //Console Logging for Debugging Purposes
-            if (success) {
-                console.log('Connected to account ' + this.account.address + ' via ' + this.wallet);
-            } else {
-                console.log('Connection Failed');
-            };
-        }, 2, 'phantasma', 'ecto'); //Swap out ecto for 'poltergeist' if wanting to connect to Poltergeist Wallet
-```
-
+## PhantasmaJS
+Use phantasmaJS to interact with the Phantasma blockchain directly.
 
 ### PhantasmaJS Utility Functions
 Just some standard useful functions that you probably will end up using at some point.
@@ -196,7 +139,7 @@ sb.callInterop("Runtime.SendToken", [destinationChain: string, from: string, to:
 ```
 
 ```javascript
-sb..callInterop("Runtime.DeployContract", [from: string, contractName: string, pvm: hexString, abi: hexString]);
+sb.callInterop("Runtime.DeployContract", [from: string, contractName: string, pvm: hexString, abi: hexString]);
 ```
 
 ### Building a Transaction
@@ -483,5 +426,83 @@ await RPC.getSwapsForAddress(account: string, platform: string); //Returns platf
 ```javascript
 await RPC.getNFT(symbol: string, nftId: string); //Returns info of a nft.
 ```
+
+
+## PhantasmaLink
+PhantasmaLink is a core connecting piece that allows you to interact with Phantasma based Wallets. PhantasmaLink is a building block to help you connect with wallets, however if you are more interested in using a more simple plug and play product, please see [EasyConnect](#easyconnect) **<- Super Useful**
+
+
+Since phantasmaLink is a Class we are going to initiate a new phantasmaLink object.
+```javascript
+let dappID = "Dapp Name";   //This is just the name you want to give the connection
+let consoleLogging = true;  //This is if you want console logging for Debugging Purposes [Default is set to true]
+
+let link = new PhantasmaLink(dappID, consoleLogging); 
+```
+#### Vocab
+- ``` Callback - Function that gets called on after a success``` 
+- ``` onErrorCallback - Function that gets called on after a failure```
+- ``` Script - A set of instructions for that PhantasmaChain to decode that lies inside of a transaction object``` See [ScriptBuilder](#building-a-script-with-script-builder)
+- ``` Nexus - The chain on Phantasma that is being used: Either 'mainnet' or 'testnet'```
+- ``` Payload - Extra data attached to a transaction object```
+- ``` ProviderHint - Tells PhantasmaLink which wallet you intend to connect with```
+
+### Functions:
+```javascript
+link.login(onLoginCallback, onErrorCallback, providerHint);  //Provider Hint can be 'ecto' or 'poltergeist'
+```
+
+```javascript
+link.invokeScript(script, callback);  //Allows you to do a ReadOnly script operation on the Phantasma Blockchain (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.signTx(nexus, script, payload, callback, onErrorCallback);  //Signs a Transaction via Wallet (payload can be Null) (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.signData(data, callback, onErrorCallback);  //Allows you to sign some data via your Wallet (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.toggleMessageLogging();  //Toggles Console Message Logging 
+```
+
+```javascript
+link.dappID();  //Returns DappID
+```
+
+```javascript
+link.sendLinkRequest(request, callback);  //Used internally and sends wallet instructions through socket, you probably won't use it unless you know what your doing
+```
+
+```javascript
+link.createSocket();  //Used internally to connect to wallet, you probably won't use it unless you know what your doing
+link.retry();         //Used internally to retry socket connection, you probably won't use it unless you know what your doing
+```
+
+```javascript
+link.disconnect(message); //Disconnects From Socket (You can add a reason with the Message Argument)
+```
+
+
+### Exsample Code
+Here is some example code to initate a wallet connection.
+```javascript
+let link = new PhantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
+
+//Use this code snippet to connect to a phantasma wallet 
+link.login(function (success) {
+            //Console Logging for Debugging Purposes
+            if (success) {
+                console.log('Connected to account ' + this.account.address + ' via ' + this.wallet);
+            } else {
+                console.log('Connection Failed');
+            };
+        }, 2, 'phantasma', 'ecto'); //Swap out ecto for 'poltergeist' if wanting to connect to Poltergeist Wallet
+```
+
+
+
 
 ## EasyConnect
