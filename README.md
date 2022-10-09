@@ -23,8 +23,9 @@ const { phantasmaJS } = require('phantasma-ts')
 <script src="https://cdn.jsdelivr.net/gh/phantasma-io/phantasma-ts/html/phantasma.js"></script>
 ```
 ```javascript
-phantasma.phantasmaJS // To use PhantasmaJS
-phantasma.phantasmaLink // To use PhantasmaLink
+phantasma.phantasmaJS   // To use PhantasmaJS
+phantasma.PhantasmaLink // To use PhantasmaLink
+phantasma.EasyConnect   // To use EasyConnect, an easy to use PhantasmaLink wrapper
 ```
 
 ---
@@ -32,6 +33,9 @@ phantasma.phantasmaLink // To use PhantasmaLink
 The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use phantasmaJS to interact with the Phantasma blockchain directly. Use phantasmaLink to interact with Phantasma based wallets.
 
 ### PhantasmaLink
+PhantasmaLink is a core connecting piece that allows you to interact with Phantasma based Wallets. PhantasmaLink is a building block to help you connect with wallets, however if you are more interested in using a more simple plug and play product, please see [EasyConnect](#easyconnect)
+
+
 Since phantasmaLink is a Class we are going to initiate a new phantasmaLink object.
 ```javascript
 let dappID = "Dapp Name";   //This is just the name you want to give the connection
@@ -42,7 +46,7 @@ let link = new PhantasmaLink(dappID, consoleLogging);
 #### Vocab
 - ``` Callback - Function that gets called on after a success``` 
 - ``` onErrorCallback - Function that gets called on after a failure```
-- ``` Script - A set of instructions for that PhantasmaChain to decode that lies inside of a transaction object``` See [ScriptBuilder](###scriptbuilder)
+- ``` Script - A set of instructions for that PhantasmaChain to decode that lies inside of a transaction object``` See [ScriptBuilder](#building-a-script-with-script-builder)
 - ``` Nexus - The chain on Phantasma that is being used: Either 'mainnet' or 'testnet'```
 - ``` Payload - Extra data attached to a transaction object```
 - ``` ProviderHint - Tells PhantasmaLink which wallet you intend to connect with```
@@ -129,7 +133,7 @@ phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
 phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
 ```
 
-### <a name="scriptbuilder"></a> Building a Script with Script Builder
+### Building a Script with Script Builder
 
 Building a script is the most important part of interacting with the Phantasma blockchain. Without a propper script, the Phantasma blockchain will not know what you are trying to do. 
 
@@ -479,3 +483,5 @@ await RPC.getSwapsForAddress(account: string, platform: string); //Returns platf
 ```javascript
 await RPC.getNFT(symbol: string, nftId: string); //Returns info of a nft.
 ```
+
+## EasyConnect
