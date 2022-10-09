@@ -35,21 +35,21 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and Easy
 1. [PhantasmaJS](#phantasmajs) - Allows You To Interact With PhantasmaChain
     - [Utility Functions](#PhantasmaJS-Utility-Functions)
     - [Script Builder](#Building-a-Script-with-Script-Builder)
-        - [Interop Commands](#Interop-Functions:)  
+        - [Interop Commands](#Interop-Functions)  
         - [Building Transaction](#Building-a-Transaction)  
         - [Deploying Smart Contract](#Deploying-a-Contract)
         - [RPC](#Using-RPC)
 
-[PhantasmaLink](#phantasmalink)
-- [Functions](#functions:)
-- [Exsamples](#Exsample-Code)
+2. [PhantasmaLink](#phantasmalink)
+    - [Functions](#functions)
+    - [Exsamples](#Exsample-Code)
 
-[EasyConnect](#easyconnect)
-- []
-- []
+3. [EasyConnect](#easyconnect)
+    - []
+    - []
 
-[Misc]
-- [Vocab](#Vocab)
+4. [Misc]
+    - [Vocab](#Vocab)
 
 ---
 ## PhantasmaJS
