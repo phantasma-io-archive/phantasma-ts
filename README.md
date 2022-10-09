@@ -29,14 +29,67 @@ phantasma.phantasmaLink // To use PhantasmaLink
 
 ---
 ## PhantasmaJS & PhantasmaLink
-The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use phantasmaJS to interact with the Phantasma blockchain directly. Use phantasmaLink to interact with phantasma based wallets.
+The Phantasma TypeScript SDK transpiles into phantasmaJS and phantasmaLink. Use phantasmaJS to interact with the Phantasma blockchain directly. Use phantasmaLink to interact with Phantasma based wallets.
 
 ### PhantasmaLink
-For more information on phantasmaLink, please check the main repo: [Link Here](https://github.com/phantasma-io/PhantasmaLink)
+Since phantasmaLink is a Class we are going to initiate a new phantasmaLink object.
+```javascript
+let dappID = "Dapp Name";   //This is just the name you want to give the connection
+let consoleLogging = true;  //This is if you want console logging for Debugging Purposes [Default is set to true]
 
+let link = new PhantasmaLink(dappID, consoleLogging); 
+```
+#### Vocab
+- ``` Callback - Function that gets called on after a success``` 
+- ``` onErrorCallback - Function that gets called on after a failure```
+- ``` Script - A set of instructions for that PhantasmaChain to decode that lies inside of a transaction object``` See [ScriptBuilder](###scriptbuilder)
+- ``` Nexus - The chain on Phantasma that is being used: Either 'mainnet' or 'testnet'```
+- ``` Payload - Extra data attached to a transaction object```
+- ``` ProviderHint - Tells PhantasmaLink which wallet you intend to connect with```
+
+#### Functions:
+```javascript
+link.login(onLoginCallback, onErrorCallback, providerHint);  //Provider Hint can be 'ecto' or 'poltergeist'
+```
+
+```javascript
+link.invokeScript(script, callback);  //Allows you to do a ReadOnly script operation on the Phantasma Blockchain (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.signTx(nexus, script, payload, callback, onErrorCallback);  //Signs a Transaction via Wallet (payload can be Null) (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.signData(data, callback, onErrorCallback);  //Allows you to sign some data via your Wallet (Sends results as an Argument to Callback Function)
+```
+
+```javascript
+link.toggleMessageLogging();  //Toggles Console Message Logging 
+```
+
+```javascript
+link.dappID();  //Returns DappID
+```
+
+```javascript
+link.sendLinkRequest(request, callback);  //Used internally and sends wallet instructions through socket, you probably won't use it unless you know what your doing
+```
+
+```javascript
+link.createSocket();  //Used internally to connect to wallet, you probably won't use it unless you know what your doing
+link.retry();         //Used internally to retry socket connection, you probably won't use it unless you know what your doing
+```
+
+```javascript
+link.disconnect(message); //Disconnects From Socket (You can add a reason with the Message Argument)
+```
+
+
+#### Exsample Code
 Here is some example code to initate a wallet connection.
 ```javascript
-let link = new phantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
+let link = new PhantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
 
 //Use this code snippet to connect to a phantasma wallet 
 link.login(function (success) {
@@ -50,7 +103,7 @@ link.login(function (success) {
 ```
 
 
-### Utility Functions
+### PhantasmaJS Utility Functions
 Just some standard useful functions that you probably will end up using at some point.
 ```javascript
 phantasmaJS.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>); //Turns a Byte Array into Serialized Hex
@@ -76,7 +129,7 @@ phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
 phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
 ```
 
-### Building a Script with Script Builder
+### <a name="scriptbuilder"></a> Building a Script with Script Builder
 
 Building a script is the most important part of interacting with the Phantasma blockchain. Without a propper script, the Phantasma blockchain will not know what you are trying to do. 
 
