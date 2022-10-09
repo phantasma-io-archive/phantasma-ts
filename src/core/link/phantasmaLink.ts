@@ -81,7 +81,7 @@ export class PhantasmaLink {
 
         //Check Payload
         if (payload == null) {
-            payload = '';
+            payload = '7068616e7461736d612d7473';    //Says 'Phantasma-ts' in hex
         } else if (typeof payload === 'string') {    //Turn String Payload -> Bytes -> Hex
             let sb = new ScriptBuilder();
             let bytes = sb.rawString(payload);

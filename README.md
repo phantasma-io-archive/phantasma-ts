@@ -31,20 +31,20 @@ phantasma.EasyConnect   // To use EasyConnect, an easy to use PhantasmaLink wrap
 ## Table Of Contents
 The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and EasyConnect.
 [PhantasmaJS](#phantasmajs)
-    - [Utility Functions](#PhantasmaJS-Utility-Functions)
-    - [Script Builder](#Building-a-Script-with-Script-Builder)
-        - [Interop Commands](#Interop-Functions:)
-        - [Building Transaction](#Building-a-Transaction)
-        - [Deploying Smart Contract](#Deploying-a-Contract)
-    - [RPC](#Using-RPC)
+    |[Utility Functions](#PhantasmaJS-Utility-Functions)|
+    |[Script Builder](#Building-a-Script-with-Script-Builder)|
+        |[Interop Commands](#Interop-Functions:)|
+        |[Building Transaction](#Building-a-Transaction)|
+        |[Deploying Smart Contract](#Deploying-a-Contract)|
+    [RPC](#Using-RPC)
 [PhantasmaLink](#phantasmalink)
-    - [Functions](#functions:)
-    - [Exsamples](#Exsample-Code)
+    [Functions](#functions:)
+    [Exsamples](#Exsample-Code)
 [EasyConnect](#easyconnect)
-    - []
-    - []
+    []
+    []
 [Misc]
-    - [Vocab](#Vocab)
+    [Vocab](#Vocab)
 
 ---
 ## PhantasmaJS
