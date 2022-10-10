@@ -6430,67 +6430,340 @@ __exportStar(require("./vm/index"), exports);
 __exportStar(require("./tx/index"), exports);
 __exportStar(require("./utils/index"), exports);
 
-},{"./rpc/phantasma":28,"./tx/index":30,"./utils/index":32,"./vm/index":37}],27:[function(require,module,exports){
+},{"./rpc/phantasma":30,"./tx/index":32,"./utils/index":34,"./vm/index":39}],27:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EasyConnect = void 0;
+var phantasmaLink_1 = require("./phantasmaLink");
+var easyScript_1 = require("./easyScript");
+var EasyConnect = /** @class */ (function () {
+    function EasyConnect(_options) {
+        if (_options === void 0) { _options = null; }
+        this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
+        this.connected = false;
+        if (_options == null) {
+            this.setConfig('auto');
+        }
+        else {
+            try {
+                this.requiredVersion = Number(_options[0]);
+                this.platform = _options[1];
+                this.providerHint = _options[2];
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+        this.scriptBuilder = new easyScript_1.EasyScript();
+    }
+    EasyConnect.prototype.setConfig = function (_provider) {
+        this.requiredVersion = 2;
+        this.platform = "phantasma";
+        switch (_provider) {
+            case 'auto':
+                if (!!window.PhantasmaLinkSocket == true) {
+                    this.setConfig('ecto');
+                }
+                else {
+                    this.providerHint = "";
+                }
+                break;
+            case 'ecto':
+                this.providerHint = "ecto";
+                break;
+            case 'poltergeist':
+                this.providerHint = "poltergeist";
+                break;
+        }
+    };
+    EasyConnect.prototype.connect = function (onSuccess, onFail) {
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        var that = this;
+        this.link.login(function (data) {
+            //Console Logging for Debugging Purposes
+            if (data) {
+                that.connected = true;
+                onSuccess(data);
+                console.log('%c[EasyConnect Connected]', 'color:green');
+                console.log('Wallet Address \'' + that.link.account.address + '\' connected via ' + that.link.wallet);
+            }
+            else {
+                onFail();
+                console.log('EasyConnect could not connect to wallet');
+            }
+            ;
+        }, onFail, this.providerHint);
+    };
+    EasyConnect.prototype.disconnect = function (_message) {
+        if (_message === void 0) { _message = 'Graceful Disconect'; }
+        this.link.disconnect(_message);
+        this.connected = false;
+    };
+    EasyConnect.prototype.query = function (_type, _arguments, _callback) {
+        if (_type === void 0) { _type = null; }
+        if (_arguments === void 0) { _arguments = null; }
+        if (_callback === void 0) { _callback = function (data) { console.log(data); }; }
+        return __awaiter(this, void 0, void 0, function () {
+            var account, name_1, balances, walletAddress, avatar;
+            return __generator(this, function (_a) {
+                if (this.connected == true) {
+                    switch (_type) {
+                        case 'account':
+                            account = this.link.account;
+                            _callback(account);
+                            return [2 /*return*/, account];
+                            break;
+                        case 'name':
+                            name_1 = this.link.account.name;
+                            _callback(name_1);
+                            return [2 /*return*/, name_1];
+                            break;
+                        case 'balances':
+                            balances = this.link.account.balances;
+                            _callback(balances);
+                            return [2 /*return*/, balances];
+                            break;
+                        case 'walletAddress':
+                            walletAddress = this.link.account.address;
+                            _callback(walletAddress);
+                            return [2 /*return*/, walletAddress];
+                            break;
+                        case 'avatar':
+                            avatar = this.link.account.avatar;
+                            _callback(avatar);
+                            return [2 /*return*/, avatar];
+                            break;
+                        case 'tokenBalance':
+                            //let token = _arguments[0];
+                            //return this.link.accounts[]
+                            break;
+                    }
+                }
+                else {
+                    console.log('%cWallet is not connected', 'color:red');
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    return EasyConnect;
+}());
+exports.EasyConnect = EasyConnect;
+
+},{"./easyScript":28,"./phantasmaLink":29}],28:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EasyScript = void 0;
+var vm_1 = require("../vm");
+var EasyScript = /** @class */ (function () {
+    function EasyScript(_minimumFee, _gasLimit) {
+        if (_minimumFee === void 0) { _minimumFee = '100000'; }
+        if (_gasLimit === void 0) { _gasLimit = '900'; }
+        //Default Gas Profile
+        this.minimumFee = _minimumFee;
+        this.gasLimit = _gasLimit;
+    }
+    EasyScript.prototype.createScript = function (_type, _options) {
+        if (_options === void 0) { _options = [null]; }
+        return __awaiter(this, void 0, void 0, function () {
+            var accountAddressInteract, contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, accountAddressInterop, interopNameInterop, inputArgumentsInterop;
+            return __generator(this, function (_a) {
+                this.sb = new vm_1.ScriptBuilder();
+                switch (_type) {
+                    case 'interact':
+                        accountAddressInteract = _options[0];
+                        contractNameInteract = _options[1];
+                        methodNameInteract = _options[2];
+                        inputArgumentsInteract = _options[3];
+                        return [2 /*return*/, (this.sb
+                                .callContract('gas', 'AllowGas', [accountAddressInteract, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
+                                .callContract('gas', 'SpendGas', [accountAddressInteract]) //Just for good measure (optional)
+                                .endScript())];
+                        break;
+                    case 'invoke':
+                        contractNameInvoke = _options[0];
+                        methodNameInvoke = _options[1];
+                        inputArgumentsInvoke = _options[2];
+                        return [2 /*return*/, (this.sb
+                                .callContract(contractNameInvoke, methodNameInvoke, inputArgumentsInvoke) //The Meat of the Script
+                                .endScript())];
+                        break;
+                    case 'interop':
+                        accountAddressInterop = _options[0];
+                        interopNameInterop = _options[1];
+                        inputArgumentsInterop = _options[2];
+                        return [2 /*return*/, (this.sb
+                                .callContract('gas', 'AllowGas', [accountAddressInterop, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callInterop(interopNameInterop, inputArgumentsInterop)
+                                .callContract('gas', 'SpendGas', [accountAddressInterop]) //Just for good measure (optional)
+                                .endScript())];
+                        break;
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    return EasyScript;
+}());
+exports.EasyScript = EasyScript;
+
+},{"../vm":39}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.phantasmaLink = void 0;
+exports.PhantasmaLink = void 0;
 var vm_1 = require("../vm");
-var phantasmaLink = /** @class */ (function () {
-    function phantasmaLink(dappID) {
+var PhantasmaLink = /** @class */ (function () {
+    //Construct The Link
+    function PhantasmaLink(dappID, logging) {
+        if (logging === void 0) { logging = true; }
+        var _this = this;
+        //Message Logging
         this.onMessage = function (msg) {
-            console.log(msg);
+            if (_this.messageLogging == true) {
+                console.log(msg);
+            }
         };
-        console.log('%cPhantasmaLink created', 'color:green');
+        //Turn On|Off Console Logging
+        if (logging == false) {
+            this.messageLogging = false;
+        }
+        else {
+            this.messageLogging = true;
+            console.log('%cPhantasmaLink created', 'color:green');
+        }
+        //Standard Sets
         this.host = 'localhost:7090';
         this.dapp = dappID;
-        this.onLogin = function (succ) {
-            // do nothing
-        };
+        this.onLogin = function (succ) { }; //Does Nothing for Now
     }
-    phantasmaLink.prototype.login = function (onLoginCallback, onErrorCallback, providerHint) {
+    //Connect To Wallet
+    PhantasmaLink.prototype.login = function (onLoginCallback, onErrorCallback, providerHint) {
         this.providerHint = providerHint;
         this.onLogin = onLoginCallback;
         this.onError = onErrorCallback;
         this.createSocket();
     };
-    phantasmaLink.prototype.invokeScript = function (script) {
-        // this.onMessage('Relaying transaction to wallet...')
+    //Script Invoking With Wallet Connection
+    PhantasmaLink.prototype.invokeScript = function (script, callback) {
+        this.onMessage('Relaying transaction to wallet...');
         var that = this;
         this.sendLinkRequest('invokeScript/' + script, function (result) {
             if (result.success) {
                 that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                if (callback) {
+                    callback(result);
+                }
             }
         });
     };
-    phantasmaLink.prototype.signTx = function (nexus, script, payload, callback, onErrorCallback) {
-        if (script.length >= 65536) {
-            this.onMessage('Error: script is too big!');
-            if (onErrorCallback)
-                onErrorCallback();
-            return;
-        }
-        if (payload == null) {
-            payload = '';
-        }
-        else if (typeof payload === 'string') {
-            // NOTE: here we convert a string into raw bytes
-            var sb = new vm_1.ScriptBuilder();
-            var bytes = sb.rawString(payload);
-            sb.appendBytes(bytes);
-            // then we convert the bytes into hex, because thats what PhantasmaLink protocol expects
-            payload = sb.endScript();
-        }
-        else {
-            this.onMessage('Error: invalid payload');
-            if (onErrorCallback)
-                onErrorCallback();
-            return;
-        }
-        this.onError = onErrorCallback;
-        var that = this;
+    //Wallet Transaction Signing + 
+    PhantasmaLink.prototype.signTx = function (nexus, script, payload, callback, onErrorCallback) {
+        //Checks If Needed Script Is In Object
         if (script.script) {
             script = script.script;
         }
+        //Overload Protection
+        if (script.length >= 65536) {
+            this.onMessage('Error: script is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        //Check Payload
+        if (payload == null) {
+            payload = '7068616e7461736d612d7473'; //Says 'Phantasma-ts' in hex
+        }
+        else if (typeof payload === 'string') { //Turn String Payload -> Bytes -> Hex
+            var sb = new vm_1.ScriptBuilder();
+            var bytes = sb.rawString(payload);
+            sb.appendBytes(bytes);
+            payload = sb.endScript();
+        }
+        else {
+            this.onMessage('Error: Invalid Payload');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
         this.sendLinkRequest('signTx/' + nexus + '/main/' + script + '/' + payload, function (result) {
             if (result.success) {
                 if (result.hash.error) {
@@ -6503,41 +6776,49 @@ var phantasmaLink = /** @class */ (function () {
                 }
             }
             else {
-                if (onErrorCallback)
+                if (onErrorCallback) {
                     onErrorCallback();
+                }
+                ;
             }
         });
     };
-    phantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
-        if (data.length >= 65536) {
-            this.onMessage('Error: data is too big!');
-            if (onErrorCallback)
-                onErrorCallback();
-            return;
-        }
-        var that = this;
+    //Uses Wallet To Sign Data With Signiture
+    PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
+        //Checks If Needed Data Is In Object
         if (data.data) {
             data = data.data;
         }
+        //Overload Protection
+        if (data.length >= 65536) {
+            this.onMessage('Error: data is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
         this.sendLinkRequest('signData/' + data + '/1', function (result) {
             if (result.success) {
-                //   alertbox.show('Data successfully signed')
                 that.onMessage('Data successfully signed');
                 if (callback) {
                     callback(result);
                 }
             }
             else {
-                if (onErrorCallback)
+                if (onErrorCallback) {
                     onErrorCallback();
+                }
             }
         });
     };
-    phantasmaLink.prototype.createSocket = function () {
+    //Wallet Socket Connection Creation
+    PhantasmaLink.prototype.createSocket = function () {
         var path = 'ws://' + this.host + '/phantasma';
         this.onMessage('Phantasma Link connecting...');
-        if (this.socket)
+        if (this.socket) {
             this.socket.close();
+        }
         this.socket = window.PhantasmaLinkSocket && this.providerHint !== 'poltergeist'
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
@@ -6546,30 +6827,22 @@ var phantasmaLink = /** @class */ (function () {
         this.account = null;
         this.requestID = 0;
         var that = this;
+        //Once Socket Opened
         this.socket.onopen = function (e) {
-            // that.onMessage('Connection established, authorizing dapp in wallet...')
+            that.onMessage('Connection established, authorizing dapp in wallet...');
             that.sendLinkRequest('authorize/' + that.dapp, function (result) {
+                //Set Global Variables With Successful Account Query
                 if (result.success) {
                     that.token = result.token;
                     that.wallet = result.wallet;
-                    // that.onMessage('Authorized, obtaining account info...')
+                    that.onMessage('Authorized, obtaining account info...');
                     that.sendLinkRequest('getAccount', function (result) {
                         if (result.success) {
                             that.account = result;
-                            // that.onMessage(
-                            //     'Ready, opening ' +
-                            //       that.dapp +
-                            //       ' dapp connected with ' +
-                            //       that.account.name +
-                            //       ' on ' +
-                            //       that.wallet +
-                            //       '...'
-                            //   )
                         }
                         else {
-                            that.onError('Error: could not obtain account info... Make sure you have an account currently open in ' +
-                                that.wallet +
-                                '...');
+                            that.onError('Could not obtain account info... Make sure you have an account currently open in ' +
+                                that.wallet + '...');
                             that.disconnect('Unable to optain Account Info');
                         }
                         that.onLogin(result.success);
@@ -6577,167 +6850,110 @@ var phantasmaLink = /** @class */ (function () {
                     });
                 }
                 else {
-                    that.onError('Error: authorization failed...');
+                    that.onError('Authorization failed...');
                     that.disconnect('Auth Failure');
                 }
             });
         };
+        //Retrieves Message From Socket and Processes It
         this.socket.onmessage = function (event) {
             var obj = JSON.parse(event.data);
-            console.log("%c" + event.data, 'color:blue');
-            if (obj.message == 'Wallet is Closed') {
-                that.onError('Error: could not obtain account info... Make sure you have an account currently open in ' + that.wallet);
-                that.disconnect(true);
+            if (that.messageLogging == true) {
+                console.log('%c' + event.data, 'color:blue');
             }
-            else if (obj.message == 'not logged in') {
-                that.onError('Error: could not obtain account info... Make sure you have an account currently open in in your wallet');
-                that.disconnect(true);
-            }
-            else if (obj.message == 'A previouus request is still pending' ||
-                obj.message == 'A previous request is still pending') {
-                that.onError('Error: you have a pending action in your wallet');
-            }
-            else if (obj.message == 'user rejected') {
-                that.onError('Error: transaction cancelled by user in ' + that.wallet);
-            }
-            else if (obj.message && (obj.message).startsWith('nexus mismatch')) {
-                that.onError('Error: ' + obj.message);
-            }
-            else {
-                if (obj.wallet) {
-                    // that.onMessage(
-                    //   obj.dapp +
-                    //     ' dapp is now connected with ' +
-                    //     obj.wallet +
-                    //     '...'
-                    // )
-                }
-                else if (obj.name) {
-                    // that.onMessage(
-                    //   'Account info obtained, connected with ' +
-                    //     obj.name +
-                    //     '...'
-                    // )
-                }
-                else if (obj.hash) {
-                    // that.onMessage('Transaction accepted on wallet...')
-                }
-                else {
-                    // that.onMessage(
-                    //   'Got Phantasma Link answer: ' + obj.message
-                    // )
-                }
-                var temp = that.requestCallback;
-                if (temp == null) {
-                    that.onError('Error: something bad happened');
-                    return;
-                }
-                that.requestCallback = null;
-                temp(obj);
+            //Checks What To Do Based On Message
+            switch (obj.message) {
+                case 'Wallet is Closed':
+                    that.onError('Could not obtain account info... Make sure you have an account currently open in ' + that.wallet);
+                    that.disconnect(true);
+                    break;
+                case 'not logged in':
+                    that.onError('Could not obtain account info... Make sure you have an account currently logged in');
+                    that.disconnect(true);
+                    break;
+                case 'A previouus request is still pending' || 'A previous request is still pending':
+                    that.onError('You have a pending action in your wallet');
+                    break;
+                case 'user rejected':
+                    that.onError('Transaction cancelled by user in ' + that.wallet);
+                    break;
+                case 'user rejected':
+                    that.onError('Transaction cancelled by user in ' + that.wallet);
+                    break;
+                default:
+                    if (obj.message && (obj.message).startsWith('nexus mismatch')) {
+                        that.onError(obj.message);
+                    }
+                    else {
+                        var temp = that.requestCallback;
+                        if (temp == null) {
+                            that.onError('Something bad happened');
+                            return;
+                        }
+                        that.requestCallback = null;
+                        temp(obj);
+                    }
+                    break;
             }
         };
+        //Cleanup After Socket Closes
         this.socket.onclose = function (event) {
             if (!event.wasClean) {
-                if (that.onLogin)
-                    that.onError('Error: connection terminated...');
+                if (that.onLogin) {
+                    that.onError('Connection terminated...');
+                }
                 that.onLogin = null;
             }
         };
+        //Error Callback When Socket Has Error
         this.socket.onerror = function (error) {
             if (error.message !== undefined) {
                 that.onMessage('Error: ' + error.message);
             }
         };
     };
-    phantasmaLink.prototype.retry = function () {
+    //Message Logging Util
+    PhantasmaLink.prototype.toggleMessageLogging = function () {
+        if (this.messageLogging == true) {
+            this.messageLogging = false;
+        }
+        else {
+            this.messageLogging = true;
+        }
+    };
+    //Retry Util
+    PhantasmaLink.prototype.retry = function () {
         this.createSocket();
     };
-    Object.defineProperty(phantasmaLink.prototype, "dappID", {
+    Object.defineProperty(PhantasmaLink.prototype, "dappID", {
+        //Get Dapp ID Name Util
         get: function () {
             return this.dapp;
         },
         enumerable: false,
         configurable: true
     });
-    phantasmaLink.prototype.sendLinkRequest = function (request, callback) {
+    //Build Request and Send To Wallet Via Socket
+    PhantasmaLink.prototype.sendLinkRequest = function (request, callback) {
         this.onMessage('Sending Phantasma Link request: ' + request);
         if (this.token != null) {
             request = request + '/' + this.dapp + '/' + this.token;
         }
-        this.requestID++;
+        this.requestID++; //Object Nonce Increase?
         request = this.requestID + ',' + request;
         this.requestCallback = callback;
         this.socket.send(request);
     };
-    phantasmaLink.prototype.disconnect = function (triggered) {
-        this.onMessage('Disconnecting Phantasma Link');
+    //Disconnect The Wallet Connection Socket
+    PhantasmaLink.prototype.disconnect = function (triggered) {
+        this.onMessage('Disconnecting Phantasma Link: ' + triggered);
         this.socket.close();
     };
-    return phantasmaLink;
+    return PhantasmaLink;
 }());
-exports.phantasmaLink = phantasmaLink;
-function PavillionLink() {
-    var _this = this;
-    this._onMessage = function (e) {
-        if (!e.data || !e.data.data) {
-            return;
-        }
-        // console.log(e)
-        if (e.data.type === 'pavillionLink/login') {
-            _this.address = e.data.data.address;
-            _this.balances = e.data.data.balances;
-            if (_this.onLogin) {
-                _this.onLogin(e.data.data);
-                _this.onLogin = null;
-            }
-        }
-        else if (e.data.type === 'pavillionLink/signAndSubmit') {
-            if (_this.onSignAndSubmit) {
-                _this.onSignAndSubmit(e.data.data);
-                _this.onSignAndSubmit = null;
-            }
-        }
-    };
-    window.addEventListener('message', this._onMessage, {});
-    this.login = function (callback) {
-        this.onLogin = callback;
-        window.parent.postMessage({ type: 'pavillionLink', data: { command: 'login' } }, '*');
-    };
-    this.sendTransaction = function (nexus, chain, script, payload, callback) {
-        if (script.length >= 8192) {
-            alert('script too big, sorry :(');
-            return; // TODO callback with error
-        }
-        if (payload == null) {
-            payload = '';
-        }
-        else if (typeof payload === 'string') {
-            // NOTE: here we convert a string into raw bytes
-            var sb = new vm_1.ScriptBuilder();
-            var bytes = sb.rawString(payload);
-            sb.appendBytes(bytes);
-            // then we convert the bytes into hex, because thats what PhantasmaLink protocol expects
-            payload = sb.str;
-        }
-        else {
-            alert('invalid payload, sorry :(');
-            return; // TODO callback with error
-        }
-        _this.onSignAndSubmit = callback;
-        window.parent.postMessage({
-            type: 'pavillionLink',
-            data: {
-                command: 'signAndSubmit',
-                nexus: nexus,
-                chain: chain,
-                script: script,
-                payload: payload
-            }
-        }, '*');
-    };
-}
+exports.PhantasmaLink = PhantasmaLink;
 
-},{"../vm":37}],28:[function(require,module,exports){
+},{"../vm":39}],30:[function(require,module,exports){
 "use strict";
 /* eslint-disable */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -7468,7 +7684,7 @@ var PhantasmaAPI = /** @class */ (function () {
 }());
 exports.PhantasmaAPI = PhantasmaAPI;
 
-},{"cross-fetch":48}],29:[function(require,module,exports){
+},{"cross-fetch":50}],31:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -7567,7 +7783,7 @@ var Transaction = /** @class */ (function () {
 exports.Transaction = Transaction;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../utils":32,"../vm":37,"buffer":3,"crypto-js/enc-hex":50,"crypto-js/sha256":51,"elliptic":52}],30:[function(require,module,exports){
+},{"../utils":34,"../vm":39,"buffer":3,"crypto-js/enc-hex":52,"crypto-js/sha256":53,"elliptic":54}],32:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7587,7 +7803,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Transaction"), exports);
 __exportStar(require("./utils"), exports);
 
-},{"./Transaction":29,"./utils":31}],31:[function(require,module,exports){
+},{"./Transaction":31,"./utils":33}],33:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 var __values = (this && this.__values) || function(o) {
@@ -7664,7 +7880,7 @@ function verifyData(msgHex, phaSig, address) {
 exports.verifyData = verifyData;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bs58":43,"buffer":3,"elliptic":52,"wif":113}],32:[function(require,module,exports){
+},{"bs58":45,"buffer":3,"elliptic":54,"wif":115}],34:[function(require,module,exports){
 "use strict";
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -7746,7 +7962,7 @@ function getDifficulty(transactionHash) {
 }
 exports.getDifficulty = getDifficulty;
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
@@ -8012,7 +8228,7 @@ function getString(str) {
 }
 exports.getString = getString;
 
-},{"./VMType":36,"big-integer":40}],34:[function(require,module,exports){
+},{"./VMType":38,"big-integer":42}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Opcode = void 0;
@@ -8076,7 +8292,7 @@ var Opcode;
     Opcode[Opcode["GET"] = 48] = "GET";
 })(Opcode = exports.Opcode || (exports.Opcode = {}));
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -8446,7 +8662,7 @@ var ScriptBuilder = /** @class */ (function () {
 }());
 exports.ScriptBuilder = ScriptBuilder;
 
-},{"./Opcode":34,"./VMType":36}],36:[function(require,module,exports){
+},{"./Opcode":36,"./VMType":38}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VMType = void 0;
@@ -8463,7 +8679,7 @@ var VMType;
     VMType[VMType["Object"] = 8] = "Object";
 })(VMType = exports.VMType || (exports.VMType = {}));
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8485,7 +8701,7 @@ __exportStar(require("./Opcode"), exports);
 __exportStar(require("./VMType"), exports);
 __exportStar(require("./EventData"), exports);
 
-},{"./EventData":33,"./Opcode":34,"./ScriptBuilder":35,"./VMType":36}],38:[function(require,module,exports){
+},{"./EventData":35,"./Opcode":36,"./ScriptBuilder":37,"./VMType":38}],40:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8511,12 +8727,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.phantasmaLink = exports.phantasmaJS = void 0;
+exports.EasyConnect = exports.PhantasmaLink = exports.phantasmaJS = void 0;
 exports.phantasmaJS = __importStar(require("./core/index"));
 var phantasmaLink_1 = require("./core/link/phantasmaLink");
-Object.defineProperty(exports, "phantasmaLink", { enumerable: true, get: function () { return phantasmaLink_1.phantasmaLink; } });
+Object.defineProperty(exports, "PhantasmaLink", { enumerable: true, get: function () { return phantasmaLink_1.PhantasmaLink; } });
+var easyConnect_1 = require("./core/link/easyConnect");
+Object.defineProperty(exports, "EasyConnect", { enumerable: true, get: function () { return easyConnect_1.EasyConnect; } });
 
-},{"./core/index":26,"./core/link/phantasmaLink":27}],39:[function(require,module,exports){
+},{"./core/index":26,"./core/link/easyConnect":27,"./core/link/phantasmaLink":29}],41:[function(require,module,exports){
 'use strict'
 // base-x encoding / decoding
 // Copyright (c) 2018 base-x contributors
@@ -8637,7 +8855,7 @@ function base (ALPHABET) {
 }
 module.exports = base
 
-},{"safe-buffer":102}],40:[function(require,module,exports){
+},{"safe-buffer":104}],42:[function(require,module,exports){
 var bigInt = (function (undefined) {
     "use strict";
 
@@ -10092,7 +10310,7 @@ if (typeof define === "function" && define.amd) {
     });
 }
 
-},{}],41:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -13540,7 +13758,7 @@ if (typeof define === "function" && define.amd) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":2}],42:[function(require,module,exports){
+},{"buffer":2}],44:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -13607,13 +13825,13 @@ if (typeof self === 'object') {
   }
 }
 
-},{"crypto":2}],43:[function(require,module,exports){
+},{"crypto":2}],45:[function(require,module,exports){
 var basex = require('base-x')
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
 module.exports = basex(ALPHABET)
 
-},{"base-x":39}],44:[function(require,module,exports){
+},{"base-x":41}],46:[function(require,module,exports){
 'use strict'
 
 var base58 = require('bs58')
@@ -13665,7 +13883,7 @@ module.exports = function (checksumFn) {
   }
 }
 
-},{"bs58":43,"safe-buffer":102}],45:[function(require,module,exports){
+},{"bs58":45,"safe-buffer":104}],47:[function(require,module,exports){
 'use strict'
 
 var createHash = require('create-hash')
@@ -13679,7 +13897,7 @@ function sha256x2 (buffer) {
 
 module.exports = bs58checkBase(sha256x2)
 
-},{"./base":44,"create-hash":47}],46:[function(require,module,exports){
+},{"./base":46,"create-hash":49}],48:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
 var StringDecoder = require('string_decoder').StringDecoder
@@ -13780,7 +13998,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase
 
-},{"inherits":82,"safe-buffer":102,"stream":9,"string_decoder":24}],47:[function(require,module,exports){
+},{"inherits":84,"safe-buffer":104,"stream":9,"string_decoder":24}],49:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var MD5 = require('md5.js')
@@ -13812,7 +14030,7 @@ module.exports = function createHash (alg) {
   return new Hash(sha(alg))
 }
 
-},{"cipher-base":46,"inherits":82,"md5.js":83,"ripemd160":101,"sha.js":104}],48:[function(require,module,exports){
+},{"cipher-base":48,"inherits":84,"md5.js":85,"ripemd160":103,"sha.js":106}],50:[function(require,module,exports){
 var global = typeof self !== 'undefined' ? self : this;
 var __self__ = (function () {
 function F() {
@@ -14368,7 +14586,7 @@ exports.Request = ctx.Request
 exports.Response = ctx.Response
 module.exports = exports
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (global){(function (){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
@@ -15178,7 +15396,7 @@ module.exports = exports
 
 }));
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"crypto":2}],50:[function(require,module,exports){
+},{"crypto":2}],52:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -15197,7 +15415,7 @@ module.exports = exports
 	return CryptoJS.enc.Hex;
 
 }));
-},{"./core":49}],51:[function(require,module,exports){
+},{"./core":51}],53:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -15397,7 +15615,7 @@ module.exports = exports
 	return CryptoJS.SHA256;
 
 }));
-},{"./core":49}],52:[function(require,module,exports){
+},{"./core":51}],54:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -15412,7 +15630,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":67,"./elliptic/curve":55,"./elliptic/curves":58,"./elliptic/ec":59,"./elliptic/eddsa":62,"./elliptic/utils":66,"brorand":42}],53:[function(require,module,exports){
+},{"../package.json":69,"./elliptic/curve":57,"./elliptic/curves":60,"./elliptic/ec":61,"./elliptic/eddsa":64,"./elliptic/utils":68,"brorand":44}],55:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -15795,7 +16013,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../utils":66,"bn.js":41}],54:[function(require,module,exports){
+},{"../utils":68,"bn.js":43}],56:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -16232,7 +16450,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../utils":66,"./base":53,"bn.js":41,"inherits":82}],55:[function(require,module,exports){
+},{"../utils":68,"./base":55,"bn.js":43,"inherits":84}],57:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -16242,7 +16460,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":53,"./edwards":54,"./mont":56,"./short":57}],56:[function(require,module,exports){
+},{"./base":55,"./edwards":56,"./mont":58,"./short":59}],58:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -16422,7 +16640,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../utils":66,"./base":53,"bn.js":41,"inherits":82}],57:[function(require,module,exports){
+},{"../utils":68,"./base":55,"bn.js":43,"inherits":84}],59:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -17362,7 +17580,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../utils":66,"./base":53,"bn.js":41,"inherits":82}],58:[function(require,module,exports){
+},{"../utils":68,"./base":55,"bn.js":43,"inherits":84}],60:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -17570,7 +17788,7 @@ defineCurve('secp256k1', {
   ],
 });
 
-},{"./curve":55,"./precomputed/secp256k1":65,"./utils":66,"hash.js":69}],59:[function(require,module,exports){
+},{"./curve":57,"./precomputed/secp256k1":67,"./utils":68,"hash.js":71}],61:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -17815,7 +18033,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../curves":58,"../utils":66,"./key":60,"./signature":61,"bn.js":41,"brorand":42,"hmac-drbg":81}],60:[function(require,module,exports){
+},{"../curves":60,"../utils":68,"./key":62,"./signature":63,"bn.js":43,"brorand":44,"hmac-drbg":83}],62:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -17938,7 +18156,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../utils":66,"bn.js":41}],61:[function(require,module,exports){
+},{"../utils":68,"bn.js":43}],63:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -18106,7 +18324,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../utils":66,"bn.js":41}],62:[function(require,module,exports){
+},{"../utils":68,"bn.js":43}],64:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -18226,7 +18444,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../curves":58,"../utils":66,"./key":63,"./signature":64,"hash.js":69}],63:[function(require,module,exports){
+},{"../curves":60,"../utils":68,"./key":65,"./signature":66,"hash.js":71}],65:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -18323,7 +18541,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../utils":66}],64:[function(require,module,exports){
+},{"../utils":68}],66:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -18390,7 +18608,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../utils":66,"bn.js":41}],65:[function(require,module,exports){
+},{"../utils":68,"bn.js":43}],67:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -19172,7 +19390,7 @@ module.exports = {
   },
 };
 
-},{}],66:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -19293,7 +19511,7 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":41,"minimalistic-assert":84,"minimalistic-crypto-utils":85}],67:[function(require,module,exports){
+},{"bn.js":43,"minimalistic-assert":86,"minimalistic-crypto-utils":87}],69:[function(require,module,exports){
 module.exports={
   "name": "elliptic",
   "version": "6.5.4",
@@ -19351,7 +19569,7 @@ module.exports={
   }
 }
 
-},{}],68:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('readable-stream').Transform
@@ -19448,7 +19666,7 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase
 
-},{"inherits":82,"readable-stream":100,"safe-buffer":102}],69:[function(require,module,exports){
+},{"inherits":84,"readable-stream":102,"safe-buffer":104}],71:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -19465,7 +19683,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":70,"./hash/hmac":71,"./hash/ripemd":72,"./hash/sha":73,"./hash/utils":80}],70:[function(require,module,exports){
+},{"./hash/common":72,"./hash/hmac":73,"./hash/ripemd":74,"./hash/sha":75,"./hash/utils":82}],72:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -19559,7 +19777,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":80,"minimalistic-assert":84}],71:[function(require,module,exports){
+},{"./utils":82,"minimalistic-assert":86}],73:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -19608,7 +19826,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":80,"minimalistic-assert":84}],72:[function(require,module,exports){
+},{"./utils":82,"minimalistic-assert":86}],74:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -19756,7 +19974,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":70,"./utils":80}],73:[function(require,module,exports){
+},{"./common":72,"./utils":82}],75:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -19765,7 +19983,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":74,"./sha/224":75,"./sha/256":76,"./sha/384":77,"./sha/512":78}],74:[function(require,module,exports){
+},{"./sha/1":76,"./sha/224":77,"./sha/256":78,"./sha/384":79,"./sha/512":80}],76:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19841,7 +20059,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":70,"../utils":80,"./common":79}],75:[function(require,module,exports){
+},{"../common":72,"../utils":82,"./common":81}],77:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19873,7 +20091,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":80,"./256":76}],76:[function(require,module,exports){
+},{"../utils":82,"./256":78}],78:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19980,7 +20198,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":70,"../utils":80,"./common":79,"minimalistic-assert":84}],77:[function(require,module,exports){
+},{"../common":72,"../utils":82,"./common":81,"minimalistic-assert":86}],79:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -20017,7 +20235,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":80,"./512":78}],78:[function(require,module,exports){
+},{"../utils":82,"./512":80}],80:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -20349,7 +20567,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":70,"../utils":80,"minimalistic-assert":84}],79:[function(require,module,exports){
+},{"../common":72,"../utils":82,"minimalistic-assert":86}],81:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -20400,7 +20618,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":80}],80:[function(require,module,exports){
+},{"../utils":82}],82:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -20680,7 +20898,7 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":82,"minimalistic-assert":84}],81:[function(require,module,exports){
+},{"inherits":84,"minimalistic-assert":86}],83:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -20795,9 +21013,9 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":69,"minimalistic-assert":84,"minimalistic-crypto-utils":85}],82:[function(require,module,exports){
+},{"hash.js":71,"minimalistic-assert":86,"minimalistic-crypto-utils":87}],84:[function(require,module,exports){
 arguments[4][6][0].apply(exports,arguments)
-},{"dup":6}],83:[function(require,module,exports){
+},{"dup":6}],85:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var HashBase = require('hash-base')
@@ -20945,7 +21163,7 @@ function fnI (a, b, c, d, m, k, s) {
 
 module.exports = MD5
 
-},{"hash-base":68,"inherits":82,"safe-buffer":102}],84:[function(require,module,exports){
+},{"hash-base":70,"inherits":84,"safe-buffer":104}],86:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -20958,7 +21176,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],85:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -21018,35 +21236,35 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],86:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 arguments[4][10][0].apply(exports,arguments)
-},{"dup":10}],87:[function(require,module,exports){
+},{"dup":10}],89:[function(require,module,exports){
 arguments[4][11][0].apply(exports,arguments)
-},{"./_stream_readable":89,"./_stream_writable":91,"_process":7,"dup":11,"inherits":82}],88:[function(require,module,exports){
+},{"./_stream_readable":91,"./_stream_writable":93,"_process":7,"dup":11,"inherits":84}],90:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"./_stream_transform":90,"dup":12,"inherits":82}],89:[function(require,module,exports){
+},{"./_stream_transform":92,"dup":12,"inherits":84}],91:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"../errors":86,"./_stream_duplex":87,"./internal/streams/async_iterator":92,"./internal/streams/buffer_list":93,"./internal/streams/destroy":94,"./internal/streams/from":96,"./internal/streams/state":98,"./internal/streams/stream":99,"_process":7,"buffer":3,"dup":13,"events":4,"inherits":82,"string_decoder/":111,"util":2}],90:[function(require,module,exports){
+},{"../errors":88,"./_stream_duplex":89,"./internal/streams/async_iterator":94,"./internal/streams/buffer_list":95,"./internal/streams/destroy":96,"./internal/streams/from":98,"./internal/streams/state":100,"./internal/streams/stream":101,"_process":7,"buffer":3,"dup":13,"events":4,"inherits":84,"string_decoder/":113,"util":2}],92:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"../errors":86,"./_stream_duplex":87,"dup":14,"inherits":82}],91:[function(require,module,exports){
+},{"../errors":88,"./_stream_duplex":89,"dup":14,"inherits":84}],93:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"../errors":86,"./_stream_duplex":87,"./internal/streams/destroy":94,"./internal/streams/state":98,"./internal/streams/stream":99,"_process":7,"buffer":3,"dup":15,"inherits":82,"util-deprecate":112}],92:[function(require,module,exports){
+},{"../errors":88,"./_stream_duplex":89,"./internal/streams/destroy":96,"./internal/streams/state":100,"./internal/streams/stream":101,"_process":7,"buffer":3,"dup":15,"inherits":84,"util-deprecate":114}],94:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"./end-of-stream":95,"_process":7,"dup":16}],93:[function(require,module,exports){
+},{"./end-of-stream":97,"_process":7,"dup":16}],95:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"buffer":3,"dup":17,"util":2}],94:[function(require,module,exports){
+},{"buffer":3,"dup":17,"util":2}],96:[function(require,module,exports){
 arguments[4][18][0].apply(exports,arguments)
-},{"_process":7,"dup":18}],95:[function(require,module,exports){
+},{"_process":7,"dup":18}],97:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"../../../errors":86,"dup":19}],96:[function(require,module,exports){
+},{"../../../errors":88,"dup":19}],98:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"dup":20}],97:[function(require,module,exports){
+},{"dup":20}],99:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"../../../errors":86,"./end-of-stream":95,"dup":21}],98:[function(require,module,exports){
+},{"../../../errors":88,"./end-of-stream":97,"dup":21}],100:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"../../../errors":86,"dup":22}],99:[function(require,module,exports){
+},{"../../../errors":88,"dup":22}],101:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"dup":23,"events":4}],100:[function(require,module,exports){
+},{"dup":23,"events":4}],102:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -21057,7 +21275,7 @@ exports.PassThrough = require('./lib/_stream_passthrough.js');
 exports.finished = require('./lib/internal/streams/end-of-stream.js');
 exports.pipeline = require('./lib/internal/streams/pipeline.js');
 
-},{"./lib/_stream_duplex.js":87,"./lib/_stream_passthrough.js":88,"./lib/_stream_readable.js":89,"./lib/_stream_transform.js":90,"./lib/_stream_writable.js":91,"./lib/internal/streams/end-of-stream.js":95,"./lib/internal/streams/pipeline.js":97}],101:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":89,"./lib/_stream_passthrough.js":90,"./lib/_stream_readable.js":91,"./lib/_stream_transform.js":92,"./lib/_stream_writable.js":93,"./lib/internal/streams/end-of-stream.js":97,"./lib/internal/streams/pipeline.js":99}],103:[function(require,module,exports){
 'use strict'
 var Buffer = require('buffer').Buffer
 var inherits = require('inherits')
@@ -21222,9 +21440,9 @@ function fn5 (a, b, c, d, e, m, k, s) {
 
 module.exports = RIPEMD160
 
-},{"buffer":3,"hash-base":68,"inherits":82}],102:[function(require,module,exports){
+},{"buffer":3,"hash-base":70,"inherits":84}],104:[function(require,module,exports){
 arguments[4][8][0].apply(exports,arguments)
-},{"buffer":3,"dup":8}],103:[function(require,module,exports){
+},{"buffer":3,"dup":8}],105:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 // prototype class for hash functions
@@ -21307,7 +21525,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash
 
-},{"safe-buffer":102}],104:[function(require,module,exports){
+},{"safe-buffer":104}],106:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -21324,7 +21542,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":105,"./sha1":106,"./sha224":107,"./sha256":108,"./sha384":109,"./sha512":110}],105:[function(require,module,exports){
+},{"./sha":107,"./sha1":108,"./sha224":109,"./sha256":110,"./sha384":111,"./sha512":112}],107:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
  * in FIPS PUB 180-1
@@ -21420,7 +21638,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha
 
-},{"./hash":103,"inherits":82,"safe-buffer":102}],106:[function(require,module,exports){
+},{"./hash":105,"inherits":84,"safe-buffer":104}],108:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -21521,7 +21739,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1
 
-},{"./hash":103,"inherits":82,"safe-buffer":102}],107:[function(require,module,exports){
+},{"./hash":105,"inherits":84,"safe-buffer":104}],109:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -21576,7 +21794,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224
 
-},{"./hash":103,"./sha256":108,"inherits":82,"safe-buffer":102}],108:[function(require,module,exports){
+},{"./hash":105,"./sha256":110,"inherits":84,"safe-buffer":104}],110:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -21713,7 +21931,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256
 
-},{"./hash":103,"inherits":82,"safe-buffer":102}],109:[function(require,module,exports){
+},{"./hash":105,"inherits":84,"safe-buffer":104}],111:[function(require,module,exports){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
 var Hash = require('./hash')
@@ -21772,7 +21990,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384
 
-},{"./hash":103,"./sha512":110,"inherits":82,"safe-buffer":102}],110:[function(require,module,exports){
+},{"./hash":105,"./sha512":112,"inherits":84,"safe-buffer":104}],112:[function(require,module,exports){
 var inherits = require('inherits')
 var Hash = require('./hash')
 var Buffer = require('safe-buffer').Buffer
@@ -22034,11 +22252,11 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512
 
-},{"./hash":103,"inherits":82,"safe-buffer":102}],111:[function(require,module,exports){
+},{"./hash":105,"inherits":84,"safe-buffer":104}],113:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"dup":24,"safe-buffer":102}],112:[function(require,module,exports){
+},{"dup":24,"safe-buffer":104}],114:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"dup":25}],113:[function(require,module,exports){
+},{"dup":25}],115:[function(require,module,exports){
 (function (Buffer){(function (){
 var bs58check = require('bs58check')
 
@@ -22105,5 +22323,5 @@ module.exports = {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bs58check":45,"buffer":3}]},{},[38])(38)
+},{"bs58check":47,"buffer":3}]},{},[40])(40)
 });

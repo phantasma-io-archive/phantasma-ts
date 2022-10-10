@@ -2,7 +2,7 @@ import { ScriptBuilder } from "../vm";
 
 export class EasyScript {
 
-    script: ScriptBuilder;
+    sb: ScriptBuilder;
     minimumFee: string; 
     gasLimit: string; 
 
@@ -15,64 +15,52 @@ export class EasyScript {
 
     async createScript(_type: string, _options: Array<any> = [null]){
 
-        this.script = new ScriptBuilder();
+        this.sb = new ScriptBuilder();
 
         switch(_type){
             case 'interact':
 
-                try {
-                    let accountAddress: string =  _options[0];
-                    let contractName: string = _options[1];
-                    let methodName: string = _options[2];
-                    let inputArguments: Array<string> = _options[3]
-                } catch (error) {
-                    console.log('%cYour contract interaction script arguments are not correct!', 'color:red');
-                    return error;
-                }
 
-                return 
-                this.script
-                .callContract('gas', 'AllowGas', [accountAddress, this.script.nullAddress(), this.minimumFee, this.gasLimit]) //Just for good measure
-                .callContract(contractName, methodName, inputArguments) //The Meat of the Script
-                .callContract('gas', 'SpendGas', [accountAddress]) //Just for good measure (optional)
-                .endScript();
+                let accountAddressInteract: string =  _options[0];
+                let contractNameInteract: string = _options[1];
+                let methodNameInteract: string = _options[2];
+                let inputArgumentsInteract: Array<string> = _options[3]
+
+
+                return (
+                this.sb
+                .callContract('gas', 'AllowGas', [accountAddressInteract, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
+                .callContract('gas', 'SpendGas', [accountAddressInteract]) //Just for good measure (optional)
+                .endScript());
                 
             break;
 
             case 'invoke':
 
-                try {
-                    let contractName: string = _options[0];
-                    let methodName: string = _options[1];
-                    let inputArguments: Array<string> = _options[2]
-                } catch (error) {
-                    console.log('%cYour invoke script arguments are not correct!', 'color:red');
-                    return error;
-                }
+                let contractNameInvoke: string = _options[0];
+                let methodNameInvoke: string = _options[1];
+                let inputArgumentsInvoke: Array<string> = _options[2]
 
-                return 
-                this.script
-                .callContract(contractName, methodName, inputArguments) //The Meat of the Script
-                .endScript();
+                return (
+                this.sb
+                .callContract(contractNameInvoke, methodNameInvoke, inputArgumentsInvoke) //The Meat of the Script
+                .endScript());
 
             break;
 
             case 'interop':
                 
-                try {
-                    let interopName: string = _options[0];
-                    let inputArguments: Array<any> = _options[1]
-                } catch (error) {
-                    console.log('%cYour interop script arguments are not correct!', 'color:red');
-                    return error;
-                }
+                let accountAddressInterop: string =  _options[0];
+                let interopNameInterop: string = _options[1];
+                let inputArgumentsInterop: Array<any> = _options[2];
 
-                return 
-                this.script
-                .callContract('gas', 'AllowGas', [accountAddress, this.script.nullAddress(), this.minimumFee, this.gasLimit]) //Just for good measure
-                .callInterop(interopName, inputArguments)
-                .callContract('gas', 'SpendGas', [accountAddress]) //Just for good measure (optional)
-                .endScript();
+                return (
+                this.sb
+                .callContract('gas', 'AllowGas', [accountAddressInterop, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                .callInterop(interopNameInterop, inputArgumentsInterop)
+                .callContract('gas', 'SpendGas', [accountAddressInterop]) //Just for good measure (optional)
+                .endScript());
 
             break;
 

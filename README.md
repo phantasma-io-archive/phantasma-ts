@@ -32,7 +32,7 @@ phantasma.EasyConnect   // To use EasyConnect, an easy to use PhantasmaLink wrap
 The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and EasyConnect.
 
 
-1. [PhantasmaJS](#phantasmajs) - Allows You To Interact With PhantasmaChain
+1. [PhantasmaJS](#phantasmajs) - Allows you to interact with the Phantasma Blockchain
     - [Utility Functions](#PhantasmaJS-Utility-Functions)
     - [Script Builder](#Building-a-Script-with-Script-Builder)
         - [Interop Commands](#Interop-Functions)  
@@ -40,13 +40,14 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and Easy
         - [Deploying Smart Contract](#Deploying-a-Contract)
         - [RPC](#Using-RPC)
 
-2. [PhantasmaLink](#phantasmalink)
+2. [PhantasmaLink](#phantasmalink) - Allows you to interact with Phantasma based wallets
     - [Functions](#functions)
     - [Exsamples](#Exsample-Code)
 
-3. [EasyConnect](#easyconnect)
-    - []
-    - []
+3. [EasyConnect](#easyconnect) - Easy plug and play solution for creating DApps
+    - [Core Functions](#Core-Functions)
+    - [Query Function](#Query-Function)
+    - [Easy Script](#Easy-Script-Create)
 
 4. [Misc]
     - [Vocab](#Vocab)
@@ -504,10 +505,73 @@ link.login(function (success) {
             } else {
                 console.log('Connection Failed');
             };
-        }, 2, 'phantasma', 'ecto'); //Swap out ecto for 'poltergeist' if wanting to connect to Poltergeist Wallet
+        }, (data) => {console.log(data)}, 'ecto'); //Swap out ecto for 'poltergeist' if wanting to connect to Poltergeist Wallet
 ```
 
 
-
-
 ## EasyConnect
+EasyConnect is a plug and play wrapper for PhantasmaLink that makes creating a DApp simple and easy.
+
+Since EasyConnect is a Class we are going to initiate a new EasyConnect object.
+```javascript
+let link = new EasyConnect(); //Has Optional Arguments
+```
+
+### Core Functions
+
+```javascript
+link.connect(onSuccess, onFail); //Has two optional callback functions, one for Success and one for Failure
+```
+
+```javascript
+link.disconnect(_message: string); //Allows you to disconnect from the wallet with a desired message
+```
+
+```javascript
+link.signTransaction(); //*
+```
+
+```javascript
+link.createTransaction(); //*
+```
+
+```javascript
+link.setConfig(_provider: string); //Allows you to set wallet provider, 'auto', 'ecto', 'poltergeist' (Default is already set to 'auto')
+```
+
+```javascript
+link.query(_type: string, _arguments: Array<string>, _callback; //Allows you to query connected wallet/account information (arguments and callback are optional)
+```
+
+```javascript
+link.createScript(_type: string, _arguments: Array<string>, _callback); //Allows you to quickly create a script with only arguments
+```
+
+```javascript
+link.invokeScript(); //*
+```
+
+### Query Function
+The Query function is an async function that also allows you to use callbacks. You can use it is a promise, or in a chain!
+
+```javascript
+await link.query('account'); //Retrieves all connected wallet account information
+```
+
+```javascript
+await link.query('name'); //Retrieves registered name associated with connect wallet
+```
+
+```javascript
+await link.query('balances'); //Shows complete token balance accociated with connected wallet
+```
+
+```javascript
+await link.query('walletAddress'); //Shows connected wallet address
+```
+
+```javascript
+await link.query('avatar'); //Shows connected wallet avatar
+```
+
+### Easy Script Create

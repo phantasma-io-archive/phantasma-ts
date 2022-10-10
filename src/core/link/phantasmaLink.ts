@@ -193,7 +193,7 @@ export class PhantasmaLink {
                             that.account = result;
                         } else {
                             that.onError(
-                                'Error: could not obtain account info... Make sure you have an account currently open in ' +
+                                'Could not obtain account info... Make sure you have an account currently open in ' +
                                 that.wallet + '...'
                             );
                             that.disconnect('Unable to optain Account Info');
@@ -203,7 +203,7 @@ export class PhantasmaLink {
                         that.onLogin = null;
                     });
                 } else {
-                    that.onError('Error: authorization failed...');
+                    that.onError('Authorization failed...');
                     that.disconnect('Auth Failure');
                 }
             });
@@ -220,34 +220,34 @@ export class PhantasmaLink {
             //Checks What To Do Based On Message
             switch(obj.message){
                 case 'Wallet is Closed':
-                    that.onError('Error: could not obtain account info... Make sure you have an account currently open in ' + that.wallet);
+                    that.onError('Could not obtain account info... Make sure you have an account currently open in ' + that.wallet);
                     that.disconnect(true);
                 break;
 
                 case 'not logged in':
-                    that.onError('Error: could not obtain account info... Make sure you have an account currently logged in');
+                    that.onError('Could not obtain account info... Make sure you have an account currently logged in');
                     that.disconnect(true);
                 break;
 
                 case 'A previouus request is still pending' || 'A previous request is still pending':
-                    that.onError('Error: you have a pending action in your wallet');
+                    that.onError('You have a pending action in your wallet');
                 break;
 
                 case 'user rejected':
-                    that.onError('Error: transaction cancelled by user in ' + that.wallet);
+                    that.onError('Transaction cancelled by user in ' + that.wallet);
                 break;
 
                 case 'user rejected':
-                    that.onError('Error: transaction cancelled by user in ' + that.wallet);
+                    that.onError('Transaction cancelled by user in ' + that.wallet);
                 break;
 
                 default:
                     if (obj.message && (obj.message).startsWith('nexus mismatch')) {
-                        that.onError('Error: ' + obj.message);
+                        that.onError(obj.message);
                     } else {
                         let temp = that.requestCallback;
                         if (temp == null) {
-                            that.onError('Error: something bad happened');
+                            that.onError('Something bad happened');
                             return;
                         }
                         that.requestCallback = null;
@@ -261,7 +261,7 @@ export class PhantasmaLink {
         this.socket.onclose = function(event) {
             if (!event.wasClean) {
                 if (that.onLogin){
-                    that.onError('Error: connection terminated...');
+                    that.onError('Connection terminated...');
                 }
                 that.onLogin = null;
             }
@@ -278,9 +278,9 @@ export class PhantasmaLink {
     //Message Logging Util
     toggleMessageLogging(){
         if(this.messageLogging == true){
-            this.messageLogging == false;
+            this.messageLogging = false;
         }else{
-            this.messageLogging == true;
+            this.messageLogging = true;
         }
     }
 
@@ -296,7 +296,7 @@ export class PhantasmaLink {
 
     //Build Request and Send To Wallet Via Socket
     sendLinkRequest(request, callback) {
-        this.onMessage('Sending Phantasma Link request: ' + request;)
+        this.onMessage('Sending Phantasma Link request: ' + request);
 
         if (this.token != null) {
             request = request + '/' + this.dapp + '/' + this.token;

@@ -23,7 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.phantasmaLink = exports.phantasmaJS = void 0;
+exports.EasyConnect = exports.PhantasmaLink = exports.phantasmaJS = void 0;
 exports.phantasmaJS = __importStar(require("./core/index"));
 var phantasmaLink_1 = require("./core/link/phantasmaLink");
-Object.defineProperty(exports, "phantasmaLink", { enumerable: true, get: function () { return phantasmaLink_1.phantasmaLink; } });
+Object.defineProperty(exports, "PhantasmaLink", { enumerable: true, get: function () { return phantasmaLink_1.PhantasmaLink; } });
+var easyConnect_1 = require("./core/link/easyConnect");
+Object.defineProperty(exports, "EasyConnect", { enumerable: true, get: function () { return easyConnect_1.EasyConnect; } });
