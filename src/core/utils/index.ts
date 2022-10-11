@@ -11,7 +11,7 @@ export function hexToByteArray(hexBytes: string) {
 
 export function hexStringToBytes(hexString: string) {
   for (var bytes = [], c = 0; c < hexString.length; c += 2)
-      bytes.push(parseInt(hexString.substr(c, 2), 16));
+    bytes.push(parseInt(hexString.substr(c, 2), 16));
   return bytes;
 }
 
@@ -38,7 +38,7 @@ export function reverseHex(hex: string): string {
 }
 
 export function getDifficulty(transactionHash: string) {
-  let bytes = hexStringToBytes(transactionHash).reverse()
+  let bytes = hexStringToBytes(transactionHash).reverse();
   let result = 0;
 
   for (let i = 0; i < bytes.length; i++) {
@@ -50,5 +50,13 @@ export function getDifficulty(transactionHash: string) {
     }
   }
 
-  return (256 - result);
+  return 256 - result;
+}
+
+export function decodeBase16(hex: string) {
+  let str = "";
+  for (let i = 0; i < hex.length; i += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  }
+  return str;
 }
