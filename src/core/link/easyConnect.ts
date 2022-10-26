@@ -15,6 +15,7 @@ export class EasyConnect{
 
         this.link = new PhantasmaLink("easyConnect", false);
         this.connected = false;
+        this.requiredVersion = 2;
 
         if(_options == null){
             this.setConfig('auto');
