@@ -243,11 +243,17 @@ async function deployContract() {
 
     //Creating New Transaction Object
     let transaction = new phantasmaJS.Transaction(
-        'testnet', //Nexus Name
-        'main',    //Chain
-        script,    //In string format
-        date,      //Expiration Date
-        payload    //Extra Info to attach to Transaction in Serialized Hex
+        'testnet',  //Nexus Name
+        'main',     //Chain
+        script,     //In string format
+        date,       //Expiration Date
+        gasPayer,   //Address
+        gasTarget,  //Address
+        gasPrice,   //bigInt
+        gasLimit,   //bigInt
+        version,    //Number
+        expiration, //Date
+        payload     //Extra Info to attach to Transaction in Serialized Hex
     );
 
     //Deploying Contract Requires POW -- Use a value of 5 to increase the hash difficulty by at least 5

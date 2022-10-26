@@ -1,3 +1,4 @@
+import bigInt from "big-integer";
 import { eddsa } from "elliptic";
 import { ScriptBuilder } from "../vm";
 import { hexStringToBytes, byteArrayToHex, getDifficulty } from "../utils";
@@ -11,27 +12,44 @@ interface ISignature {
 }
 
 export class Transaction {
+  script: string;
   nexusName: string;
   chainName: string;
-  script: string;
-  expiration: Date;
+  sender: string;
+  gasPayer: string;
+  gasTarget: string;
+  gasPrice: bigInt;
+  gasLimit: bigInt;
+  version: number;
   payload: string;
-
+  expiration: Date;
   signatures: Array<ISignature>;
+  hash: string;
 
   constructor(
     nexusName: string,
     chainName: string,
     script: string,
+    sender: string,
+    gasPayer: string,
+    gasTarget: string,
+    gasPrice: bigInt,
+    gasLimit: bigInt,
+    version: number,
     expiration: Date,
     payload: string
   ) {
     this.nexusName = nexusName;
     this.chainName = chainName;
     this.script = script;
+    this.sender = sender;
+    this.gasPayer = gasPayer;
+    this.gasTarget = gasTarget;
+    this.gasPrice = gasPrice;
+    this.gasLimit = gasLimit;
+    this.version = version;
     this.expiration = expiration;
     this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
-
     this.signatures = [];
   }
 
@@ -88,7 +106,8 @@ export class Transaction {
 
   public getHash() {
     let generatedHash = SHA256(hexEncoding.parse(this.toString(false)))
-    return byteArrayToHex(hexStringToBytes(generatedHash.toString(hexEncoding)).reverse());
+    this.hash = byteArrayToHex(hexStringToBytes(generatedHash.toString(hexEncoding)).reverse());
+    return this.hash;
   }
 
   public mineTransaction(difficulty: number) {
@@ -101,7 +120,13 @@ export class Transaction {
     let deepCopy = new Transaction(
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
+      JSON.parse(JSON.stringify(this.version)),
       JSON.parse(JSON.stringify(this.script)),
+      JSON.parse(JSON.stringify(this.sender)),
+      JSON.parse(JSON.stringify(this.gasPayer)),
+      JSON.parse(JSON.stringify(this.gasTarget)),
+      JSON.parse(JSON.stringify(this.gasPrice)),
+      JSON.parse(JSON.stringify(this.gasLimit)),
       this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );
