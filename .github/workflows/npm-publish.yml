@@ -11,11 +11,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: npm ci
+
+      - name: Install Deps
+        run: yarn install
+
+      - name: Run Build
+        run: yarn build
 
   publish-npm:
     needs: build
