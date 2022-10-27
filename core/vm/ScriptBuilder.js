@@ -405,11 +405,9 @@ var ScriptBuilder = /** @class */ (function () {
         // writer.Write(bytes);
         return this;
     };
+    //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
-        var result = byte.toString(16).toUpperCase();
-        if (result.length == 1) {
-            result = "0" + result;
-        }
+        var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
         return result;
     };
     ScriptBuilder.prototype.appendByte = function (byte) {

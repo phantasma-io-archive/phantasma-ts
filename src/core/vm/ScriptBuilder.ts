@@ -400,11 +400,9 @@ export class ScriptBuilder {
     return this;
   }
 
+  //Custom Modified
   byteToHex(byte: number) {
-    let result = byte.toString(16).toUpperCase();
-    if (result.length == 1) {
-      result = "0" + result;
-    }
+    let result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
     return result;
   }
 

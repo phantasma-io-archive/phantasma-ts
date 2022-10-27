@@ -6498,6 +6498,7 @@ var EasyConnect = /** @class */ (function () {
         this.platform = "phantasma";
         switch (_provider) {
             case 'auto':
+                // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
                     this.setConfig('ecto');
                 }
@@ -6820,7 +6821,9 @@ var PhantasmaLink = /** @class */ (function () {
         if (this.socket) {
             this.socket.close();
         }
+        // @ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint !== 'poltergeist'
+            // @ts-ignore
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
         this.requestCallback = null;
@@ -7000,10 +7003,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PhantasmaAPI = void 0;
 var cross_fetch_1 = __importDefault(require("cross-fetch"));
 var PhantasmaAPI = /** @class */ (function () {
-    function PhantasmaAPI(defHost, peersUrlJson, nexus) {
+    function PhantasmaAPI(defHost, peersUrlJson) {
         var _this = this;
         this.rpcName = "Auto";
-        this.nexus = nexus;
+        this.nexus = "mainnet";
         this.host = defHost;
         this.availableHosts = [];
         (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
@@ -7017,6 +7020,7 @@ var PhantasmaAPI = /** @class */ (function () {
                         _a.label = 2;
                     case 2:
                         if (!(i < data.length)) return [3 /*break*/, 7];
+                        console.log("Checking RPC: ", data[i]);
                         _a.label = 3;
                     case 3:
                         _a.trys.push([3, 5, , 6]);
@@ -7025,11 +7029,12 @@ var PhantasmaAPI = /** @class */ (function () {
                         msecs = _a.sent();
                         data[i].info = data[i].location + " • " + msecs + " ms";
                         data[i].msecs = msecs;
-                        //console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+                        console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
                         this.availableHosts.push(data[i]);
                         return [3 /*break*/, 6];
                     case 5:
                         err_1 = _a.sent();
+                        console.log("Error with RPC: " + data[i]);
                         return [3 /*break*/, 6];
                     case 6:
                         i++;
@@ -7084,14 +7089,14 @@ var PhantasmaAPI = /** @class */ (function () {
                                 params: params,
                                 id: "1",
                             }),
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            headers: { "Content-Type": "application/json" },
                         })];
                     case 1:
                         res = _a.sent();
                         return [4 /*yield*/, res.json()];
                     case 2:
                         resJson = _a.sent();
-                        //console.log("method", method, resJson);
+                        console.log("method", method, resJson);
                         if (resJson.error) {
                             if (resJson.error.message)
                                 return [2 /*return*/, { error: resJson.error.message }];
@@ -7729,8 +7734,15 @@ var Transaction = /** @class */ (function () {
         var sb = new vm_1.ScriptBuilder()
             .emitVarString(this.nexusName)
             .emitVarString(this.chainName)
+            .emitVarInt(this.version) // ng      
             .emitVarInt(this.script.length / 2)
             .appendHexEncoded(this.script)
+            .emitAddress(this.sender)
+            .emitAddress(this.gasPayer)
+            // .emitAddress(this.gasTarget)
+            .emitByteArray(new Array(34).fill(0))
+            .emitBigInteger(this.gasPrice)
+            .emitBigInteger(this.gasLimit)
             .emitBytes(expirationBytes)
             .emitVarInt(this.payload.length / 2)
             .appendHexEncoded(this.payload);
@@ -7764,7 +7776,7 @@ var Transaction = /** @class */ (function () {
             return;
         }
         var nonce = 0;
-        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.version)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), JSON.parse(JSON.stringify(this.gasPayer)), JSON.parse(JSON.stringify(this.gasTarget)), JSON.parse(JSON.stringify(this.gasPrice)), JSON.parse(JSON.stringify(this.gasLimit)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
+        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), JSON.parse(JSON.stringify(this.gasPayer)), JSON.parse(JSON.stringify(this.gasTarget)), JSON.parse(JSON.stringify(this.gasPrice)), JSON.parse(JSON.stringify(this.gasLimit)), JSON.parse(JSON.stringify(this.version)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
         var payload = Buffer.alloc(4);
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
@@ -8346,8 +8358,37 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScriptBuilder = void 0;
+var bs58_1 = __importDefault(require("bs58"));
 var Opcode_1 = require("./Opcode");
 var VMType_1 = require("./VMType");
 var MaxRegisterCount = 32;
@@ -8408,6 +8449,34 @@ var ScriptBuilder = /** @class */ (function () {
         this.emit(Opcode_1.Opcode.EXTCALL);
         this.appendByte(reg);
         return this;
+    };
+    ScriptBuilder.prototype.emitBigInteger = function (value) {
+        var bytes = [];
+        if (value == '0') {
+            bytes = [0];
+        }
+        else if (value.startsWith('-1')) {
+            throw new Error('Unsigned bigint serialization not suppoted');
+        }
+        else {
+            var hex = BigInt(value).toString(16);
+            if (hex.length % 2)
+                hex = '0' + hex;
+            var len = hex.length / 2;
+            var i = 0;
+            var j = 0;
+            while (i < len) {
+                bytes.unshift(parseInt(hex.slice(j, j + 2), 16)); // little endian
+                i += 1;
+                j += 2;
+            }
+            bytes.push(0); // add sign at the end
+        }
+        return this.emitByteArray(bytes);
+    };
+    ScriptBuilder.prototype.emitAddress = function (textAddress) {
+        var bytes = __spreadArray([], __read(bs58_1.default.decode(textAddress.substring(1))), false);
+        return this.emitByteArray(bytes);
     };
     ScriptBuilder.prototype.rawString = function (value) {
         var data = [];
@@ -8604,6 +8673,11 @@ var ScriptBuilder = /** @class */ (function () {
         });
     };
     //#endregion
+    ScriptBuilder.prototype.emitByteArray = function (bytes) {
+        this.emitVarInt(bytes.length);
+        this.emitBytes(bytes);
+        return this;
+    };
     ScriptBuilder.prototype.emitVarString = function (text) {
         var bytes = this.rawString(text);
         this.emitVarInt(bytes.length);
@@ -8654,6 +8728,7 @@ var ScriptBuilder = /** @class */ (function () {
         // writer.Write(bytes);
         return this;
     };
+    //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
         var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
         return result;
@@ -8661,6 +8736,7 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.appendByte = function (byte) {
         this.str += this.byteToHex(byte);
     };
+    //Custom Modified
     ScriptBuilder.prototype.appendBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++) {
             this.appendByte(bytes[i]);
@@ -8678,7 +8754,7 @@ var ScriptBuilder = /** @class */ (function () {
 }());
 exports.ScriptBuilder = ScriptBuilder;
 
-},{"./Opcode":36,"./VMType":38}],38:[function(require,module,exports){
+},{"./Opcode":36,"./VMType":38,"bs58":45}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VMType = void 0;
