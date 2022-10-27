@@ -313,9 +313,9 @@ export class PhantasmaAPI {
     });
   }
 
-  constructor(defHost: string, peersUrlJson: string) {
+  constructor(defHost: string, peersUrlJson: string, nexus: string) {
     this.rpcName = "Auto";
-    this.nexus = "mainnet";
+    this.nexus = this.nexus;
     this.host = defHost;
     this.availableHosts = [];
 
