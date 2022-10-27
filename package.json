@@ -1,11 +1,11 @@
 {
   "name": "phantasma-ts",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Javascript SDK for interacting with the PhantasmaChain",
   "main": "index.js",
   "types": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
