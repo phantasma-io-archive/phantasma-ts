@@ -43,10 +43,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PhantasmaAPI = void 0;
 var cross_fetch_1 = __importDefault(require("cross-fetch"));
 var PhantasmaAPI = /** @class */ (function () {
-    function PhantasmaAPI(defHost, peersUrlJson) {
+    function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
         this.rpcName = "Auto";
-        this.nexus = "mainnet";
+        this.nexus = this.nexus;
         this.host = defHost;
         this.availableHosts = [];
         (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {

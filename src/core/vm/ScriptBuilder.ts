@@ -6,7 +6,7 @@ type byte = number;
 
 const MaxRegisterCount = 32;
 
-enum Nexus {
+export enum Contracts {
   GasContractName = "gas",
   BlockContractName = "block",
   StakeContractName = "stake",
@@ -315,16 +315,11 @@ export class ScriptBuilder {
     gasPrice: number,
     gasLimit: number
   ): this {
-    return this.callContract(Nexus.GasContractName, "AllowGas", [
-      from,
-      to,
-      gasPrice,
-      gasLimit,
-    ]);
+    return this.callContract(Contracts.GasContractName, "AllowGas", []);
   }
 
   public spendGas(address: string): this {
-    return this.callContract(Nexus.GasContractName, "SpendGas", [address]);
+    return this.callContract(Contracts.GasContractName, "SpendGas", []);
   }
 
   async callRPC<T>(methodName: string, params: any[]): Promise<T> {
