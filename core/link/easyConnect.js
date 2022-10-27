@@ -65,6 +65,7 @@ var EasyConnect = /** @class */ (function () {
         this.platform = "phantasma";
         switch (_provider) {
             case 'auto':
+                // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
                     this.setConfig('ecto');
                 }

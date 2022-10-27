@@ -167,7 +167,9 @@ export class PhantasmaLink {
             this.socket.close();
         }
         
+        // @ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint!=='poltergeist'
+            // @ts-ignore
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
 

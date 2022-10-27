@@ -5,8 +5,7 @@
   "main": "index.js",
   "types": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "browserfi": "browserify index.js -s phantasma > html/phantasma.js"
+    "build": "tsc && browserify index.js -s phantasma > html/phantasma.js"
   },
   "repository": {
     "type": "git",

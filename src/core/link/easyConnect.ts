@@ -40,6 +40,7 @@ export class EasyConnect{
 
         switch(_provider){
             case 'auto':
+                // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
                     this.setConfig('ecto');
                 } else {

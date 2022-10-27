@@ -104,7 +104,7 @@ export class Transaction {
           sb.appendByte(1); // Curve type secp256k1
           sb.emitVarInt(sig.signature.length / 2);
           sb.appendHexEncoded(sig.signature);
-        }}
+        }
       });
     }
     return sb.str;
