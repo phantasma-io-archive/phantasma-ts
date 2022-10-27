@@ -44,6 +44,7 @@ var EasyConnect = /** @class */ (function () {
         if (_options === void 0) { _options = null; }
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
+        this.requiredVersion = 2;
         if (_options == null) {
             this.setConfig('auto');
         }

@@ -313,24 +313,26 @@ export class PhantasmaAPI {
     });
   }
 
-  constructor(defHost: string, peersUrlJson: string, nexus: string) {
+  constructor(defHost: string, peersUrlJson: string) {
     this.rpcName = "Auto";
-    this.nexus = nexus;
+    this.nexus = "mainnet";
     this.host = defHost;
     this.availableHosts = [];
 
     fetch(peersUrlJson + "?_=" + new Date().getTime()).then(async (res) => {
       const data = await res.json();
       for (var i = 0; i < data.length; i++) {
-        //console.log("Checking RPC: ", data[i]);
+        console.log("Checking RPC: ", data[i]);
         try {
           const msecs = await this.pingAsync(data[i].url);
           data[i].info = data[i].location + " • " + msecs + " ms";
           data[i].msecs = msecs;
-          //console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+          console.log(
+            data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc"
+          );
           this.availableHosts.push(data[i]);
         } catch (err) {
-          //console.log("Error with RPC: " + data[i]);
+          console.log("Error with RPC: " + data[i]);
         }
       }
       this.availableHosts.sort((a, b) => a.msecs - b.msecs);
@@ -348,10 +350,10 @@ export class PhantasmaAPI {
         params: params,
         id: "1",
       }),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { "Content-Type": "application/json" },
     });
     let resJson = await res.json();
-    //console.log("method", method, resJson);
+    console.log("method", method, resJson);
     if (resJson.error) {
       if (resJson.error.message) return { error: resJson.error.message };
       return { error: resJson.error };
