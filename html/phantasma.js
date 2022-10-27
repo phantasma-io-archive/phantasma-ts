@@ -6477,6 +6477,7 @@ var EasyConnect = /** @class */ (function () {
         if (_options === void 0) { _options = null; }
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
+        this.requiredVersion = 2;
         if (_options == null) {
             this.setConfig('auto');
         }
@@ -7699,10 +7700,16 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
-    function Transaction(nexusName, chainName, script, expiration, payload) {
+    function Transaction(nexusName, chainName, script, sender, gasPayer, gasTarget, gasPrice, gasLimit, version, expiration, payload) {
         this.nexusName = nexusName;
         this.chainName = chainName;
         this.script = script;
+        this.sender = sender;
+        this.gasPayer = gasPayer;
+        this.gasTarget = gasTarget;
+        this.gasPrice = gasPrice;
+        this.gasLimit = gasLimit;
+        this.version = version;
         this.expiration = expiration;
         this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
         this.signatures = [];
@@ -7748,7 +7755,8 @@ var Transaction = /** @class */ (function () {
     };
     Transaction.prototype.getHash = function () {
         var generatedHash = (0, sha256_1.default)(enc_hex_1.default.parse(this.toString(false)));
-        return (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());
+        this.hash = (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());
+        return this.hash;
     };
     Transaction.prototype.mineTransaction = function (difficulty) {
         if (difficulty < 0 || difficulty > 256) {
@@ -7756,7 +7764,7 @@ var Transaction = /** @class */ (function () {
             return;
         }
         var nonce = 0;
-        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
+        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.version)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), JSON.parse(JSON.stringify(this.gasPayer)), JSON.parse(JSON.stringify(this.gasTarget)), JSON.parse(JSON.stringify(this.gasPrice)), JSON.parse(JSON.stringify(this.gasLimit)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
         var payload = Buffer.alloc(4);
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
@@ -7894,7 +7902,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -7958,9 +7966,17 @@ function getDifficulty(transactionHash) {
             }
         }
     }
-    return (256 - result);
+    return 256 - result;
 }
 exports.getDifficulty = getDifficulty;
+function decodeBase16(hex) {
+    var str = "";
+    for (var i = 0; i < hex.length; i += 2) {
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    return str;
+}
+exports.decodeBase16 = decodeBase16;
 
 },{}],35:[function(require,module,exports){
 "use strict";
@@ -10036,10 +10052,10 @@ var bigInt = (function (undefined) {
         var digits = toBase(range, BASE).value;
         var result = [], restricted = true;
         for (var i = 0; i < digits.length; i++) {
-            var top = restricted ? digits[i] : BASE;
+            var top = restricted ? digits[i] + (i + 1 < digits.length ? digits[i + 1] / BASE : 0) : BASE;
             var digit = truncate(usedRNG() * top);
             result.push(digit);
-            if (digit < top) restricted = false;
+            if (digit < digits[i]) restricted = false;
         }
         return low.add(Integer.fromArray(result, BASE, false));
     }
