@@ -180,7 +180,7 @@ export class PhantasmaLink {
                     }
                 } else {
                     if (onErrorCallback) {
-                        onErrorCallback(result);
+                        onErrorCallback();
                     };
                 }
             }
@@ -189,6 +189,9 @@ export class PhantasmaLink {
 
 
     getPeer(callback, onErrorCallback){
+
+        this.onError = onErrorCallback  //Sets Error Callback Function
+        let that = this                 //Allows the use of 'this' inside sendLinkRequest Object
 
         //Sends Signiture Request To Connected Wallet For Script
         this.sendLinkRequest(
@@ -205,7 +208,7 @@ export class PhantasmaLink {
                     }
                 } else {
                     if (onErrorCallback) {
-                        onErrorCallback(result);
+                        onErrorCallback();
                     };
                 }
             }

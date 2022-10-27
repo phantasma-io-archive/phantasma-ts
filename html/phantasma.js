@@ -6478,6 +6478,8 @@ var EasyConnect = /** @class */ (function () {
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
         this.requiredVersion = 2;
+        //Make This Auto In Future
+        this.nexus = easyScript_1.Nexus.Mainnet;
         if (_options == null) {
             this.setConfig('auto');
         }
@@ -6491,7 +6493,7 @@ var EasyConnect = /** @class */ (function () {
                 console.log(error);
             }
         }
-        this.scriptBuilder = new easyScript_1.EasyScript();
+        this.script = new easyScript_1.EasyScript();
     }
     EasyConnect.prototype.setConfig = function (_provider) {
         this.requiredVersion = 2;
@@ -6585,6 +6587,60 @@ var EasyConnect = /** @class */ (function () {
             });
         });
     };
+    EasyConnect.prototype.action = function (_type, _arguments, onSuccess, onFail) {
+        if (_type === void 0) { _type = null; }
+        if (_arguments === void 0) { _arguments = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, sendFTScript, sendNFTScript;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(this.connected == true)) return [3 /*break*/, 6];
+                        _a = _type;
+                        switch (_a) {
+                            case 'sendFT': return [3 /*break*/, 1];
+                            case 'sendNFT': return [3 /*break*/, 3];
+                        }
+                        return [3 /*break*/, 5];
+                    case 1: return [4 /*yield*/, this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 2:
+                        sendFTScript = _b.sent();
+                        this.signTransaction(sendFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 4:
+                        sendNFTScript = _b.sent();
+                        this.signTransaction(sendNFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        console.log('%cWallet is not connected', 'color:red');
+                        _b.label = 7;
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    EasyConnect.prototype.signTransaction = function (script, payload, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+    };
+    EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signData(data, onSuccess, onFail);
+    };
+    EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+    };
     return EasyConnect;
 }());
 exports.EasyConnect = EasyConnect;
@@ -6628,32 +6684,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EasyScript = void 0;
+exports.EasyScript = exports.Nexus = void 0;
 var vm_1 = require("../vm");
+var Nexus;
+(function (Nexus) {
+    Nexus["Mainnet"] = "mainnet";
+    Nexus["Simnet"] = "simnet";
+    Nexus["Testnet"] = "testnet";
+})(Nexus = exports.Nexus || (exports.Nexus = {}));
 var EasyScript = /** @class */ (function () {
-    function EasyScript(_minimumFee, _gasLimit) {
-        if (_minimumFee === void 0) { _minimumFee = '100000'; }
-        if (_gasLimit === void 0) { _gasLimit = '900'; }
-        //Default Gas Profile
-        this.minimumFee = _minimumFee;
-        this.gasLimit = _gasLimit;
+    function EasyScript(nexus) {
+        if (nexus === void 0) { nexus = Nexus.Mainnet; }
+        this.nexus = nexus;
     }
-    EasyScript.prototype.createScript = function (_type, _options) {
+    EasyScript.prototype.buildScript = function (_type, _options) {
         if (_options === void 0) { _options = [null]; }
         return __awaiter(this, void 0, void 0, function () {
-            var accountAddressInteract, contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, accountAddressInterop, interopNameInterop, inputArgumentsInterop;
+            var contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, interopNameInterop, inputArgumentsInterop;
             return __generator(this, function (_a) {
                 this.sb = new vm_1.ScriptBuilder();
                 switch (_type) {
                     case 'interact':
-                        accountAddressInteract = _options[0];
-                        contractNameInteract = _options[1];
-                        methodNameInteract = _options[2];
-                        inputArgumentsInteract = _options[3];
+                        contractNameInteract = _options[0];
+                        methodNameInteract = _options[1];
+                        inputArgumentsInteract = _options[2];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInteract, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
-                                .callContract('gas', 'SpendGas', [accountAddressInteract]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                     case 'invoke':
@@ -6665,17 +6723,46 @@ var EasyScript = /** @class */ (function () {
                                 .endScript())];
                         break;
                     case 'interop':
-                        accountAddressInterop = _options[0];
-                        interopNameInterop = _options[1];
-                        inputArgumentsInterop = _options[2];
+                        interopNameInterop = _options[0];
+                        inputArgumentsInterop = _options[1];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInterop, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callInterop(interopNameInterop, inputArgumentsInterop)
-                                .callContract('gas', 'SpendGas', [accountAddressInterop]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                 }
                 return [2 /*return*/];
+            });
+        });
+    };
+    EasyScript.prototype.contractDeployment = function (fromAddress, contractName, pvm, abi) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.DeployContract", [fromAddress, contractName, pvm, abi]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendFT = function (fromAddress, toAddress, tokenSymbol, amount) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, amount]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendNFT = function (fromAddress, toAddress, tokenSymbol, tokenId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, tokenId]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
             });
         });
     };
@@ -6686,8 +6773,17 @@ exports.EasyScript = EasyScript;
 },{"../vm":39}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PhantasmaLink = void 0;
+exports.PhantasmaLink = exports.ProofOfWork = void 0;
 var vm_1 = require("../vm");
+var ProofOfWork;
+(function (ProofOfWork) {
+    ProofOfWork[ProofOfWork["None"] = 0] = "None";
+    ProofOfWork[ProofOfWork["Minimal"] = 5] = "Minimal";
+    ProofOfWork[ProofOfWork["Moderate"] = 15] = "Moderate";
+    ProofOfWork[ProofOfWork["Hard"] = 19] = "Hard";
+    ProofOfWork[ProofOfWork["Heavy"] = 24] = "Heavy";
+    ProofOfWork[ProofOfWork["Extreme"] = 30] = "Extreme";
+})(ProofOfWork = exports.ProofOfWork || (exports.ProofOfWork = {}));
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
@@ -6732,7 +6828,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
-    //Wallet Transaction Signing + 
+    //Wallet Transaction Signing + Sending
     PhantasmaLink.prototype.signTx = function (nexus, script, payload, callback, onErrorCallback) {
         //Checks If Needed Script Is In Object
         if (script.script) {
@@ -6785,6 +6881,82 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    //Wallet Transaction Signing for Proof of Work
+    PhantasmaLink.prototype.signTxPow = function (nexus, script, payload, proofOfWork, callback, onErrorCallback) {
+        //Checks If Needed Script Is In Object
+        if (script.script) {
+            script = script.script;
+        }
+        //Overload Protection
+        if (script.length >= 65536) {
+            this.onMessage('Error: script is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        //Check Payload
+        if (payload == null) {
+            payload = '7068616e7461736d612d7473'; //Says 'Phantasma-ts' in hex
+        }
+        else if (typeof payload === 'string') { //Turn String Payload -> Bytes -> Hex
+            var sb = new vm_1.ScriptBuilder();
+            var bytes = sb.rawString(payload);
+            sb.appendBytes(bytes);
+            payload = sb.endScript();
+        }
+        else {
+            this.onMessage('Error: Invalid Payload');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('signTxPow/' + nexus + '/main/' + script + '/' + payload + '/' + proofOfWork, function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result.hash.error);
+                    return;
+                }
+                that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
+    PhantasmaLink.prototype.getPeer = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getPeer/', function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result);
+                    return;
+                }
+                that.onMessage('Peer Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
     PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
         //Checks If Needed Data Is In Object
@@ -6809,7 +6981,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback();
+                    onErrorCallback(result);
                 }
             }
         });
@@ -6875,7 +7047,7 @@ var PhantasmaLink = /** @class */ (function () {
                     that.onError('Could not obtain account info... Make sure you have an account currently logged in');
                     that.disconnect(true);
                     break;
-                case 'A previouus request is still pending' || 'A previous request is still pending':
+                case 'A previous request is still pending':
                     that.onError('You have a pending action in your wallet');
                     break;
                 case 'user rejected':

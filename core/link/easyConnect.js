@@ -45,6 +45,8 @@ var EasyConnect = /** @class */ (function () {
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
         this.requiredVersion = 2;
+        //Make This Auto In Future
+        this.nexus = easyScript_1.Nexus.Mainnet;
         if (_options == null) {
             this.setConfig('auto');
         }
@@ -58,7 +60,7 @@ var EasyConnect = /** @class */ (function () {
                 console.log(error);
             }
         }
-        this.scriptBuilder = new easyScript_1.EasyScript();
+        this.script = new easyScript_1.EasyScript();
     }
     EasyConnect.prototype.setConfig = function (_provider) {
         this.requiredVersion = 2;
@@ -151,6 +153,60 @@ var EasyConnect = /** @class */ (function () {
                 return [2 /*return*/];
             });
         });
+    };
+    EasyConnect.prototype.action = function (_type, _arguments, onSuccess, onFail) {
+        if (_type === void 0) { _type = null; }
+        if (_arguments === void 0) { _arguments = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, sendFTScript, sendNFTScript;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(this.connected == true)) return [3 /*break*/, 6];
+                        _a = _type;
+                        switch (_a) {
+                            case 'sendFT': return [3 /*break*/, 1];
+                            case 'sendNFT': return [3 /*break*/, 3];
+                        }
+                        return [3 /*break*/, 5];
+                    case 1: return [4 /*yield*/, this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 2:
+                        sendFTScript = _b.sent();
+                        this.signTransaction(sendFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 4:
+                        sendNFTScript = _b.sent();
+                        this.signTransaction(sendNFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        console.log('%cWallet is not connected', 'color:red');
+                        _b.label = 7;
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    EasyConnect.prototype.signTransaction = function (script, payload, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+    };
+    EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signData(data, onSuccess, onFail);
+    };
+    EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
     };
     return EasyConnect;
 }());
