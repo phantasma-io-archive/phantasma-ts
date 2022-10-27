@@ -1,5 +1,14 @@
 import { ScriptBuilder } from "../vm";
 
+export enum ProofOfWork {
+    None = 0,
+    Minimal = 5,
+    Moderate = 15,
+    Hard = 19,
+    Heavy = 24,
+    Extreme = 30
+}
+
 export class PhantasmaLink {
 
     //Declarations
@@ -62,7 +71,7 @@ export class PhantasmaLink {
         });
     }
 
-    //Wallet Transaction Signing + 
+    //Wallet Transaction Signing + Sending
     signTx(nexus, script, payload, callback, onErrorCallback) {
         
         //Checks If Needed Script Is In Object
@@ -120,6 +129,90 @@ export class PhantasmaLink {
         )
     }
 
+    //Wallet Transaction Signing for Proof of Work
+    signTxPow(nexus, script, payload, proofOfWork: ProofOfWork, callback, onErrorCallback) {
+        
+        //Checks If Needed Script Is In Object
+        if (script.script) {
+            script = script.script
+        }
+
+        //Overload Protection
+        if (script.length >= 65536) {
+            this.onMessage('Error: script is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+
+        //Check Payload
+        if (payload == null) {
+            payload = '7068616e7461736d612d7473';    //Says 'Phantasma-ts' in hex
+        } else if (typeof payload === 'string') {    //Turn String Payload -> Bytes -> Hex
+            let sb = new ScriptBuilder();
+            let bytes = sb.rawString(payload);
+            sb.appendBytes(bytes);
+            payload = sb.endScript();
+        } else {
+            this.onMessage('Error: Invalid Payload');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+
+        this.onError = onErrorCallback  //Sets Error Callback Function
+        let that = this                 //Allows the use of 'this' inside sendLinkRequest Object
+       
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest(
+            'signTxPow/' + nexus + '/main/' + script + '/' + payload + '/' + proofOfWork,
+            function(result) {
+                if (result.success) {          
+                    if (result.hash.error) {
+                        that.onMessage('Error: ' + result.hash.error);
+                        return;
+                    }
+                    that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                    if (callback) {
+                        callback(result);
+                    }
+                } else {
+                    if (onErrorCallback) {
+                        onErrorCallback(result);
+                    };
+                }
+            }
+        )
+    }
+
+
+    getPeer(callback, onErrorCallback){
+
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest(
+            'getPeer/',
+            function(result) {
+                if (result.success) {          
+                    if (result.hash.error) {
+                        that.onMessage('Error: ' + result);
+                        return;
+                    }
+                    that.onMessage('Peer Query,: ' + result);
+                    if (callback) {
+                        callback(result);
+                    }
+                } else {
+                    if (onErrorCallback) {
+                        onErrorCallback(result);
+                    };
+                }
+            }
+        )
+
+    }
+
     //Uses Wallet To Sign Data With Signiture
     signData(data, callback, onErrorCallback) {
         
@@ -150,7 +243,7 @@ export class PhantasmaLink {
                 }
                 else {
                     if (onErrorCallback) {
-                        onErrorCallback();
+                        onErrorCallback(result);
                     }
                 }
             }
@@ -231,7 +324,7 @@ export class PhantasmaLink {
                     that.disconnect(true);
                 break;
 
-                case 'A previouus request is still pending' || 'A previous request is still pending':
+                case 'A previous request is still pending':
                     that.onError('You have a pending action in your wallet');
                 break;
 
