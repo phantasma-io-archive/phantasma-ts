@@ -1,3 +1,4 @@
+import base58 from "bs58";
 import { Opcode } from "./Opcode";
 import { VMType } from "./VMType";
 
@@ -5,7 +6,7 @@ type byte = number;
 
 const MaxRegisterCount = 32;
 
-enum Nexus {
+export enum Contracts {
   GasContractName = "gas",
   BlockContractName = "block",
   StakeContractName = "stake",
@@ -72,6 +73,38 @@ export class ScriptBuilder {
     this.emit(Opcode.EXTCALL);
     this.appendByte(reg);
     return this;
+  }
+
+  public emitBigInteger(value: string) {
+
+    let bytes: number[] = []
+
+    if (value == '0') {
+      bytes = [0]
+    }
+    else if (value.startsWith('-1'))
+    {
+      throw new Error('Unsigned bigint serialization not suppoted')
+    }
+    else {
+      let hex = BigInt(value).toString(16)
+      if (hex.length % 2) hex = '0' + hex
+      const len = hex.length / 2
+      var i = 0;
+      var j = 0;
+      while (i < len) {
+        bytes.unshift(parseInt(hex.slice(j, j+2), 16));  // little endian
+        i += 1;
+        j += 2;
+      }
+      bytes.push(0)  // add sign at the end
+    }
+    return this.emitByteArray(bytes)
+  }
+
+  public emitAddress(textAddress: string) {
+    const bytes = [...base58.decode(textAddress.substring(1))]
+    return this.emitByteArray(bytes)
   }
 
   rawString(value: string) {
@@ -282,16 +315,11 @@ export class ScriptBuilder {
     gasPrice: number,
     gasLimit: number
   ): this {
-    return this.callContract(Nexus.GasContractName, "AllowGas", [
-      from,
-      to,
-      gasPrice,
-      gasLimit,
-    ]);
+    return this.callContract(Contracts.GasContractName, "AllowGas", []);
   }
 
   public spendGas(address: string): this {
-    return this.callContract(Nexus.GasContractName, "SpendGas", [address]);
+    return this.callContract(Contracts.GasContractName, "SpendGas", []);
   }
 
   async callRPC<T>(methodName: string, params: any[]): Promise<T> {
@@ -307,6 +335,12 @@ export class ScriptBuilder {
   }
 
   //#endregion
+
+  public emitByteArray(bytes: number[]) {
+    this.emitVarInt(bytes.length)
+    this.emitBytes(bytes)
+    return this
+  }
 
   public emitVarString(text: string): this {
     let bytes = this.rawString(text);
@@ -361,6 +395,7 @@ export class ScriptBuilder {
     return this;
   }
 
+  //Custom Modified
   byteToHex(byte: number) {
     let result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
     return result;
@@ -370,6 +405,7 @@ export class ScriptBuilder {
     this.str += this.byteToHex(byte);
   }
 
+  //Custom Modified
   appendBytes(bytes: byte[]) {
     for (let i = 0; i < bytes.length; i++) {
       this.appendByte(bytes[i]);

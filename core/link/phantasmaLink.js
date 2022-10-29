@@ -1,7 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PhantasmaLink = void 0;
+exports.PhantasmaLink = exports.ProofOfWork = void 0;
 var vm_1 = require("../vm");
+var ProofOfWork;
+(function (ProofOfWork) {
+    ProofOfWork[ProofOfWork["None"] = 0] = "None";
+    ProofOfWork[ProofOfWork["Minimal"] = 5] = "Minimal";
+    ProofOfWork[ProofOfWork["Moderate"] = 15] = "Moderate";
+    ProofOfWork[ProofOfWork["Hard"] = 19] = "Hard";
+    ProofOfWork[ProofOfWork["Heavy"] = 24] = "Heavy";
+    ProofOfWork[ProofOfWork["Extreme"] = 30] = "Extreme";
+})(ProofOfWork = exports.ProofOfWork || (exports.ProofOfWork = {}));
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
@@ -46,7 +55,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
-    //Wallet Transaction Signing + 
+    //Wallet Transaction Signing + Sending
     PhantasmaLink.prototype.signTx = function (nexus, script, payload, callback, onErrorCallback) {
         //Checks If Needed Script Is In Object
         if (script.script) {
@@ -99,6 +108,82 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    //Wallet Transaction Signing for Proof of Work
+    PhantasmaLink.prototype.signTxPow = function (nexus, script, payload, proofOfWork, callback, onErrorCallback) {
+        //Checks If Needed Script Is In Object
+        if (script.script) {
+            script = script.script;
+        }
+        //Overload Protection
+        if (script.length >= 65536) {
+            this.onMessage('Error: script is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        //Check Payload
+        if (payload == null) {
+            payload = '7068616e7461736d612d7473'; //Says 'Phantasma-ts' in hex
+        }
+        else if (typeof payload === 'string') { //Turn String Payload -> Bytes -> Hex
+            var sb = new vm_1.ScriptBuilder();
+            var bytes = sb.rawString(payload);
+            sb.appendBytes(bytes);
+            payload = sb.endScript();
+        }
+        else {
+            this.onMessage('Error: Invalid Payload');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('signTxPow/' + nexus + '/main/' + script + '/' + payload + '/' + proofOfWork, function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result.hash.error);
+                    return;
+                }
+                that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
+    PhantasmaLink.prototype.getPeer = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getPeer/', function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result);
+                    return;
+                }
+                that.onMessage('Peer Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
     PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
         //Checks If Needed Data Is In Object
@@ -123,7 +208,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback();
+                    onErrorCallback(result);
                 }
             }
         });
@@ -135,7 +220,9 @@ var PhantasmaLink = /** @class */ (function () {
         if (this.socket) {
             this.socket.close();
         }
+        // @ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint !== 'poltergeist'
+            // @ts-ignore
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
         this.requestCallback = null;
@@ -187,7 +274,7 @@ var PhantasmaLink = /** @class */ (function () {
                     that.onError('Could not obtain account info... Make sure you have an account currently logged in');
                     that.disconnect(true);
                     break;
-                case 'A previouus request is still pending' || 'A previous request is still pending':
+                case 'A previous request is still pending':
                     that.onError('You have a pending action in your wallet');
                     break;
                 case 'user rejected':

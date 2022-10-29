@@ -1,4 +1,3 @@
-import bigInt from "big-integer";
 import { eddsa } from "elliptic";
 import { ScriptBuilder } from "../vm";
 import { hexStringToBytes, byteArrayToHex, getDifficulty } from "../utils";
@@ -18,8 +17,8 @@ export class Transaction {
   sender: string;
   gasPayer: string;
   gasTarget: string;
-  gasPrice: bigInt;
-  gasLimit: bigInt;
+  gasPrice: string;
+  gasLimit: string;
   version: number;
   payload: string;
   expiration: Date;
@@ -33,8 +32,8 @@ export class Transaction {
     sender: string,
     gasPayer: string,
     gasTarget: string,
-    gasPrice: bigInt,
-    gasLimit: bigInt,
+    gasPrice: string,
+    gasLimit: string,
     version: number,
     expiration: Date,
     payload: string
@@ -79,8 +78,15 @@ export class Transaction {
     let sb = new ScriptBuilder()
       .emitVarString(this.nexusName)
       .emitVarString(this.chainName)
+      .emitVarInt(this.version)  // ng      
       .emitVarInt(this.script.length / 2)
       .appendHexEncoded(this.script)
+      .emitAddress(this.sender)
+      .emitAddress(this.gasPayer)
+      // .emitAddress(this.gasTarget)
+      .emitByteArray(new Array(34).fill(0))
+      .emitBigInteger(this.gasPrice)
+      .emitBigInteger(this.gasLimit)
       .emitBytes(expirationBytes)
       .emitVarInt(this.payload.length / 2)
       .appendHexEncoded(this.payload);
@@ -120,13 +126,13 @@ export class Transaction {
     let deepCopy = new Transaction(
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
-      JSON.parse(JSON.stringify(this.version)),
       JSON.parse(JSON.stringify(this.script)),
       JSON.parse(JSON.stringify(this.sender)),
       JSON.parse(JSON.stringify(this.gasPayer)),
       JSON.parse(JSON.stringify(this.gasTarget)),
       JSON.parse(JSON.stringify(this.gasPrice)),
       JSON.parse(JSON.stringify(this.gasLimit)),
+      JSON.parse(JSON.stringify(this.version)),
       this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );

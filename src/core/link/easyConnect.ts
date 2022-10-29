@@ -1,5 +1,5 @@
-import { PhantasmaLink } from "./phantasmaLink";
-import { EasyScript } from "./easyScript"
+import { PhantasmaLink, ProofOfWork } from "./phantasmaLink";
+import { EasyScript, Nexus } from "./easyScript"
 
 export class EasyConnect{
 
@@ -8,7 +8,8 @@ export class EasyConnect{
     providerHint: string;
     link: PhantasmaLink;
     connected: boolean;
-    scriptBuilder: EasyScript;
+    script: EasyScript;
+    nexus: Nexus;
 
 
     constructor(_options: Array<string> = null){
@@ -16,6 +17,9 @@ export class EasyConnect{
         this.link = new PhantasmaLink("easyConnect", false);
         this.connected = false;
         this.requiredVersion = 2;
+
+        //Make This Auto In Future
+        this.nexus = Nexus.Mainnet;
 
         if(_options == null){
             this.setConfig('auto');
@@ -30,7 +34,7 @@ export class EasyConnect{
             }
 
         }
-        this.scriptBuilder = new EasyScript();
+        this.script = new EasyScript();
     }
 
     setConfig(_provider: string){
@@ -40,6 +44,7 @@ export class EasyConnect{
 
         switch(_provider){
             case 'auto':
+                // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
                     this.setConfig('ecto');
                 } else {
@@ -82,7 +87,6 @@ export class EasyConnect{
         this.connected = false;
     }
 
-    
 
     async query(_type: string = null, _arguments: Array<string> = null, _callback: any = (data) => {console.log(data)}){
         
@@ -132,12 +136,41 @@ export class EasyConnect{
         }
     }
 
+    async action(_type: string = null, _arguments: Array<any> = null, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
+        
+        if(this.connected == true){
+            switch(_type){
+
+                case 'sendFT':
+                    let sendFTScript = await this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])
+                    this.signTransaction(sendFTScript, null, onSuccess, onFail);
+                break;
+
+                case 'sendNFT':
+                    let sendNFTScript = await this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])
+                    this.signTransaction(sendNFTScript, null, onSuccess, onFail);
+                break;
+
+
+            }
+
+        }else{
+            console.log('%cWallet is not connected', 'color:red');
+        }
+    }
 
     
+    signTransaction(script: string, payload = null, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
+        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+    }
 
+    signData(data:any, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
+        this.link.signData(data, onSuccess, onFail)
+    }
 
-
-
+    deployContract(script: string, payload = null, proofOfWork: ProofOfWork = ProofOfWork.Minimal, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
+        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+    }
 
 
 }

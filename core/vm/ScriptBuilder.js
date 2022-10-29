@@ -35,28 +35,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScriptBuilder = void 0;
+exports.ScriptBuilder = exports.Contracts = void 0;
+var bs58_1 = __importDefault(require("bs58"));
 var Opcode_1 = require("./Opcode");
 var VMType_1 = require("./VMType");
 var MaxRegisterCount = 32;
-var Nexus;
-(function (Nexus) {
-    Nexus["GasContractName"] = "gas";
-    Nexus["BlockContractName"] = "block";
-    Nexus["StakeContractName"] = "stake";
-    Nexus["SwapContractName"] = "swap";
-    Nexus["AccountContractName"] = "account";
-    Nexus["ConsensusContractName"] = "consensus";
-    Nexus["GovernanceContractName"] = "governance";
-    Nexus["StorageContractName"] = "storage";
-    Nexus["ValidatorContractName"] = "validator";
-    Nexus["InteropContractName"] = "interop";
-    Nexus["ExchangeContractName"] = "exchange";
-    Nexus["PrivacyContractName"] = "privacy";
-    Nexus["RelayContractName"] = "relay";
-    Nexus["RankingContractName"] = "ranking";
-})(Nexus || (Nexus = {}));
+var Contracts;
+(function (Contracts) {
+    Contracts["GasContractName"] = "gas";
+    Contracts["BlockContractName"] = "block";
+    Contracts["StakeContractName"] = "stake";
+    Contracts["SwapContractName"] = "swap";
+    Contracts["AccountContractName"] = "account";
+    Contracts["ConsensusContractName"] = "consensus";
+    Contracts["GovernanceContractName"] = "governance";
+    Contracts["StorageContractName"] = "storage";
+    Contracts["ValidatorContractName"] = "validator";
+    Contracts["InteropContractName"] = "interop";
+    Contracts["ExchangeContractName"] = "exchange";
+    Contracts["PrivacyContractName"] = "privacy";
+    Contracts["RelayContractName"] = "relay";
+    Contracts["RankingContractName"] = "ranking";
+})(Contracts = exports.Contracts || (exports.Contracts = {}));
 var ScriptBuilder = /** @class */ (function () {
     function ScriptBuilder() {
         this._labelLocations = {};
@@ -97,6 +126,34 @@ var ScriptBuilder = /** @class */ (function () {
         this.emit(Opcode_1.Opcode.EXTCALL);
         this.appendByte(reg);
         return this;
+    };
+    ScriptBuilder.prototype.emitBigInteger = function (value) {
+        var bytes = [];
+        if (value == '0') {
+            bytes = [0];
+        }
+        else if (value.startsWith('-1')) {
+            throw new Error('Unsigned bigint serialization not suppoted');
+        }
+        else {
+            var hex = BigInt(value).toString(16);
+            if (hex.length % 2)
+                hex = '0' + hex;
+            var len = hex.length / 2;
+            var i = 0;
+            var j = 0;
+            while (i < len) {
+                bytes.unshift(parseInt(hex.slice(j, j + 2), 16)); // little endian
+                i += 1;
+                j += 2;
+            }
+            bytes.push(0); // add sign at the end
+        }
+        return this.emitByteArray(bytes);
+    };
+    ScriptBuilder.prototype.emitAddress = function (textAddress) {
+        var bytes = __spreadArray([], __read(bs58_1.default.decode(textAddress.substring(1))), false);
+        return this.emitByteArray(bytes);
     };
     ScriptBuilder.prototype.rawString = function (value) {
         var data = [];
@@ -262,15 +319,10 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //#region ScriptBuilderExtensions
     ScriptBuilder.prototype.allowGas = function (from, to, gasPrice, gasLimit) {
-        return this.callContract(Nexus.GasContractName, "AllowGas", [
-            from,
-            to,
-            gasPrice,
-            gasLimit,
-        ]);
+        return this.callContract(Contracts.GasContractName, "AllowGas", []);
     };
     ScriptBuilder.prototype.spendGas = function (address) {
-        return this.callContract(Nexus.GasContractName, "SpendGas", [address]);
+        return this.callContract(Contracts.GasContractName, "SpendGas", []);
     };
     ScriptBuilder.prototype.callRPC = function (methodName, params) {
         return __awaiter(this, void 0, void 0, function () {
@@ -293,6 +345,11 @@ var ScriptBuilder = /** @class */ (function () {
         });
     };
     //#endregion
+    ScriptBuilder.prototype.emitByteArray = function (bytes) {
+        this.emitVarInt(bytes.length);
+        this.emitBytes(bytes);
+        return this;
+    };
     ScriptBuilder.prototype.emitVarString = function (text) {
         var bytes = this.rawString(text);
         this.emitVarInt(bytes.length);
@@ -343,6 +400,7 @@ var ScriptBuilder = /** @class */ (function () {
         // writer.Write(bytes);
         return this;
     };
+    //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
         var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
         return result;
@@ -350,6 +408,7 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.appendByte = function (byte) {
         this.str += this.byteToHex(byte);
     };
+    //Custom Modified
     ScriptBuilder.prototype.appendBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++) {
             this.appendByte(bytes[i]);

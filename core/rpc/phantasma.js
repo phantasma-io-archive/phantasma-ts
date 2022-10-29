@@ -46,7 +46,7 @@ var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
         this.rpcName = "Auto";
-        this.nexus = nexus;
+        this.nexus = this.nexus;
         this.host = defHost;
         this.availableHosts = [];
         (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
@@ -60,6 +60,7 @@ var PhantasmaAPI = /** @class */ (function () {
                         _a.label = 2;
                     case 2:
                         if (!(i < data.length)) return [3 /*break*/, 7];
+                        console.log("Checking RPC: ", data[i]);
                         _a.label = 3;
                     case 3:
                         _a.trys.push([3, 5, , 6]);
@@ -68,11 +69,12 @@ var PhantasmaAPI = /** @class */ (function () {
                         msecs = _a.sent();
                         data[i].info = data[i].location + " • " + msecs + " ms";
                         data[i].msecs = msecs;
-                        //console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+                        console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
                         this.availableHosts.push(data[i]);
                         return [3 /*break*/, 6];
                     case 5:
                         err_1 = _a.sent();
+                        console.log("Error with RPC: " + data[i]);
                         return [3 /*break*/, 6];
                     case 6:
                         i++;
@@ -127,14 +129,14 @@ var PhantasmaAPI = /** @class */ (function () {
                                 params: params,
                                 id: "1",
                             }),
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            headers: { "Content-Type": "application/json" },
                         })];
                     case 1:
                         res = _a.sent();
                         return [4 /*yield*/, res.json()];
                     case 2:
                         resJson = _a.sent();
-                        //console.log("method", method, resJson);
+                        console.log("method", method, resJson);
                         if (resJson.error) {
                             if (resJson.error.message)
                                 return [2 /*return*/, { error: resJson.error.message }];

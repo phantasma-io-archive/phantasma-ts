@@ -6477,6 +6477,9 @@ var EasyConnect = /** @class */ (function () {
         if (_options === void 0) { _options = null; }
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
+        this.requiredVersion = 2;
+        //Make This Auto In Future
+        this.nexus = easyScript_1.Nexus.Mainnet;
         if (_options == null) {
             this.setConfig('auto');
         }
@@ -6490,13 +6493,14 @@ var EasyConnect = /** @class */ (function () {
                 console.log(error);
             }
         }
-        this.scriptBuilder = new easyScript_1.EasyScript();
+        this.script = new easyScript_1.EasyScript();
     }
     EasyConnect.prototype.setConfig = function (_provider) {
         this.requiredVersion = 2;
         this.platform = "phantasma";
         switch (_provider) {
             case 'auto':
+                // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
                     this.setConfig('ecto');
                 }
@@ -6583,6 +6587,60 @@ var EasyConnect = /** @class */ (function () {
             });
         });
     };
+    EasyConnect.prototype.action = function (_type, _arguments, onSuccess, onFail) {
+        if (_type === void 0) { _type = null; }
+        if (_arguments === void 0) { _arguments = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, sendFTScript, sendNFTScript;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(this.connected == true)) return [3 /*break*/, 6];
+                        _a = _type;
+                        switch (_a) {
+                            case 'sendFT': return [3 /*break*/, 1];
+                            case 'sendNFT': return [3 /*break*/, 3];
+                        }
+                        return [3 /*break*/, 5];
+                    case 1: return [4 /*yield*/, this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 2:
+                        sendFTScript = _b.sent();
+                        this.signTransaction(sendFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 4:
+                        sendNFTScript = _b.sent();
+                        this.signTransaction(sendNFTScript, null, onSuccess, onFail);
+                        return [3 /*break*/, 5];
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        console.log('%cWallet is not connected', 'color:red');
+                        _b.label = 7;
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    EasyConnect.prototype.signTransaction = function (script, payload, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+    };
+    EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signData(data, onSuccess, onFail);
+    };
+    EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
+        if (payload === void 0) { payload = null; }
+        if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
+        if (onSuccess === void 0) { onSuccess = function (data) { }; }
+        if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
+        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+    };
     return EasyConnect;
 }());
 exports.EasyConnect = EasyConnect;
@@ -6626,32 +6684,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EasyScript = void 0;
+exports.EasyScript = exports.Nexus = void 0;
 var vm_1 = require("../vm");
+var Nexus;
+(function (Nexus) {
+    Nexus["Mainnet"] = "mainnet";
+    Nexus["Simnet"] = "simnet";
+    Nexus["Testnet"] = "testnet";
+})(Nexus = exports.Nexus || (exports.Nexus = {}));
 var EasyScript = /** @class */ (function () {
-    function EasyScript(_minimumFee, _gasLimit) {
-        if (_minimumFee === void 0) { _minimumFee = '100000'; }
-        if (_gasLimit === void 0) { _gasLimit = '900'; }
-        //Default Gas Profile
-        this.minimumFee = _minimumFee;
-        this.gasLimit = _gasLimit;
+    function EasyScript(nexus) {
+        if (nexus === void 0) { nexus = Nexus.Mainnet; }
+        this.nexus = nexus;
     }
-    EasyScript.prototype.createScript = function (_type, _options) {
+    EasyScript.prototype.buildScript = function (_type, _options) {
         if (_options === void 0) { _options = [null]; }
         return __awaiter(this, void 0, void 0, function () {
-            var accountAddressInteract, contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, accountAddressInterop, interopNameInterop, inputArgumentsInterop;
+            var contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, interopNameInterop, inputArgumentsInterop;
             return __generator(this, function (_a) {
                 this.sb = new vm_1.ScriptBuilder();
                 switch (_type) {
                     case 'interact':
-                        accountAddressInteract = _options[0];
-                        contractNameInteract = _options[1];
-                        methodNameInteract = _options[2];
-                        inputArgumentsInteract = _options[3];
+                        contractNameInteract = _options[0];
+                        methodNameInteract = _options[1];
+                        inputArgumentsInteract = _options[2];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInteract, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
-                                .callContract('gas', 'SpendGas', [accountAddressInteract]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                     case 'invoke':
@@ -6663,17 +6723,46 @@ var EasyScript = /** @class */ (function () {
                                 .endScript())];
                         break;
                     case 'interop':
-                        accountAddressInterop = _options[0];
-                        interopNameInterop = _options[1];
-                        inputArgumentsInterop = _options[2];
+                        interopNameInterop = _options[0];
+                        inputArgumentsInterop = _options[1];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInterop, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callInterop(interopNameInterop, inputArgumentsInterop)
-                                .callContract('gas', 'SpendGas', [accountAddressInterop]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                 }
                 return [2 /*return*/];
+            });
+        });
+    };
+    EasyScript.prototype.contractDeployment = function (fromAddress, contractName, pvm, abi) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.DeployContract", [fromAddress, contractName, pvm, abi]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendFT = function (fromAddress, toAddress, tokenSymbol, amount) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, amount]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendNFT = function (fromAddress, toAddress, tokenSymbol, tokenId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, tokenId]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
             });
         });
     };
@@ -6684,8 +6773,17 @@ exports.EasyScript = EasyScript;
 },{"../vm":39}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PhantasmaLink = void 0;
+exports.PhantasmaLink = exports.ProofOfWork = void 0;
 var vm_1 = require("../vm");
+var ProofOfWork;
+(function (ProofOfWork) {
+    ProofOfWork[ProofOfWork["None"] = 0] = "None";
+    ProofOfWork[ProofOfWork["Minimal"] = 5] = "Minimal";
+    ProofOfWork[ProofOfWork["Moderate"] = 15] = "Moderate";
+    ProofOfWork[ProofOfWork["Hard"] = 19] = "Hard";
+    ProofOfWork[ProofOfWork["Heavy"] = 24] = "Heavy";
+    ProofOfWork[ProofOfWork["Extreme"] = 30] = "Extreme";
+})(ProofOfWork = exports.ProofOfWork || (exports.ProofOfWork = {}));
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
@@ -6730,7 +6828,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
-    //Wallet Transaction Signing + 
+    //Wallet Transaction Signing + Sending
     PhantasmaLink.prototype.signTx = function (nexus, script, payload, callback, onErrorCallback) {
         //Checks If Needed Script Is In Object
         if (script.script) {
@@ -6783,6 +6881,82 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    //Wallet Transaction Signing for Proof of Work
+    PhantasmaLink.prototype.signTxPow = function (nexus, script, payload, proofOfWork, callback, onErrorCallback) {
+        //Checks If Needed Script Is In Object
+        if (script.script) {
+            script = script.script;
+        }
+        //Overload Protection
+        if (script.length >= 65536) {
+            this.onMessage('Error: script is too big!');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        //Check Payload
+        if (payload == null) {
+            payload = '7068616e7461736d612d7473'; //Says 'Phantasma-ts' in hex
+        }
+        else if (typeof payload === 'string') { //Turn String Payload -> Bytes -> Hex
+            var sb = new vm_1.ScriptBuilder();
+            var bytes = sb.rawString(payload);
+            sb.appendBytes(bytes);
+            payload = sb.endScript();
+        }
+        else {
+            this.onMessage('Error: Invalid Payload');
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('signTxPow/' + nexus + '/main/' + script + '/' + payload + '/' + proofOfWork, function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result.hash.error);
+                    return;
+                }
+                that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
+    PhantasmaLink.prototype.getPeer = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getPeer/', function (result) {
+            if (result.success) {
+                if (result.hash.error) {
+                    that.onMessage('Error: ' + result);
+                    return;
+                }
+                that.onMessage('Peer Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
     PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
         //Checks If Needed Data Is In Object
@@ -6807,7 +6981,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback();
+                    onErrorCallback(result);
                 }
             }
         });
@@ -6819,7 +6993,9 @@ var PhantasmaLink = /** @class */ (function () {
         if (this.socket) {
             this.socket.close();
         }
+        // @ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint !== 'poltergeist'
+            // @ts-ignore
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
         this.requestCallback = null;
@@ -6871,7 +7047,7 @@ var PhantasmaLink = /** @class */ (function () {
                     that.onError('Could not obtain account info... Make sure you have an account currently logged in');
                     that.disconnect(true);
                     break;
-                case 'A previouus request is still pending' || 'A previous request is still pending':
+                case 'A previous request is still pending':
                     that.onError('You have a pending action in your wallet');
                     break;
                 case 'user rejected':
@@ -7002,7 +7178,7 @@ var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
         this.rpcName = "Auto";
-        this.nexus = nexus;
+        this.nexus = this.nexus;
         this.host = defHost;
         this.availableHosts = [];
         (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
@@ -7016,6 +7192,7 @@ var PhantasmaAPI = /** @class */ (function () {
                         _a.label = 2;
                     case 2:
                         if (!(i < data.length)) return [3 /*break*/, 7];
+                        console.log("Checking RPC: ", data[i]);
                         _a.label = 3;
                     case 3:
                         _a.trys.push([3, 5, , 6]);
@@ -7024,11 +7201,12 @@ var PhantasmaAPI = /** @class */ (function () {
                         msecs = _a.sent();
                         data[i].info = data[i].location + " • " + msecs + " ms";
                         data[i].msecs = msecs;
-                        //console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+                        console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
                         this.availableHosts.push(data[i]);
                         return [3 /*break*/, 6];
                     case 5:
                         err_1 = _a.sent();
+                        console.log("Error with RPC: " + data[i]);
                         return [3 /*break*/, 6];
                     case 6:
                         i++;
@@ -7083,14 +7261,14 @@ var PhantasmaAPI = /** @class */ (function () {
                                 params: params,
                                 id: "1",
                             }),
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            headers: { "Content-Type": "application/json" },
                         })];
                     case 1:
                         res = _a.sent();
                         return [4 /*yield*/, res.json()];
                     case 2:
                         resJson = _a.sent();
-                        //console.log("method", method, resJson);
+                        console.log("method", method, resJson);
                         if (resJson.error) {
                             if (resJson.error.message)
                                 return [2 /*return*/, { error: resJson.error.message }];
@@ -7699,10 +7877,16 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
-    function Transaction(nexusName, chainName, script, expiration, payload) {
+    function Transaction(nexusName, chainName, script, sender, gasPayer, gasTarget, gasPrice, gasLimit, version, expiration, payload) {
         this.nexusName = nexusName;
         this.chainName = chainName;
         this.script = script;
+        this.sender = sender;
+        this.gasPayer = gasPayer;
+        this.gasTarget = gasTarget;
+        this.gasPrice = gasPrice;
+        this.gasLimit = gasLimit;
+        this.version = version;
         this.expiration = expiration;
         this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
         this.signatures = [];
@@ -7722,8 +7906,15 @@ var Transaction = /** @class */ (function () {
         var sb = new vm_1.ScriptBuilder()
             .emitVarString(this.nexusName)
             .emitVarString(this.chainName)
+            .emitVarInt(this.version) // ng      
             .emitVarInt(this.script.length / 2)
             .appendHexEncoded(this.script)
+            .emitAddress(this.sender)
+            .emitAddress(this.gasPayer)
+            // .emitAddress(this.gasTarget)
+            .emitByteArray(new Array(34).fill(0))
+            .emitBigInteger(this.gasPrice)
+            .emitBigInteger(this.gasLimit)
             .emitBytes(expirationBytes)
             .emitVarInt(this.payload.length / 2)
             .appendHexEncoded(this.payload);
@@ -7748,7 +7939,8 @@ var Transaction = /** @class */ (function () {
     };
     Transaction.prototype.getHash = function () {
         var generatedHash = (0, sha256_1.default)(enc_hex_1.default.parse(this.toString(false)));
-        return (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());
+        this.hash = (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());
+        return this.hash;
     };
     Transaction.prototype.mineTransaction = function (difficulty) {
         if (difficulty < 0 || difficulty > 256) {
@@ -7756,7 +7948,7 @@ var Transaction = /** @class */ (function () {
             return;
         }
         var nonce = 0;
-        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
+        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), JSON.parse(JSON.stringify(this.gasPayer)), JSON.parse(JSON.stringify(this.gasTarget)), JSON.parse(JSON.stringify(this.gasPrice)), JSON.parse(JSON.stringify(this.gasLimit)), JSON.parse(JSON.stringify(this.version)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
         var payload = Buffer.alloc(4);
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
@@ -7894,7 +8086,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -7958,9 +8150,17 @@ function getDifficulty(transactionHash) {
             }
         }
     }
-    return (256 - result);
+    return 256 - result;
 }
 exports.getDifficulty = getDifficulty;
+function decodeBase16(hex) {
+    var str = "";
+    for (var i = 0; i < hex.length; i += 2) {
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    return str;
+}
+exports.decodeBase16 = decodeBase16;
 
 },{}],35:[function(require,module,exports){
 "use strict";
@@ -8330,28 +8530,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScriptBuilder = void 0;
+exports.ScriptBuilder = exports.Contracts = void 0;
+var bs58_1 = __importDefault(require("bs58"));
 var Opcode_1 = require("./Opcode");
 var VMType_1 = require("./VMType");
 var MaxRegisterCount = 32;
-var Nexus;
-(function (Nexus) {
-    Nexus["GasContractName"] = "gas";
-    Nexus["BlockContractName"] = "block";
-    Nexus["StakeContractName"] = "stake";
-    Nexus["SwapContractName"] = "swap";
-    Nexus["AccountContractName"] = "account";
-    Nexus["ConsensusContractName"] = "consensus";
-    Nexus["GovernanceContractName"] = "governance";
-    Nexus["StorageContractName"] = "storage";
-    Nexus["ValidatorContractName"] = "validator";
-    Nexus["InteropContractName"] = "interop";
-    Nexus["ExchangeContractName"] = "exchange";
-    Nexus["PrivacyContractName"] = "privacy";
-    Nexus["RelayContractName"] = "relay";
-    Nexus["RankingContractName"] = "ranking";
-})(Nexus || (Nexus = {}));
+var Contracts;
+(function (Contracts) {
+    Contracts["GasContractName"] = "gas";
+    Contracts["BlockContractName"] = "block";
+    Contracts["StakeContractName"] = "stake";
+    Contracts["SwapContractName"] = "swap";
+    Contracts["AccountContractName"] = "account";
+    Contracts["ConsensusContractName"] = "consensus";
+    Contracts["GovernanceContractName"] = "governance";
+    Contracts["StorageContractName"] = "storage";
+    Contracts["ValidatorContractName"] = "validator";
+    Contracts["InteropContractName"] = "interop";
+    Contracts["ExchangeContractName"] = "exchange";
+    Contracts["PrivacyContractName"] = "privacy";
+    Contracts["RelayContractName"] = "relay";
+    Contracts["RankingContractName"] = "ranking";
+})(Contracts = exports.Contracts || (exports.Contracts = {}));
 var ScriptBuilder = /** @class */ (function () {
     function ScriptBuilder() {
         this._labelLocations = {};
@@ -8392,6 +8621,34 @@ var ScriptBuilder = /** @class */ (function () {
         this.emit(Opcode_1.Opcode.EXTCALL);
         this.appendByte(reg);
         return this;
+    };
+    ScriptBuilder.prototype.emitBigInteger = function (value) {
+        var bytes = [];
+        if (value == '0') {
+            bytes = [0];
+        }
+        else if (value.startsWith('-1')) {
+            throw new Error('Unsigned bigint serialization not suppoted');
+        }
+        else {
+            var hex = BigInt(value).toString(16);
+            if (hex.length % 2)
+                hex = '0' + hex;
+            var len = hex.length / 2;
+            var i = 0;
+            var j = 0;
+            while (i < len) {
+                bytes.unshift(parseInt(hex.slice(j, j + 2), 16)); // little endian
+                i += 1;
+                j += 2;
+            }
+            bytes.push(0); // add sign at the end
+        }
+        return this.emitByteArray(bytes);
+    };
+    ScriptBuilder.prototype.emitAddress = function (textAddress) {
+        var bytes = __spreadArray([], __read(bs58_1.default.decode(textAddress.substring(1))), false);
+        return this.emitByteArray(bytes);
     };
     ScriptBuilder.prototype.rawString = function (value) {
         var data = [];
@@ -8557,15 +8814,10 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //#region ScriptBuilderExtensions
     ScriptBuilder.prototype.allowGas = function (from, to, gasPrice, gasLimit) {
-        return this.callContract(Nexus.GasContractName, "AllowGas", [
-            from,
-            to,
-            gasPrice,
-            gasLimit,
-        ]);
+        return this.callContract(Contracts.GasContractName, "AllowGas", []);
     };
     ScriptBuilder.prototype.spendGas = function (address) {
-        return this.callContract(Nexus.GasContractName, "SpendGas", [address]);
+        return this.callContract(Contracts.GasContractName, "SpendGas", []);
     };
     ScriptBuilder.prototype.callRPC = function (methodName, params) {
         return __awaiter(this, void 0, void 0, function () {
@@ -8588,6 +8840,11 @@ var ScriptBuilder = /** @class */ (function () {
         });
     };
     //#endregion
+    ScriptBuilder.prototype.emitByteArray = function (bytes) {
+        this.emitVarInt(bytes.length);
+        this.emitBytes(bytes);
+        return this;
+    };
     ScriptBuilder.prototype.emitVarString = function (text) {
         var bytes = this.rawString(text);
         this.emitVarInt(bytes.length);
@@ -8638,6 +8895,7 @@ var ScriptBuilder = /** @class */ (function () {
         // writer.Write(bytes);
         return this;
     };
+    //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
         var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
         return result;
@@ -8645,6 +8903,7 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.appendByte = function (byte) {
         this.str += this.byteToHex(byte);
     };
+    //Custom Modified
     ScriptBuilder.prototype.appendBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++) {
             this.appendByte(bytes[i]);
@@ -8662,7 +8921,7 @@ var ScriptBuilder = /** @class */ (function () {
 }());
 exports.ScriptBuilder = ScriptBuilder;
 
-},{"./Opcode":36,"./VMType":38}],38:[function(require,module,exports){
+},{"./Opcode":36,"./VMType":38,"bs58":45}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VMType = void 0;
@@ -10036,10 +10295,10 @@ var bigInt = (function (undefined) {
         var digits = toBase(range, BASE).value;
         var result = [], restricted = true;
         for (var i = 0; i < digits.length; i++) {
-            var top = restricted ? digits[i] : BASE;
+            var top = restricted ? digits[i] + (i + 1 < digits.length ? digits[i + 1] / BASE : 0) : BASE;
             var digit = truncate(usedRNG() * top);
             result.push(digit);
-            if (digit < top) restricted = false;
+            if (digit < digits[i]) restricted = false;
         }
         return low.add(Integer.fromArray(result, BASE, false));
     }

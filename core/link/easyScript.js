@@ -36,32 +36,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EasyScript = void 0;
+exports.EasyScript = exports.Nexus = void 0;
 var vm_1 = require("../vm");
+var Nexus;
+(function (Nexus) {
+    Nexus["Mainnet"] = "mainnet";
+    Nexus["Simnet"] = "simnet";
+    Nexus["Testnet"] = "testnet";
+})(Nexus = exports.Nexus || (exports.Nexus = {}));
 var EasyScript = /** @class */ (function () {
-    function EasyScript(_minimumFee, _gasLimit) {
-        if (_minimumFee === void 0) { _minimumFee = '100000'; }
-        if (_gasLimit === void 0) { _gasLimit = '900'; }
-        //Default Gas Profile
-        this.minimumFee = _minimumFee;
-        this.gasLimit = _gasLimit;
+    function EasyScript(nexus) {
+        if (nexus === void 0) { nexus = Nexus.Mainnet; }
+        this.nexus = nexus;
     }
-    EasyScript.prototype.createScript = function (_type, _options) {
+    EasyScript.prototype.buildScript = function (_type, _options) {
         if (_options === void 0) { _options = [null]; }
         return __awaiter(this, void 0, void 0, function () {
-            var accountAddressInteract, contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, accountAddressInterop, interopNameInterop, inputArgumentsInterop;
+            var contractNameInteract, methodNameInteract, inputArgumentsInteract, contractNameInvoke, methodNameInvoke, inputArgumentsInvoke, interopNameInterop, inputArgumentsInterop;
             return __generator(this, function (_a) {
                 this.sb = new vm_1.ScriptBuilder();
                 switch (_type) {
                     case 'interact':
-                        accountAddressInteract = _options[0];
-                        contractNameInteract = _options[1];
-                        methodNameInteract = _options[2];
-                        inputArgumentsInteract = _options[3];
+                        contractNameInteract = _options[0];
+                        methodNameInteract = _options[1];
+                        inputArgumentsInteract = _options[2];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInteract, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
-                                .callContract('gas', 'SpendGas', [accountAddressInteract]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                     case 'invoke':
@@ -73,17 +75,46 @@ var EasyScript = /** @class */ (function () {
                                 .endScript())];
                         break;
                     case 'interop':
-                        accountAddressInterop = _options[0];
-                        interopNameInterop = _options[1];
-                        inputArgumentsInterop = _options[2];
+                        interopNameInterop = _options[0];
+                        inputArgumentsInterop = _options[1];
                         return [2 /*return*/, (this.sb
-                                .callContract('gas', 'AllowGas', [accountAddressInterop, this.sb.nullAddress, this.minimumFee, this.gasLimit]) //Just for good measure
+                                .callContract('gas', 'AllowGas', [])
                                 .callInterop(interopNameInterop, inputArgumentsInterop)
-                                .callContract('gas', 'SpendGas', [accountAddressInterop]) //Just for good measure (optional)
+                                .callContract('gas', 'SpendGas', [])
                                 .endScript())];
                         break;
                 }
                 return [2 /*return*/];
+            });
+        });
+    };
+    EasyScript.prototype.contractDeployment = function (fromAddress, contractName, pvm, abi) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.DeployContract", [fromAddress, contractName, pvm, abi]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendFT = function (fromAddress, toAddress, tokenSymbol, amount) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, amount]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    EasyScript.prototype.sendNFT = function (fromAddress, toAddress, tokenSymbol, tokenId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, tokenId]])];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
             });
         });
     };
