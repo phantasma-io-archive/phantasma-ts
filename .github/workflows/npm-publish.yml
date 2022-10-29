@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    name: build
     runs-on: ubuntu-latest
     steps:
       - name: Setup
@@ -16,13 +17,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci
+
+      - name: Npm (ci) install
+        run: npm ci
 
       - name: Install Deps
-      - run: yarn install
+        run: yarn install
 
       - name: Run Build
-      - run: yarn build
+        run: yarn build
 
   publish-npm:
     needs: build
