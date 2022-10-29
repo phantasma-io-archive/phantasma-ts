@@ -5,7 +5,8 @@
   "main": "index.js",
   "types": "src/index.ts",
   "scripts": {
-    "build": "tsc && browserify index.js -s phantasma > html/phantasma.js"
+    "build": "tsc",
+    "export": "tsc && browserify index.js -s phantasma > html/phantasma.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,8 @@
     "crypto-js": "^4.1.1",
     "elliptic": "^6.5.4",
     "typescript": "^4.4.4",
-    "wif": "^2.0.6"
+    "wif": "^2.0.6",
+    "browserify": "^17.0.0"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.1",
