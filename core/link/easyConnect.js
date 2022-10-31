@@ -100,7 +100,7 @@ var EasyConnect = /** @class */ (function () {
                 console.log('EasyConnect could not connect to wallet');
             }
             ;
-        }, onFail, this.providerHint);
+        }, onFail, this.requiredVersion, this.platform, this.providerHint);
     };
     EasyConnect.prototype.disconnect = function (_message) {
         if (_message === void 0) { _message = 'Graceful Disconect'; }
@@ -209,7 +209,7 @@ var EasyConnect = /** @class */ (function () {
         if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
-        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail, proofOfWork);
     };
     return EasyConnect;
 }());

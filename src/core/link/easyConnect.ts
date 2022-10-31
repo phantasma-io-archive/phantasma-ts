@@ -79,7 +79,7 @@ export class EasyConnect{
                 console.log('EasyConnect could not connect to wallet');
             };
 
-        }, onFail, this.providerHint);
+        }, onFail, this.requiredVersion, this.platform, this.providerHint);
     }
 
     disconnect(_message: string = 'Graceful Disconect'){
@@ -171,7 +171,7 @@ export class EasyConnect{
     }
 
     deployContract(script: string, payload = null, proofOfWork: ProofOfWork = ProofOfWork.Minimal, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
-        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail, proofOfWork,);
     }
 
 

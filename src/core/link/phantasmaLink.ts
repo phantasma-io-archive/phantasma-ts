@@ -121,7 +121,7 @@ export class PhantasmaLink {
 
         //Check Payload
         if (payload == null) {
-            payload = '';    //Says 'Phantasma-ts' in hex
+            payload = '7068616e7461736d612d7473';    //Says 'Phantasma-ts' in hex
         } else if (typeof payload === 'string') {    //Turn String Payload -> Bytes -> Hex
             let sb = new ScriptBuilder();
             let bytes = sb.rawString(payload);
@@ -239,7 +239,9 @@ export class PhantasmaLink {
             this.socket.close();
         }
         
+        // @ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint!=='poltergeist'
+            // @ts-ignore
             ? new PhantasmaLinkSocket()
             : new WebSocket(path);
 

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Phantasma Contract Tester</title>
+
+
+    <script src="https://cdn.jsdelivr.net/gh/phantasma-io/phantasma-ts/html/phantasma.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ncwardell/PhantasmaConnect/public/phantasma.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ncwardell/PhantasmaConnect/public/basics.css">
+
+
+
+
+</head>
+
+<body>
+
+    <!-- Script To Connect -->
+    <script>
+
+        //Start The Puppy UP
+        let dapp = new phantasma.EasyConnect();
+
+        //Set Document inputs to Used Variables
+        let _contractName = "contractName";
+        let _methodName = "methodName";
+        let _inputArguments = "inputArguments"
+        let _scriptData = "scriptInput";
+        let _return = "returnBox";
+        let  _gasProfile = false;
+
+        //Toggle's to Manual Mode or Script Mode
+        function toggle() {
+            if (document.getElementById("scriptInputs").style.display === "none") {
+                document.getElementById("manualInputs").style.display = "none";
+                document.getElementById("scriptInputs").style.display = "block";
+            } else {
+                document.getElementById("scriptInputs").style.display = "none";
+                document.getElementById("manualInputs").style.display = "block";
+            }
+        };
+
+
+        async function compileTheScript(){
+
+            let script;
+
+            if (_gasProfile == true){
+                script = await dapp.script.buildScript('interact', [
+                    document.getElementById(_contractName).value,
+                    document.getElementById(_methodName).value, 
+                    document.getElementById(_inputArguments).value.split(", ")]
+                );
+
+            }else{
+                script = await dapp.script.buildScript('invoke', [
+                    document.getElementById(_contractName).value,
+                    document.getElementById(_methodName).value, 
+                    document.getElementById(_inputArguments).value.split(", ")]
+                );
+            };
+
+            console.log(script);
+            document.getElementById(_scriptData).value = script;
+        }
+
+        async function transactionSend(){
+            dapp.signTransaction(document.getElementById(_scriptData).value);
+        };
+
+        async function invokeSend(){
+            dapp.invokeScript(document.getElementById(_scriptData).value, (data) => {document.getElementById(_return).value = data});
+        };
+
+        async function donate(){
+            let donateScript = dapp.script.buildScript('interop', ["Runtime.SendTokens",[dapp.query('walletAddress'), 'P2KKCUp7CJFUUrYT51yJAJFefJYsavbHhGpJUBfVQ8E7uM2', 'KCAL', 20000000000]]).str;
+            dapp.signTransaction(donateScript);
+        }
+
+    </script>
+
+    <div
+        style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/001/905/573/small/blue-grunge-background-free-photo.jpg'); background-repeat: no-repeat; background-position: center; background-size: cover; height: 100vh;">
+        <br><br>
+        <div class="baseCard">
+            <br>
+
+            <div style="margin:auto;text-align:center; font-size: 28px; color: white; font-weight: bold;">Phantasma
+                Contract Tester
+            </div>
+
+            <div style="width:320px;height:85px;margin:auto;display:flex">
+                <div style="width:100px;height:45px;margin:20px;display:inline-flex">
+
+                    <!-- Connect Button -->
+                    <div style="margin:auto;">
+                        <button type="button" class="btn btn-lg" onclick="dapp.connect()">Connect</button>
+                    </div>
+
+                </div>
+
+                <div style="width:150px;height:45px;margin:20px;display:inline-flex;">
+                    <div style="margin:auto;">
+                        <button type="button" class="btn btn-lg" onclick="">Donate 2
+                            Kcal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div>
+
+            <div class="baseCard">
+
+                <br>
+                <div style="margin:auto; width:240px;">
+                    <div class="switch-button">
+                        <input class="switch-button-checkbox" type="checkbox" id="switchBox" onclick="toggle()"></input>
+                        <label class="switch-button-label" for="">
+                            <span class="switch-button-label-span">Manual</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="manualInputs">
+                    <div style="margin:auto; width:350px">
+                        <br>
+                        <br>
+                        <input type:" text" id="contractName" placeholder="Contract Name" class="basicInput"></input>
+                        <br>
+                        <br>
+                        <input type:"text" id="methodName" placeholder="Method Name" class="basicInput"></input>
+                        <br>
+                        <br>
+                        <input type:"text" id="inputArguments" placeholder="Arguments (argument1, argument2, etc...)"
+                            class="basicInput"></input>
+                    </div>
+                    <br>
+                    <div style="margin:auto; width:350px">
+                        <input type:"text" id="returnBox" placeholder="Returned Data" class="bigField" readonly></input>
+                    </div>
+                    <br>
+                    <div style="width:130px;height:45px;margin:auto;display:inline-flex;padding-left:40px">
+                        <div style="margin:auto;">
+                            <button type="button" class="btn btn-lg" onclick="compileTheScript()">Compile
+                                Script</button>
+                        </div>
+                    </div>
+                    <div style="width:130px;height:45px;margin:auto;display:inline-flex;padding-left:80px">
+                        <div style="margin:auto;">
+                            <button type="button" class="btn btn-lg" onclick="invokeSend()">Invoke Script</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="scriptInputs" style="display:none">
+                    <div style="margin:auto; width:350px">
+                        <br>
+                        <br>
+                        <input type:" text" id="scriptInput" placeholder="Compiled Script" class="bigField"></input>
+                    </div>
+                </div>
+
+                <br>
+
+                <div style="display:inline-flex; padding-left:40px; padding-right:40px; padding-bottom:50px">
+                    <input title="Enable Transactional Script" style="transform: scale(2)" type="checkbox"
+                        id="gasProfileCheckbox" onclick="gasProfileToggle()"></checkbox>
+                </div>
+
+                <div style="width:200px;height:68px;margin:auto;border-style:double; display:inline-flex;">
+                    <div style="width:175px;height:46px;margin:auto;">
+                        <button type="button" class="btn btn-lg" style="margin:auto;" onclick="transactionSend()">Send
+                            Transaction</button>
+                    </div>
+                </div>
+                <br>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>
