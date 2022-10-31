@@ -53,6 +53,7 @@ export enum EventKind {
   Log = 48,
   Inflation = 49,
   OrderBid = 59,
+  MasterClaim = 61,
   Custom = 64,
 }
 
