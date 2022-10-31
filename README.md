@@ -104,9 +104,9 @@ let sb = new phantasmaJS.ScriptBuilder();
 
 //Here is an example of a Transactional Script
     sb
-    .callContract('gas', 'AllowGas', ['fromAddress', sb.nullAddress, '100000', '900'])
+    .callContract('gas', 'AllowGas', [])
     .callInterop("Runtime.TransferTokens", ['fromAddress', 'toAddress', 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-    .callContract('gas', 'SpendGas', ['fromAddress'])
+    .callContract('gas', 'SpendGas', [])
     .endScript();
 
 --- OR ----
@@ -163,14 +163,14 @@ async function sendTransaction() {
         //Creating a new Script Builder Object
         let sb = new phantasmaJS.ScriptBuilder();
 
-        //Creating RPC Connection
+        //Creating RPC Connection **(Needs To Be Updated)
         let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
         //Making a Script
         sb
-            .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, '100000', '900'])
+            .callContract('gas', 'AllowGas', [])
             .callInterop("Runtime.TransferTokens", [fromAddress, toAddress, 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-            .callContract('gas', 'SpendGas', [fromAddress])
+            .callContract('gas', 'SpendGas', [])
             .endScript();
 
         //Gives us a string version of the Script
@@ -185,11 +185,18 @@ async function sendTransaction() {
 
         //Creating New Transaction Object
         let transaction = new phantasmaJS.Transaction(
-            'mainnet', //Nexus Name
-            'main',    //Chain
-            script,    //In string format
-            date,      //Expiration Date
-            payload);  //Extra Info to attach to Transaction in Serialized Hex
+            'testnet',  //Nexus Name
+            'main',     //Chain
+            script,     //In string format
+            sender,     //Address of wallet sending
+            gasPayer,   //Address
+            gasTarget,  //Address
+            gasPrice,   //Gas price string
+            gasLimit,   //Gas limit in string
+            version,    //Number
+            expiration, //Date Object
+            payload     //Extra Info to attach to Transaction in Serialized Hex
+        );
 
         //Sign's Transaction with Private Key
         await transaction.sign(privateKey);
@@ -224,9 +231,9 @@ async function deployContract() {
 
     //Making a Script
     sb
-        .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, '10000000', '900'])
+        .callContract('gas', 'AllowGas', [])
         .callInterop("Runtime.DeployContract", [fromAddress, contractName, pvm, abi])
-        .callContract('gas', 'SpendGas', [fromAddress])
+        .callContract('gas', 'SpendGas', [])
         .endScript();
 
     //Gives us a string version of the Script
@@ -246,13 +253,13 @@ async function deployContract() {
         'testnet',  //Nexus Name
         'main',     //Chain
         script,     //In string format
-        date,       //Expiration Date
+        sender,     //Address of wallet sending
         gasPayer,   //Address
         gasTarget,  //Address
-        gasPrice,   //bigInt
-        gasLimit,   //bigInt
+        gasPrice,   //Gas price string
+        gasLimit,   //Gas limit in string
         version,    //Number
-        expiration, //Date
+        expiration, //Date Object
         payload     //Extra Info to attach to Transaction in Serialized Hex
     );
 
@@ -473,6 +480,24 @@ link.signTx(nexus, script, payload, callback, onErrorCallback);  //Signs a Trans
 ```
 
 ```javascript
+link.signTxPow(nexus, script, payload, proofOfWork, callback, onErrorCallback);  //Signs a Transaction via Wallet with ProofOfWork Attached (Used for Contract Deployment)
+
+//ProofOfWork Enum
+enum ProofOfWork {
+    None = 0,
+    Minimal = 5,
+    Moderate = 15,
+    Hard = 19,
+    Heavy = 24,
+    Extreme = 30
+}
+```
+
+```javascript
+link.getPeer(callback, onErrorCallback); //Get's the peer list for the currently connected network
+```
+
+```javascript
 link.signData(data, callback, onErrorCallback);  //Allows you to sign some data via your Wallet (Sends results as an Argument to Callback Function)
 ```
 
@@ -520,7 +545,8 @@ EasyConnect is a plug and play wrapper for PhantasmaLink that makes creating a D
 
 Since EasyConnect is a Class we are going to initiate a new EasyConnect object.
 ```javascript
-let link = new EasyConnect(); //Has Optional Arguments
+//Optional Arguments [ requiredVersion: number, platform: string, providerHint: string]
+let link = new EasyConnect(); //Has Optional Arguments input as Array
 ```
 
 ### Core Functions
@@ -534,11 +560,11 @@ link.disconnect(_message: string); //Allows you to disconnect from the wallet wi
 ```
 
 ```javascript
-link.signTransaction(); //*
+link.signTransaction(script: string, payload: string, onSuccess, onFail); //Used to send a transaction to Wallet
 ```
 
 ```javascript
-link.createTransaction(); //*
+link.signData(data:any, onSuccess, onFail); //Allows you to sign data with a wallet keypair
 ```
 
 ```javascript
@@ -546,15 +572,40 @@ link.setConfig(_provider: string); //Allows you to set wallet provider, 'auto', 
 ```
 
 ```javascript
-link.query(_type: string, _arguments: Array<string>, _callback; //Allows you to query connected wallet/account information (arguments and callback are optional)
+//Allows Async aswell
+link.query(_type: string, _arguments: Array<string>, _callback); //Allows you to query connected wallet/account information (arguments and callback are optional)
 ```
 
 ```javascript
-link.createScript(_type: string, _arguments: Array<string>, _callback); //Allows you to quickly create a script with only arguments
+//Allows Async aswell
+link.action(_type: string, _arguments: Array<string>, _callback); //Allows you to send a specified action quickly
 ```
 
 ```javascript
-link.invokeScript(); //*
+//Allows Async aswell
+link.script.buildScript(_type: string, _arguments: Array<string>, _callback); //Allows you to quickly create a script with only arguments
+// Script Types
+// 'interact', [contractName, methodName, [arguments]]
+// 'invoke', [contractName, methodName, [arguments]]
+// 'interop', [interopName, [arguments]]
+```
+
+```javascript
+link.invokeScript(script: string, _callback); //Allows you to query data from smart contracts on Phantasma (Non Transactional)
+```
+
+```javascript
+link.deployContract(script: string, payload:string, proofOfWork, onSuccess, onFail) //Allows you to deploy a contract script
+
+//Proof of Work Enum
+export enum ProofOfWork {
+    None = 0,
+    Minimal = 5,
+    Moderate = 15,
+    Hard = 19,
+    Heavy = 24,
+    Extreme = 30
+}
 ```
 
 ### Query Function
@@ -580,4 +631,26 @@ await link.query('walletAddress'); //Shows connected wallet address
 await link.query('avatar'); //Shows connected wallet avatar
 ```
 
+### Action Function
+The Action function is an async function that also allows you to use callbacks. You can use it is a promise, or in a chain!
+
+```javascript
+await link.action('sendFT', [fromAddress:string, toAddress:string, tokenSymbol:string, amount:number]); //Send Fungible Token
+```
+
+```javascript
+await link.action('sendNFT', [fromAddress:string, toAddress:string, tokenSymbol:string, tokenID:number]); //Send Non Fungible Token
+```
+
 ### Easy Script Create
+(WIP)
+Allows you to generate scripts quickly.
+
+```javascript
+async buildScript(_type: string, _options: Array<any>);
+// Script Types
+// 'interact', [contractName, methodName, [arguments]]
+// 'invoke', [contractName, methodName, [arguments]]
+// 'interop', [interopName, [arguments]]
+```
+

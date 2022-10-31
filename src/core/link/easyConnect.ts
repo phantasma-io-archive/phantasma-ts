@@ -142,16 +142,14 @@ export class EasyConnect{
             switch(_type){
 
                 case 'sendFT':
-                    let sendFTScript = await this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])
+                    let sendFTScript = await this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]]);
                     this.signTransaction(sendFTScript, null, onSuccess, onFail);
                 break;
 
                 case 'sendNFT':
-                    let sendNFTScript = await this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])
+                    let sendNFTScript = await this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]]);
                     this.signTransaction(sendNFTScript, null, onSuccess, onFail);
                 break;
-
-
             }
 
         }else{
@@ -166,6 +164,10 @@ export class EasyConnect{
 
     signData(data:any, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
         this.link.signData(data, onSuccess, onFail)
+    }
+
+    invokeScript(script: string, _callback: any){
+        this.link.invokeScript(script, _callback);
     }
 
     deployContract(script: string, payload = null, proofOfWork: ProofOfWork = ProofOfWork.Minimal, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){

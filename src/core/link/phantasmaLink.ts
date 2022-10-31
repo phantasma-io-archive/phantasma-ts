@@ -198,10 +198,6 @@ export class PhantasmaLink {
             'getPeer/',
             function(result) {
                 if (result.success) {          
-                    if (result.hash.error) {
-                        that.onMessage('Error: ' + result);
-                        return;
-                    }
                     that.onMessage('Peer Query,: ' + result);
                     if (callback) {
                         callback(result);

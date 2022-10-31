@@ -67,23 +67,4 @@ export class EasyScript {
         }
 
     }
-    async contractDeployment(fromAddress, contractName, pvm, abi){
-        return (
-            await this.buildScript('interop', ["Runtime.DeployContract", [fromAddress, contractName, pvm, abi]])
-        );
-    }
-
-    async sendFT(fromAddress: string, toAddress: string, tokenSymbol: string, amount: number){
-        return (
-            await this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, amount]])
-        );
-    }
-
-    async sendNFT(fromAddress: string, toAddress: string, tokenSymbol: string, tokenId: number){
-        return (
-            await this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, tokenId]])
-        );
-    }
-
-
 }
