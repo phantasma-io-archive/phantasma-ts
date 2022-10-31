@@ -47,6 +47,7 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and Easy
 3. [EasyConnect](#easyconnect) - Easy plug and play solution for creating DApps
     - [Core Functions](#Core-Functions)
     - [Query Function](#Query-Function)
+    - [Action Function](#Action-Function)
     - [Easy Script](#Easy-Script-Create)
 
 4. [Misc]
@@ -226,6 +227,7 @@ async function deployContract() {
     //Creating a new Script Builder Object
     let sb = new phantasmaJS.ScriptBuilder();
 
+    //New RPC and Peers Needed
     //Creating RPC Connection, use ('http://testnet.phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'testnet') for testing
     let RPC = new phantasmaJS.PhantasmaAPI('http://phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 

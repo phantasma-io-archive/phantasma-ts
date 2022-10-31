@@ -171,12 +171,12 @@ var EasyConnect = /** @class */ (function () {
                             case 'sendNFT': return [3 /*break*/, 3];
                         }
                         return [3 /*break*/, 5];
-                    case 1: return [4 /*yield*/, this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 1: return [4 /*yield*/, this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]])];
                     case 2:
                         sendFTScript = _b.sent();
                         this.signTransaction(sendFTScript, null, onSuccess, onFail);
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 3: return [4 /*yield*/, this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]])];
                     case 4:
                         sendNFTScript = _b.sent();
                         this.signTransaction(sendNFTScript, null, onSuccess, onFail);
@@ -200,6 +200,9 @@ var EasyConnect = /** @class */ (function () {
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
         this.link.signData(data, onSuccess, onFail);
+    };
+    EasyConnect.prototype.invokeScript = function (script, _callback) {
+        this.link.invokeScript(script, _callback);
     };
     EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
         if (payload === void 0) { payload = null; }

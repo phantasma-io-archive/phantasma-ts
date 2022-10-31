@@ -22,7 +22,7 @@ var curve = new elliptic_1.eddsa("ed25519");
 function ab2hexstring(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
-        throw new Error("ab2hexstring expects an array.Input was ".concat(arr));
+        throw new Error("ab2hexstring expects an array.Input was " + arr);
     }
     var result = "";
     var intArray = new Uint8Array(arr);

@@ -14,8 +14,8 @@ var ProofOfWork;
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
-        if (logging === void 0) { logging = true; }
         var _this = this;
+        if (logging === void 0) { logging = true; }
         //Message Logging
         this.onMessage = function (msg) {
             if (_this.messageLogging == true) {
@@ -167,10 +167,6 @@ var PhantasmaLink = /** @class */ (function () {
         //Sends Signiture Request To Connected Wallet For Script
         this.sendLinkRequest('getPeer/', function (result) {
             if (result.success) {
-                if (result.hash.error) {
-                    that.onMessage('Error: ' + result);
-                    return;
-                }
                 that.onMessage('Peer Query,: ' + result);
                 if (callback) {
                     callback(result);

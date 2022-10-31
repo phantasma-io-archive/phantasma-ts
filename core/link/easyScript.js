@@ -88,36 +88,6 @@ var EasyScript = /** @class */ (function () {
             });
         });
     };
-    EasyScript.prototype.contractDeployment = function (fromAddress, contractName, pvm, abi) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.DeployContract", [fromAddress, contractName, pvm, abi]])];
-                    case 1: return [2 /*return*/, (_a.sent())];
-                }
-            });
-        });
-    };
-    EasyScript.prototype.sendFT = function (fromAddress, toAddress, tokenSymbol, amount) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, amount]])];
-                    case 1: return [2 /*return*/, (_a.sent())];
-                }
-            });
-        });
-    };
-    EasyScript.prototype.sendNFT = function (fromAddress, toAddress, tokenSymbol, tokenId) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.buildScript('interop', ["Runtime.SendTokens", [fromAddress, toAddress, tokenSymbol, tokenId]])];
-                    case 1: return [2 /*return*/, (_a.sent())];
-                }
-            });
-        });
-    };
     return EasyScript;
 }());
 exports.EasyScript = EasyScript;
