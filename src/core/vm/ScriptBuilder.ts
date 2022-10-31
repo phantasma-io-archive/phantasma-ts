@@ -310,15 +310,11 @@ export class ScriptBuilder {
   //#region ScriptBuilderExtensions
 
   public allowGas(
-    from: string,
-    to: string,
-    gasPrice: number,
-    gasLimit: number
   ): this {
     return this.callContract(Contracts.GasContractName, "AllowGas", []);
   }
 
-  public spendGas(address: string): this {
+  public spendGas(): this {
     return this.callContract(Contracts.GasContractName, "SpendGas", []);
   }
 
