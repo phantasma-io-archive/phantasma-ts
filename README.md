@@ -165,7 +165,7 @@ async function sendTransaction() {
         let sb = new phantasmaJS.ScriptBuilder();
 
         //Creating RPC Connection **(Needs To Be Updated)
-        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
         //Making a Script
         sb
@@ -228,8 +228,8 @@ async function deployContract() {
     let sb = new phantasmaJS.ScriptBuilder();
 
     //New RPC and Peers Needed
-    //Creating RPC Connection, use ('http://testnet.phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'testnet') for testing
-    let RPC = new phantasmaJS.PhantasmaAPI('http://phantasma.io:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+    //Creating RPC Connection, use ('http://testnet.phantasma.io:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'testnet') for testing
+    let RPC = new phantasmaJS.PhantasmaAPI('http://phantasma.io:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
     //Making a Script
     sb

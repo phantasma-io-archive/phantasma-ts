@@ -194,7 +194,7 @@ var EasyConnect = /** @class */ (function () {
         if (payload === void 0) { payload = null; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
-        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail);
     };
     EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
         if (onSuccess === void 0) { onSuccess = function (data) { }; }

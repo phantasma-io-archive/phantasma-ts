@@ -159,7 +159,7 @@ export class EasyConnect{
 
     
     signTransaction(script: string, payload = null, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){
-        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail);
     }
 
     signData(data:any, onSuccess: any = (data) => {}, onFail: any = (data) => {console.log('%cError: ' + data, 'color:red')}){

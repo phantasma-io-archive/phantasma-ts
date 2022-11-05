@@ -15,7 +15,7 @@ export class EasyScript {
         this.nexus = nexus;
     }
 
-    async buildScript(_type: string, _options: Array<any> = [null]){
+    buildScript(_type: string, _options: Array<any> = [null]){
 
         this.sb = new ScriptBuilder();
 
@@ -25,7 +25,7 @@ export class EasyScript {
 
                 let contractNameInteract: string = _options[0];
                 let methodNameInteract: string = _options[1];
-                let inputArgumentsInteract: Array<string> = _options[2]
+                let inputArgumentsInteract: Array<any> = _options[2]
 
 
                 return (
@@ -41,7 +41,7 @@ export class EasyScript {
 
                 let contractNameInvoke: string = _options[0];
                 let methodNameInvoke: string = _options[1];
-                let inputArgumentsInvoke: Array<string> = _options[2]
+                let inputArgumentsInvoke: Array<any> = _options[2]
 
                 return (
                 this.sb
