@@ -11,6 +11,7 @@ var Nexus;
 var EasyScript = /** @class */ (function () {
     function EasyScript(nexus) {
         if (nexus === void 0) { nexus = Nexus.Mainnet; }
+        this.sb = new vm_1.ScriptBuilder();
         this.nexus = nexus;
     }
     EasyScript.prototype.buildScript = function (_type, _options) {
