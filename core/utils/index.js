@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -34,7 +34,7 @@ exports.hexStringToBytes = hexStringToBytes;
 function byteArrayToHex(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
-        throw new Error("ba2hex expects an array.Input was " + arr);
+        throw new Error("ba2hex expects an array.Input was ".concat(arr));
     }
     var result = "";
     var intArray = new Uint8Array(arr);
@@ -86,3 +86,9 @@ function decodeBase16(hex) {
     return str;
 }
 exports.decodeBase16 = decodeBase16;
+function encodeBase16(str) {
+    return str.split("")
+        .map(function (c) { return c.charCodeAt(0).toString(16).padStart(2, "0"); })
+        .join("");
+}
+exports.encodeBase16 = encodeBase16;

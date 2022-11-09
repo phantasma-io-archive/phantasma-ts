@@ -15,11 +15,6 @@ export class Transaction {
   nexusName: string;
   chainName: string;
   sender: string;
-  gasPayer: string;
-  gasTarget: string;
-  gasPrice: string;
-  gasLimit: string;
-  version: number;
   payload: string;
   expiration: Date;
   signatures: Array<ISignature>;
@@ -30,11 +25,6 @@ export class Transaction {
     chainName: string,
     script: string,
     sender: string,
-    gasPayer: string,
-    gasTarget: string,
-    gasPrice: string,
-    gasLimit: string,
-    version: number,
     expiration: Date,
     payload: string
   ) {
@@ -42,11 +32,6 @@ export class Transaction {
     this.chainName = chainName;
     this.script = script;
     this.sender = sender;
-    this.gasPayer = gasPayer;
-    this.gasTarget = gasTarget;
-    this.gasPrice = gasPrice;
-    this.gasLimit = gasLimit;
-    this.version = version;
     this.expiration = expiration;
     this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
     this.signatures = [];
@@ -78,15 +63,11 @@ export class Transaction {
     let sb = new ScriptBuilder()
       .emitVarString(this.nexusName)
       .emitVarString(this.chainName)
-      .emitVarInt(this.version)  // ng      
       .emitVarInt(this.script.length / 2)
       .appendHexEncoded(this.script)
       .emitAddress(this.sender)
-      .emitAddress(this.gasPayer)
       // .emitAddress(this.gasTarget)
       .emitByteArray(new Array(34).fill(0))
-      .emitBigInteger(this.gasPrice)
-      .emitBigInteger(this.gasLimit)
       .emitBytes(expirationBytes)
       .emitVarInt(this.payload.length / 2)
       .appendHexEncoded(this.payload);
@@ -128,11 +109,6 @@ export class Transaction {
       JSON.parse(JSON.stringify(this.chainName)),
       JSON.parse(JSON.stringify(this.script)),
       JSON.parse(JSON.stringify(this.sender)),
-      JSON.parse(JSON.stringify(this.gasPayer)),
-      JSON.parse(JSON.stringify(this.gasTarget)),
-      JSON.parse(JSON.stringify(this.gasPrice)),
-      JSON.parse(JSON.stringify(this.gasLimit)),
-      JSON.parse(JSON.stringify(this.version)),
       this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );

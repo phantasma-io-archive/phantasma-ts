@@ -14,8 +14,8 @@ var ProofOfWork;
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
-        var _this = this;
         if (logging === void 0) { logging = true; }
+        var _this = this;
         this.requestID = 0;
         //Message Logging
         this.onMessage = function (msg) {
@@ -72,9 +72,9 @@ var PhantasmaLink = /** @class */ (function () {
         else {
             requestStr = this.nexus + "/" + requestStr;
         }
-        requestStr = 'invokeScript/' + requestStr;
+        var invokeScriptRequest = 'invokeScript/' + requestStr;
         var that = this;
-        this.sendLinkRequest(requestStr, function (result) {
+        this.sendLinkRequest(invokeScriptRequest, function (result) {
             if (result.success) {
                 that.onMessage('Invoke successful, hash: ' + result + '...');
                 if (callback) {
@@ -87,10 +87,6 @@ var PhantasmaLink = /** @class */ (function () {
     PhantasmaLink.prototype.signTx = function (script, payload, callback, onErrorCallback, pow, signature) {
         if (pow === void 0) { pow = ProofOfWork.None; }
         if (signature === void 0) { signature = "Ed25519"; }
-        //Checks If Needed Script Is In Object
-        if (script.script) {
-            script = script.script;
-        }
         //Overload Protection
         if (script.length >= 65536) {
             this.onMessage('Error: script is too big!');
@@ -161,22 +157,46 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    PhantasmaLink.prototype.getNexus = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getNexus/', function (result) {
+            if (result.success) {
+                that.onMessage('Nexus Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+                ;
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
-    PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback) {
-        //Checks If Needed Data Is In Object
-        if (data.data) {
-            data = data.data;
+    PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback, signature) {
+        if (signature === void 0) { signature = "Ed25519"; }
+        if (!this.socket) {
+            this.onMessage("not logged in");
+            return;
         }
-        //Overload Protection
-        if (data.length >= 65536) {
-            this.onMessage('Error: data is too big!');
+        if (data == null) {
+            this.onMessage("invalid data, sorry :(");
+            return;
+        }
+        if (data.length >= 1024) {
+            this.onMessage("data too big, sorry :(");
             if (onErrorCallback) {
                 onErrorCallback();
             }
             return;
         }
+        var signDataStr = "signData/" + data + "/" + signature + "/" + this.platform;
         var that = this; //Allows the use of 'this' inside sendLinkRequest Object
-        this.sendLinkRequest('signData/' + data + '/1', function (result) {
+        this.sendLinkRequest(signDataStr, function (result) {
             if (result.success) {
                 that.onMessage('Data successfully signed');
                 if (callback) {
@@ -197,7 +217,7 @@ var PhantasmaLink = /** @class */ (function () {
         if (this.socket) {
             this.socket.close();
         }
-        // @ts-ignore
+        //@ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint !== 'poltergeist'
             // @ts-ignore
             ? new PhantasmaLinkSocket()
@@ -206,17 +226,19 @@ var PhantasmaLink = /** @class */ (function () {
         this.token = null;
         this.account = null;
         this.requestID = 0;
+        var authorizeRequest = 'authorize/' + this.dapp + '/' + this.version;
+        var getAccountRequest = 'getAccount/' + this.platform;
         var that = this;
         //Once Socket Opened
         this.socket.onopen = function (e) {
             that.onMessage('Connection established, authorizing dapp in wallet...');
-            that.sendLinkRequest('authorize/' + that.dapp, function (result) {
+            that.sendLinkRequest(authorizeRequest, function (result) {
                 //Set Global Variables With Successful Account Query
                 if (result.success) {
                     that.token = result.token;
                     that.wallet = result.wallet;
                     that.onMessage('Authorized, obtaining account info...');
-                    that.sendLinkRequest('getAccount', function (result) {
+                    that.sendLinkRequest(getAccountRequest, function (result) {
                         if (result.success) {
                             that.account = result;
                         }
@@ -306,9 +328,12 @@ var PhantasmaLink = /** @class */ (function () {
         this.createSocket();
     };
     Object.defineProperty(PhantasmaLink.prototype, "dappID", {
-        //Get Dapp ID Name Util
         get: function () {
             return this.dapp;
+        },
+        //Get Dapp ID Name Util
+        set: function (dapp) {
+            this.dapp = dapp;
         },
         enumerable: false,
         configurable: true

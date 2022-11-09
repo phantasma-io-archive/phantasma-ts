@@ -11,16 +11,11 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
-    function Transaction(nexusName, chainName, script, sender, gasPayer, gasTarget, gasPrice, gasLimit, version, expiration, payload) {
+    function Transaction(nexusName, chainName, script, sender, expiration, payload) {
         this.nexusName = nexusName;
         this.chainName = chainName;
         this.script = script;
         this.sender = sender;
-        this.gasPayer = gasPayer;
-        this.gasTarget = gasTarget;
-        this.gasPrice = gasPrice;
-        this.gasLimit = gasLimit;
-        this.version = version;
         this.expiration = expiration;
         this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
         this.signatures = [];
@@ -40,15 +35,11 @@ var Transaction = /** @class */ (function () {
         var sb = new vm_1.ScriptBuilder()
             .emitVarString(this.nexusName)
             .emitVarString(this.chainName)
-            .emitVarInt(this.version) // ng      
             .emitVarInt(this.script.length / 2)
             .appendHexEncoded(this.script)
             .emitAddress(this.sender)
-            .emitAddress(this.gasPayer)
             // .emitAddress(this.gasTarget)
             .emitByteArray(new Array(34).fill(0))
-            .emitBigInteger(this.gasPrice)
-            .emitBigInteger(this.gasLimit)
             .emitBytes(expirationBytes)
             .emitVarInt(this.payload.length / 2)
             .appendHexEncoded(this.payload);
@@ -82,7 +73,7 @@ var Transaction = /** @class */ (function () {
             return;
         }
         var nonce = 0;
-        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), JSON.parse(JSON.stringify(this.gasPayer)), JSON.parse(JSON.stringify(this.gasTarget)), JSON.parse(JSON.stringify(this.gasPrice)), JSON.parse(JSON.stringify(this.gasLimit)), JSON.parse(JSON.stringify(this.version)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
+        var deepCopy = new Transaction(JSON.parse(JSON.stringify(this.nexusName)), JSON.parse(JSON.stringify(this.chainName)), JSON.parse(JSON.stringify(this.script)), JSON.parse(JSON.stringify(this.sender)), this.expiration, JSON.parse(JSON.stringify(this.payload)));
         var payload = Buffer.alloc(4);
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {

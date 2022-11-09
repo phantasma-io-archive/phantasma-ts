@@ -60,3 +60,9 @@ export function decodeBase16(hex: string) {
   }
   return str;
 }
+
+export function encodeBase16(str: string){
+  return str.split("")
+  .map(c => c.charCodeAt(0).toString(16).padStart(2, "0"))
+  .join("");
+}
