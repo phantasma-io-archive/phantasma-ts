@@ -1,6 +1,6 @@
 {
   "name": "phantasma-ts",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Javascript SDK for interacting with the PhantasmaChain",
   "main": "index.js",
   "types": "src/index.ts",
@@ -26,8 +26,7 @@
     "crypto-js": "^4.1.1",
     "elliptic": "^6.5.4",
     "typescript": "^4.4.4",
-    "wif": "^2.0.6",
-    "browserify": "^17.0.0"
+    "wif": "^2.0.6"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.1",
