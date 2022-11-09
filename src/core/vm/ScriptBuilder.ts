@@ -310,12 +310,16 @@ export class ScriptBuilder {
   //#region ScriptBuilderExtensions
 
   public allowGas(
+    from: string,
+    to: string,
+    gasPrice: number,
+    gasLimit: number
   ): this {
-    return this.callContract(Contracts.GasContractName, "AllowGas", []);
+    return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
   }
 
-  public spendGas(): this {
-    return this.callContract(Contracts.GasContractName, "SpendGas", []);
+  public spendGas(address: string): this {
+    return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
   }
 
   async callRPC<T>(methodName: string, params: any[]): Promise<T> {
