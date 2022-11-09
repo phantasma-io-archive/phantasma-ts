@@ -14,6 +14,9 @@ export class EasyConnect{
 
     constructor(_options: Array<string> = null){
 
+        this.platform = "phantasma";
+        this.providerHint = "poltergeist";
+        this.script = new EasyScript();
         this.link = new PhantasmaLink("easyConnect", false);
         this.connected = false;
         this.requiredVersion = 2;

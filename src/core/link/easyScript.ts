@@ -12,6 +12,7 @@ export class EasyScript {
     sb: ScriptBuilder;
 
     constructor(nexus: Nexus = Nexus.Mainnet) {
+        this.sb = new ScriptBuilder();
         this.nexus = nexus;
     }
 

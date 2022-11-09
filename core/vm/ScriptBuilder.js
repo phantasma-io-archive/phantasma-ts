@@ -318,11 +318,11 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     //#region ScriptBuilderExtensions
-    ScriptBuilder.prototype.allowGas = function () {
-        return this.callContract(Contracts.GasContractName, "AllowGas", []);
+    ScriptBuilder.prototype.allowGas = function (from, to, gasPrice, gasLimit) {
+        return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
     };
-    ScriptBuilder.prototype.spendGas = function () {
-        return this.callContract(Contracts.GasContractName, "SpendGas", []);
+    ScriptBuilder.prototype.spendGas = function (address) {
+        return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
     };
     ScriptBuilder.prototype.callRPC = function (methodName, params) {
         return __awaiter(this, void 0, void 0, function () {

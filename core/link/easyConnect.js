@@ -42,6 +42,9 @@ var easyScript_1 = require("./easyScript");
 var EasyConnect = /** @class */ (function () {
     function EasyConnect(_options) {
         if (_options === void 0) { _options = null; }
+        this.platform = "phantasma";
+        this.providerHint = "poltergeist";
+        this.script = new easyScript_1.EasyScript();
         this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
         this.connected = false;
         this.requiredVersion = 2;
