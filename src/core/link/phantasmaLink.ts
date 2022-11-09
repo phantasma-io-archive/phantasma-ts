@@ -20,14 +20,22 @@ export class PhantasmaLink {
     socket: any
     requestCallback: any
     token: any
-    requestID: number
+    requestID: number = 0
     account: any
     wallet: any
     messageLogging: boolean
+    version: number
+    nexus: string
+    chain: string
+    platform: string
 
     //Construct The Link
     constructor(dappID: any, logging: boolean = true) {
-        
+        this.version = 2;
+        this.nexus = "testnet";
+        this.chain = "main";
+        this.platform = "poltergeist";
+
         //Turn On|Off Console Logging
         if(logging == false){
             this.messageLogging = false;
@@ -35,7 +43,8 @@ export class PhantasmaLink {
             this.messageLogging = true;
             console.log('%cPhantasmaLink created', 'color:green');
         }
-        
+
+        this.requestID = 0;
         //Standard Sets
         this.host = 'localhost:7090';
         this.dapp = dappID;
@@ -50,20 +59,41 @@ export class PhantasmaLink {
     }
 
     //Connect To Wallet
-    login(onLoginCallback, onErrorCallback, providerHint) {
+    login(onLoginCallback, onErrorCallback, version = 2, platform = "phantasma", providerHint = "poltergeist") {
         this.providerHint = providerHint;
         this.onLogin = onLoginCallback;
         this.onError = onErrorCallback;
+        this.version = version;
+        this.platform = platform;
+        this.providerHint = providerHint;
         this.createSocket();
     }
 
     //Script Invoking With Wallet Connection
     invokeScript(script, callback) {
         this.onMessage('Relaying transaction to wallet...');
+        if (!this.socket) {
+            callback("not logged in");
+            return;
+        }
+
+        if (script.length >= 8192) {
+            callback("script too big, sorry :(");
+            return;
+        }
+		let requestStr = this.chain + "/" + script;
+        if (this.version >= 2) {
+            requestStr = requestStr;
+        } else {
+            requestStr = this.nexus + "/" + requestStr;
+        }
+
+        let invokeScriptRequest = 'invokeScript/' + requestStr;
+
         var that = this;
-        this.sendLinkRequest('invokeScript/' + script, function(result) {
+        this.sendLinkRequest(invokeScriptRequest, function(result) {
             if (result.success) {
-                that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
+                that.onMessage('Invoke successful, hash: ' + result + '...');
                 if (callback) {
                     callback(result);
                 }
@@ -71,14 +101,9 @@ export class PhantasmaLink {
         });
     }
 
-    //Wallet Transaction Signing + Sending
-    signTx(nexus, script, payload, callback, onErrorCallback) {
+    //Wallet Transaction Signing + 
+    signTx(script, payload: string | null, callback: (arg0: any) => void, onErrorCallback: () => void, pow = ProofOfWork.None, signature = "Ed25519") {
         
-        //Checks If Needed Script Is In Object
-        if (script.script) {
-            script = script.script
-        }
-
         //Overload Protection
         if (script.length >= 65536) {
             this.onMessage('Error: script is too big!');
@@ -107,67 +132,16 @@ export class PhantasmaLink {
         this.onError = onErrorCallback  //Sets Error Callback Function
         let that = this                 //Allows the use of 'this' inside sendLinkRequest Object
        
-        //Sends Signiture Request To Connected Wallet For Script
-        this.sendLinkRequest(
-            'signTx/' + nexus + '/main/' + script + '/' + payload,
-            function(result) {
-                if (result.success) {          
-                    if (result.hash.error) {
-                        that.onMessage('Error: ' + result.hash.error);
-                        return;
-                    }
-                    that.onMessage('Transaction successful, hash: ' + result.hash.substr(0, 15) + '...');
-                    if (callback) {
-                        callback(result);
-                    }
-                } else {
-                    if (onErrorCallback) {
-                        onErrorCallback();
-                    };
-                }
-            }
-        )
-    }
-
-    //Wallet Transaction Signing for Proof of Work
-    signTxPow(nexus, script, payload, proofOfWork: ProofOfWork, callback, onErrorCallback) {
+        let request =  'signTx/' + this.chain + '/' + script + '/' + payload + '/' + signature + '/' + this.platform + '/' + pow;
         
-        //Checks If Needed Script Is In Object
-        if (script.script) {
-            script = script.script
+        if ( this.version == 1)
+        {
+            request = 'signTx/' + this.nexus + '/' + this.chain + '/' + script + '/' + payload;
         }
 
-        //Overload Protection
-        if (script.length >= 65536) {
-            this.onMessage('Error: script is too big!');
-            if (onErrorCallback) {
-                onErrorCallback();
-            }
-            return;
-        }
-
-        //Check Payload
-        if (payload == null) {
-            payload = '7068616e7461736d612d7473';    //Says 'Phantasma-ts' in hex
-        } else if (typeof payload === 'string') {    //Turn String Payload -> Bytes -> Hex
-            let sb = new ScriptBuilder();
-            let bytes = sb.rawString(payload);
-            sb.appendBytes(bytes);
-            payload = sb.endScript();
-        } else {
-            this.onMessage('Error: Invalid Payload');
-            if (onErrorCallback) {
-                onErrorCallback();
-            }
-            return;
-        }
-
-        this.onError = onErrorCallback  //Sets Error Callback Function
-        let that = this                 //Allows the use of 'this' inside sendLinkRequest Object
-       
         //Sends Signiture Request To Connected Wallet For Script
         this.sendLinkRequest(
-            'signTxPow/' + nexus + '/main/' + script + '/' + payload + '/' + proofOfWork,
+            request,
             function(result) {
                 if (result.success) {          
                     if (result.hash.error) {
@@ -198,10 +172,6 @@ export class PhantasmaLink {
             'getPeer/',
             function(result) {
                 if (result.success) {          
-                    if (result.hash.error) {
-                        that.onMessage('Error: ' + result);
-                        return;
-                    }
                     that.onMessage('Peer Query,: ' + result);
                     if (callback) {
                         callback(result);
@@ -216,27 +186,56 @@ export class PhantasmaLink {
 
     }
 
+    getNexus(callback, onErrorCallback){
+
+        this.onError = onErrorCallback  //Sets Error Callback Function
+        let that = this                 //Allows the use of 'this' inside sendLinkRequest Object
+
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest(
+            'getNexus/',
+            function(result) {
+                if (result.success) {          
+                    that.onMessage('Nexus Query,: ' + result);
+                    if (callback) {
+                        callback(result);
+                    }
+                } else {
+                    if (onErrorCallback) {
+                        onErrorCallback();
+                    };
+                }
+            }
+        )
+
+    }
+
     //Uses Wallet To Sign Data With Signiture
-    signData(data, callback, onErrorCallback) {
+    signData(data, callback, onErrorCallback, signature = "Ed25519") {
         
-        //Checks If Needed Data Is In Object
-        if (data.data) {
-            data = data.data
+        if (!this.socket) {
+            this.onMessage("not logged in");
+            return;
         }
-        
-        //Overload Protection
-        if (data.length >= 65536) {
-            this.onMessage('Error: data is too big!')
+        if (data == null) {
+            this.onMessage("invalid data, sorry :(");
+            return;
+        }
+
+        if (data.length >= 1024) {
+            this.onMessage("data too big, sorry :(");
             if (onErrorCallback) {
                 onErrorCallback();
             }
             return;
         }
 
+        let signDataStr = "signData/" + data + "/" + signature + "/" + this.platform;
+
         var that = this;    //Allows the use of 'this' inside sendLinkRequest Object
 
         this.sendLinkRequest(
-            'signData/' + data + '/1',
+            signDataStr,
             function(result) {
                 if (result.success) {          
                     that.onMessage('Data successfully signed');
@@ -246,7 +245,7 @@ export class PhantasmaLink {
                 }
                 else {
                     if (onErrorCallback) {
-                        onErrorCallback(result);
+                        onErrorCallback();
                     }
                 }
             }
@@ -262,8 +261,8 @@ export class PhantasmaLink {
         if (this.socket){
             this.socket.close();
         }
-        
-        // @ts-ignore
+
+        //@ts-ignore
         this.socket = window.PhantasmaLinkSocket && this.providerHint!=='poltergeist'
             // @ts-ignore
             ? new PhantasmaLinkSocket()
@@ -273,20 +272,22 @@ export class PhantasmaLink {
         this.token = null;
         this.account = null;
         this.requestID = 0;
+        let authorizeRequest = 'authorize/' + this.dapp + '/' + this.version;
+        let getAccountRequest = 'getAccount/' + this.platform;
         let that = this;
 
         //Once Socket Opened
         this.socket.onopen = function(e) {
                 
             that.onMessage('Connection established, authorizing dapp in wallet...');
-            that.sendLinkRequest('authorize/' + that.dapp, function(result) {
+            that.sendLinkRequest(authorizeRequest, function(result) {
                     
                 //Set Global Variables With Successful Account Query
                 if (result.success) {
                     that.token = result.token;
                     that.wallet = result.wallet;
                     that.onMessage('Authorized, obtaining account info...');
-                    that.sendLinkRequest('getAccount', function(result) {
+                    that.sendLinkRequest(getAccountRequest, function(result) {
                         if (result.success) {
                             that.account = result;
                         } else {
@@ -327,7 +328,7 @@ export class PhantasmaLink {
                     that.disconnect(true);
                 break;
 
-                case 'A previous request is still pending':
+                case 'A previouus request is still pending' || 'A previous request is still pending':
                     that.onError('You have a pending action in your wallet');
                 break;
 
@@ -388,6 +389,10 @@ export class PhantasmaLink {
     }
 
     //Get Dapp ID Name Util
+    set dappID(dapp) {
+        this.dapp = dapp;
+    }
+
     get dappID() {
         return this.dapp
     }

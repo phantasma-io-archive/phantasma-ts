@@ -84,6 +84,7 @@ var EventKind;
     EventKind[EventKind["Log"] = 48] = "Log";
     EventKind[EventKind["Inflation"] = 49] = "Inflation";
     EventKind[EventKind["OrderBid"] = 59] = "OrderBid";
+    EventKind[EventKind["MasterClaim"] = 61] = "MasterClaim";
     EventKind[EventKind["Custom"] = 64] = "Custom";
 })(EventKind = exports.EventKind || (exports.EventKind = {}));
 var TypeAuction;

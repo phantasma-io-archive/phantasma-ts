@@ -315,11 +315,11 @@ export class ScriptBuilder {
     gasPrice: number,
     gasLimit: number
   ): this {
-    return this.callContract(Contracts.GasContractName, "AllowGas", []);
+    return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
   }
 
   public spendGas(address: string): this {
-    return this.callContract(Contracts.GasContractName, "SpendGas", []);
+    return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
   }
 
   async callRPC<T>(methodName: string, params: any[]): Promise<T> {

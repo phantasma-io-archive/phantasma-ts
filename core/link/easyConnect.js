@@ -100,7 +100,7 @@ var EasyConnect = /** @class */ (function () {
                 console.log('EasyConnect could not connect to wallet');
             }
             ;
-        }, onFail, this.providerHint);
+        }, onFail, this.requiredVersion, this.platform, this.providerHint);
     };
     EasyConnect.prototype.disconnect = function (_message) {
         if (_message === void 0) { _message = 'Graceful Disconect'; }
@@ -171,12 +171,12 @@ var EasyConnect = /** @class */ (function () {
                             case 'sendNFT': return [3 /*break*/, 3];
                         }
                         return [3 /*break*/, 5];
-                    case 1: return [4 /*yield*/, this.script.sendFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 1: return [4 /*yield*/, this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]])];
                     case 2:
                         sendFTScript = _b.sent();
                         this.signTransaction(sendFTScript, null, onSuccess, onFail);
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, this.script.sendNFT(_arguments[0], _arguments[1], _arguments[2], _arguments[3])];
+                    case 3: return [4 /*yield*/, this.script.buildScript('interop', ["Runtime.SendTokens", [_arguments[0], _arguments[1], _arguments[2], _arguments[3]]])];
                     case 4:
                         sendNFTScript = _b.sent();
                         this.signTransaction(sendNFTScript, null, onSuccess, onFail);
@@ -194,19 +194,22 @@ var EasyConnect = /** @class */ (function () {
         if (payload === void 0) { payload = null; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
-        this.link.signTx(this.nexus, script, payload, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail);
     };
     EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
         this.link.signData(data, onSuccess, onFail);
     };
+    EasyConnect.prototype.invokeScript = function (script, _callback) {
+        this.link.invokeScript(script, _callback);
+    };
     EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
         if (payload === void 0) { payload = null; }
         if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) { console.log('%cError: ' + data, 'color:red'); }; }
-        this.link.signTxPow(this.nexus, script, payload, proofOfWork, onSuccess, onFail);
+        this.link.signTx(script, payload, onSuccess, onFail, proofOfWork);
     };
     return EasyConnect;
 }());
