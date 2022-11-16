@@ -36,8 +36,7 @@ export function getAddressFromWif(wif: string): string {
 
 export function generateNewSeed() : string {
   let buffer = new Uint8Array(32);
-  Buffer.alloc(32);
-  let privateKey = Buffer.alloc(32);;
+  let privateKey = Buffer.alloc(32);
   crypto.getRandomValues(buffer);
   for (let i = 0; i < 32; ++i) {
     privateKey.writeUInt8(buffer[i], i);
@@ -50,7 +49,7 @@ export function generateNewSeed() : string {
 
 export function generateNewSeedWords() : string[] {
   let buffer = new Uint8Array(32);
-  let privateKey =Buffer.alloc(32);;
+  let privateKey =Buffer.alloc(32);
   crypto.getRandomValues(buffer);
   for (let i = 0; i < 32; ++i) {
     privateKey.writeUInt8(buffer[i], i);
