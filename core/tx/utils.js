@@ -78,7 +78,7 @@ function getAddressFromWif(wif) {
 exports.getAddressFromWif = getAddressFromWif;
 function generateNewSeed() {
     var buffer = new Uint8Array(32);
-    var privateKey = new Buffer(32);
+    var privateKey = Buffer.alloc(32);
     crypto.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
@@ -90,7 +90,7 @@ function generateNewSeed() {
 exports.generateNewSeed = generateNewSeed;
 function generateNewSeedWords() {
     var buffer = new Uint8Array(32);
-    var privateKey = new Buffer(32);
+    var privateKey = Buffer.alloc(32);
     crypto.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
@@ -103,7 +103,7 @@ function generateNewSeedWords() {
 exports.generateNewSeedWords = generateNewSeedWords;
 function generateNewWif() {
     var buffer = new Uint8Array(32);
-    var privateKey = new Buffer(32);
+    var privateKey = Buffer.alloc(32);
     crypto.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
