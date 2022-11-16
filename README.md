@@ -105,9 +105,9 @@ let sb = new phantasmaJS.ScriptBuilder();
 
 //Here is an example of a Transactional Script
     sb
-    .callContract('gas', 'AllowGas', [])
+    .callContract('gas', 'AllowGas', ['fromAddress', sb.nullAddress, gasPrice, gasLimit])
     .callInterop("Runtime.TransferTokens", ['fromAddress', 'toAddress', 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-    .callContract('gas', 'SpendGas', [])
+    .callContract('gas', 'SpendGas', ['fromAddress'])
     .endScript();
 
 --- OR ----
@@ -169,9 +169,9 @@ async function sendTransaction() {
 
         //Making a Script
         sb
-            .callContract('gas', 'AllowGas', [])
+            .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, gasPrice, gasLimit])
             .callInterop("Runtime.TransferTokens", [fromAddress, toAddress, 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-            .callContract('gas', 'SpendGas', [])
+            .callContract('gas', 'SpendGas', [fromAddress])
             .endScript();
 
         //Gives us a string version of the Script
@@ -189,12 +189,6 @@ async function sendTransaction() {
             'testnet',  //Nexus Name
             'main',     //Chain
             script,     //In string format
-            sender,     //Address of wallet sending
-            gasPayer,   //Address
-            gasTarget,  //Address
-            gasPrice,   //Gas price string
-            gasLimit,   //Gas limit in string
-            version,    //Number
             expiration, //Date Object
             payload     //Extra Info to attach to Transaction in Serialized Hex
         );
@@ -233,9 +227,9 @@ async function deployContract() {
 
     //Making a Script
     sb
-        .callContract('gas', 'AllowGas', [])
+        .callContract('gas', 'AllowGas', [fromAddress, sb.nullAddress, gasPrice, gasLimit])
         .callInterop("Runtime.DeployContract", [fromAddress, contractName, pvm, abi])
-        .callContract('gas', 'SpendGas', [])
+        .callContract('gas', 'SpendGas', [fromAddress])
         .endScript();
 
     //Gives us a string version of the Script
@@ -255,12 +249,6 @@ async function deployContract() {
         'testnet',  //Nexus Name
         'main',     //Chain
         script,     //In string format
-        sender,     //Address of wallet sending
-        gasPayer,   //Address
-        gasTarget,  //Address
-        gasPrice,   //Gas price string
-        gasLimit,   //Gas limit in string
-        version,    //Number
         expiration, //Date Object
         payload     //Extra Info to attach to Transaction in Serialized Hex
     );
