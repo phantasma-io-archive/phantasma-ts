@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -14,15 +33,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyData = exports.signData = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
+exports.verifyData = exports.signData = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
 var elliptic_1 = require("elliptic");
 var bs58_1 = __importDefault(require("bs58"));
+var bip39 = __importStar(require("bip39"));
 var curve = new elliptic_1.eddsa("ed25519");
 function ab2hexstring(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
-        throw new Error("ab2hexstring expects an array.Input was ".concat(arr));
+        throw new Error("ab2hexstring expects an array.Input was " + arr);
     }
     var result = "";
     var intArray = new Uint8Array(arr);
@@ -56,6 +76,42 @@ function getAddressFromWif(wif) {
     return "P" + bs58_1.default.encode(addressHex);
 }
 exports.getAddressFromWif = getAddressFromWif;
+function generateNewSeed() {
+    var buffer = new Uint8Array(32);
+    var privateKey = new Buffer(32);
+    crypto.getRandomValues(buffer);
+    for (var i = 0; i < 32; ++i) {
+        privateKey.writeUInt8(buffer[i], i);
+    }
+    var wif = wif_1.default.encode(128, privateKey, true);
+    var mnemonic = bip39.generateMnemonic();
+    return mnemonic;
+}
+exports.generateNewSeed = generateNewSeed;
+function generateNewSeedWords() {
+    var buffer = new Uint8Array(32);
+    var privateKey = new Buffer(32);
+    crypto.getRandomValues(buffer);
+    for (var i = 0; i < 32; ++i) {
+        privateKey.writeUInt8(buffer[i], i);
+    }
+    var wif = wif_1.default.encode(128, privateKey, true);
+    var mnemonic = bip39.generateMnemonic();
+    var seedWords = mnemonic.split(' ');
+    return seedWords;
+}
+exports.generateNewSeedWords = generateNewSeedWords;
+function generateNewWif() {
+    var buffer = new Uint8Array(32);
+    var privateKey = new Buffer(32);
+    crypto.getRandomValues(buffer);
+    for (var i = 0; i < 32; ++i) {
+        privateKey.writeUInt8(buffer[i], i);
+    }
+    var wif = wif_1.default.encode(128, privateKey, true);
+    return wif;
+}
+exports.generateNewWif = generateNewWif;
 function signData(msgHex, privateKey) {
     var msgHashHex = Buffer.from(msgHex, "hex");
     var privateKeyBuffer = Buffer.from(privateKey, "hex");
