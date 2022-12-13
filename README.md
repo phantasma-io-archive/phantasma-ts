@@ -268,6 +268,59 @@ async function deployContract() {
 
 ```
 
+### Scanning the blockchain for incoming transactions
+```javascript
+const { phantasmaJS } = require('phantasma-ts')
+
+let RPC = new phantasmaJS.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+
+// Store the current height of the chain
+let currentHeight = 1;
+
+let chainName = 'main';
+
+function onTransactionReceived(address, symbol, amount) {
+}
+
+// Function that periodically checks the height of the chain and fetches the latest block if the height has increased
+async function checkForNewBlocks() {
+  // Get the current height of the chain
+  let newHeight = await RPC.getBlockHeight(chainName);
+
+  // Check if the height has increased
+  if (newHeight > currentHeight) {
+    // Fetch the latest block
+    let latestBlock = await RPC.getBlockByHeight(chainName, newHeight);
+	
+	// Check all transactions in this block
+	for (i = 0; i < latestBlock.txs.length; i++)
+    {
+		let tx = latestBlock.txs[i];
+
+		// Check all events in this transaction
+		for (j = 0; j < tx.events.length; j++)
+	    {
+			let evt = tx.events[j];
+			if (evt.kind == 'TokenReceive') {
+				var data = phantasmaJS.getTokenEventData(evt.data);
+				onTransactionReceived(evt.address, data.symbol, data.value);
+			}
+	    }
+    }
+
+    // Update the current height of the chain
+    currentHeight = newHeight;
+  }
+
+  // Repeat this process after a delay
+  setTimeout(checkForNewBlocks, 1000);
+}
+
+// Start checking for new blocks
+checkForNewBlocks();
+```
+
+
 ### Using RPC 
 ```javascript
 let RPC = new phantasmaJS.PhantasmaAPI('seed.ghostdevs.com:7077/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
