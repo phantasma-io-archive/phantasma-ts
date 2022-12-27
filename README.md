@@ -213,7 +213,7 @@ async function sendTransaction() {
 This is an example how to stake SOUL
 ```javascript
 
-async function sendTransaction() {
+async function stakeSOUL() {
         let privateKey = 'yourPrivateKey'; //In Hex Format
 
         let fromAddress = 'yourPublicWalletAddress'; // Phantasma Public Address
