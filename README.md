@@ -222,7 +222,8 @@ async function stakeSOUL() {
         let sb = new phantasmaJS.ScriptBuilder();
         let gasPrice = 10000; 
         let gasLimit = 21000;
-        let amount =  String(100 * 10**8);
+        let amount =  String(100 * 10**8); // 100 the amount - 10**8 it's to get the decimals to the desired amount
+        // Soul has 8 decimals places.
 
         //Creating RPC Connection **(Needs To Be Updated)
         let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
