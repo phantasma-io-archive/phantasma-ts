@@ -105,9 +105,9 @@ let sb = new phantasmaJS.ScriptBuilder();
 
 //Here is an example of a Transactional Script
     sb
-    .callContract('gas', 'AllowGas', [])
+    .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
     .callInterop("Runtime.TransferTokens", ['fromAddress', 'toAddress', 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-    .callContract('gas', 'SpendGas', [])
+    .spendGas(fromAddress)
     .endScript();
 
 --- OR ----
@@ -163,15 +163,17 @@ async function sendTransaction() {
 
         //Creating a new Script Builder Object
         let sb = new phantasmaJS.ScriptBuilder();
+        let gasPrice = 10000; 
+        let gasLimit = 999999;
 
         //Creating RPC Connection **(Needs To Be Updated)
         let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
         //Making a Script
         sb
-            .callContract('gas', 'AllowGas', [])
+            .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
             .callInterop("Runtime.TransferTokens", [fromAddress, toAddress, 'KCAL', 10000000000]) //10000000000 = 1 KCAL
-            .callContract('gas', 'SpendGas', [])
+            .spendGas(fromAddress)
             .endScript();
 
         //Gives us a string version of the Script
@@ -186,14 +188,10 @@ async function sendTransaction() {
 
         //Creating New Transaction Object
         let transaction = new phantasmaJS.Transaction(
-            'testnet',  //Nexus Name
+            'testnet',  //Nexus Name - if you're using mainnet change it to mainnet
             'main',     //Chain
             script,     //In string format
             sender,     //Address of wallet sending
-            gasPayer,   //Address
-            gasTarget,  //Address
-            gasPrice,   //Gas price string
-            gasLimit,   //Gas limit in string
             version,    //Number
             expiration, //Date Object
             payload     //Extra Info to attach to Transaction in Serialized Hex
@@ -233,9 +231,9 @@ async function deployContract() {
 
     //Making a Script
     sb
-        .callContract('gas', 'AllowGas', [])
+        .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
         .callInterop("Runtime.DeployContract", [fromAddress, contractName, pvm, abi])
-        .callContract('gas', 'SpendGas', [])
+        .spendGas(fromAddress)
         .endScript();
 
     //Gives us a string version of the Script
@@ -256,10 +254,6 @@ async function deployContract() {
         'main',     //Chain
         script,     //In string format
         sender,     //Address of wallet sending
-        gasPayer,   //Address
-        gasTarget,  //Address
-        gasPrice,   //Gas price string
-        gasLimit,   //Gas limit in string
         version,    //Number
         expiration, //Date Object
         payload     //Extra Info to attach to Transaction in Serialized Hex
