@@ -231,7 +231,7 @@ async function stakeSOUL() {
         //Making a Script
         sb
             .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
-            .callContract("stake", "stake", [fromAddress, amount]) //10000000000 = 1 KCAL
+            .callContract("stake", "stake", [fromAddress, amount]) 
             .spendGas(fromAddress)
             .endScript();
 
