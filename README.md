@@ -209,6 +209,64 @@ async function sendTransaction() {
 
 ```
 
+### Staking SOUL
+This is an example how to stake SOUL
+```javascript
+
+async function sendTransaction() {
+        let privateKey = 'yourPrivateKey'; //In Hex Format
+
+        let fromAddress = 'yourPublicWalletAddress'; // Phantasma Public Address
+
+        //Creating a new Script Builder Object
+        let sb = new phantasmaJS.ScriptBuilder();
+        let gasPrice = 10000; 
+        let gasLimit = 21000;
+        let amount =  String(100 * 10**8);
+
+        //Creating RPC Connection **(Needs To Be Updated)
+        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+
+        //Making a Script
+        sb
+            .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
+            .callContract("stake", "stake", [fromAddress, amount]) //10000000000 = 1 KCAL
+            .spendGas(fromAddress)
+            .endScript();
+
+        //Gives us a string version of the Script
+        let script = sb.str;
+
+        //Used to set expiration date
+        let expiration = 5; //This is in miniutes
+        let getTime = new Date();
+        let date = new Date(getTime.getTime() + expiration * 60000);
+
+        let payload = '7068616e7461736d612d7473' //Says 'Phantasma-ts' in hex
+
+        //Creating New Transaction Object
+        let transaction = new phantasmaJS.Transaction(
+            'testnet',  //Nexus Name - if you're using mainnet change it to mainnet
+            'main',     //Chain
+            script,     //In string format
+            sender,     //Address of wallet sending
+            version,    //Number
+            expiration, //Date Object
+            payload     //Extra Info to attach to Transaction in Serialized Hex
+        );
+
+        //Sign's Transaction with Private Key
+        await transaction.sign(privateKey);
+
+        //Send Transaction
+        let txHash = await RPC.sendRawTransaction(transaction.toString(true));
+
+        //Return Transaction Hash
+        return txHash;
+    }
+
+```
+
 ### Deploying a Contract
 ```javascript
 async function deployContract() {
