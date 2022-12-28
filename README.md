@@ -164,20 +164,17 @@ async function sendTransaction() {
         //Creating a new Script Builder Object
         let sb = new phantasmaJS.ScriptBuilder();
         let gasPrice = 10000; 
-        let gasLimit = 999999;
+        let gasLimit = 21000;
 
         //Creating RPC Connection **(Needs To Be Updated)
-        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+        let RPC = new phantasmaJS.PhantasmaAPI('http://testnet.phantasma.io:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
         //Making a Script
-        sb
+        let script = sb
             .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
             .callInterop("Runtime.TransferTokens", [fromAddress, toAddress, 'KCAL', 10000000000]) //10000000000 = 1 KCAL
             .spendGas(fromAddress)
             .endScript();
-
-        //Gives us a string version of the Script
-        let script = sb.str;
 
         //Used to set expiration date
         let expiration = 5; //This is in miniutes
@@ -226,17 +223,14 @@ async function stakeSOUL() {
         // Soul has 8 decimals places.
 
         //Creating RPC Connection **(Needs To Be Updated)
-        let RPC = new phantasmaJS.PhantasmaAPI('https://seed.ghostdevs.com:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
+        let RPC = new phantasmaJS.PhantasmaAPI('http://testnet.phantasma.io:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'testnet');
 
         //Making a Script
-        sb
+        let script = sb
             .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
             .callContract("stake", "stake", [fromAddress, amount]) 
             .spendGas(fromAddress)
             .endScript();
-
-        //Gives us a string version of the Script
-        let script = sb.str;
 
         //Used to set expiration date
         let expiration = 5; //This is in miniutes
@@ -258,8 +252,10 @@ async function stakeSOUL() {
         //Sign's Transaction with Private Key
         await transaction.sign(privateKey);
 
+        let transactionSigned = transaction.toString(true);
+
         //Send Transaction
-        let txHash = await RPC.sendRawTransaction(transaction.toString(true));
+        let txHash = await RPC.sendRawTransaction(transactionSigned);
 
         //Return Transaction Hash
         return txHash;
@@ -278,6 +274,8 @@ async function deployContract() {
     //Contract Stuff
     let pvm = 'PVM HEX String';
     let abi = 'ABI HEX String';
+    let gasPrice = 10000; 
+    let gasLimit = 21000;
     let contractName = 'ContractName' //Whatever you want
 
     //Creating a new Script Builder Object
@@ -288,14 +286,11 @@ async function deployContract() {
     let RPC = new phantasmaJS.PhantasmaAPI('http://phantasma.io:5101/rpc', 'https://ghostdevs.com/getpeers.json', 'mainnet');
 
     //Making a Script
-    sb
+    let script = sb
         .allowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
         .callInterop("Runtime.DeployContract", [fromAddress, contractName, pvm, abi])
         .spendGas(fromAddress)
         .endScript();
-
-    //Gives us a string version of the Script
-    let script = sb.str;
 
     //Used to set expiration date
     let expiration = 5; //This is in miniutes
@@ -303,8 +298,7 @@ async function deployContract() {
     let date = new Date((getTime.getTime() + expiration * 60000));
     
     //Setting Temp Payload
-    let payload = null;
-
+    let payload = "MyApp";
 
     //Creating New Transaction Object
     let transaction = new phantasmaJS.Transaction(
@@ -322,8 +316,10 @@ async function deployContract() {
     //Signs Transaction with your private key
     transaction.sign(privateKey);
 
+    let transactionSigned = transaction.toString(true);
+
     //Sends Transaction
-    let txHash = await RPC.sendRawTransaction(transaction.toString(true));
+    let txHash = await RPC.sendRawTransaction(transactionSigned);
 
     //Returns Transaction Hash
     return txHash;
