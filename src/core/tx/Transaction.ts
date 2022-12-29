@@ -14,7 +14,6 @@ export class Transaction {
   script: string;
   nexusName: string;
   chainName: string;
-  sender: string;
   payload: string;
   expiration: Date;
   signatures: Array<ISignature>;
