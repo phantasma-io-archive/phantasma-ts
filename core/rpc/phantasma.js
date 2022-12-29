@@ -40,8 +40,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PhantasmaAPI = void 0;
+exports.PhantasmaAPI = exports.TokenSeriesMode = void 0;
 var cross_fetch_1 = __importDefault(require("cross-fetch"));
+var TokenSeriesMode;
+(function (TokenSeriesMode) {
+    TokenSeriesMode[TokenSeriesMode["Unique"] = 0] = "Unique";
+    TokenSeriesMode[TokenSeriesMode["Duplicated"] = 1] = "Duplicated";
+})(TokenSeriesMode = exports.TokenSeriesMode || (exports.TokenSeriesMode = {}));
 var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
@@ -49,43 +54,45 @@ var PhantasmaAPI = /** @class */ (function () {
         this.nexus = this.nexus;
         this.host = defHost;
         this.availableHosts = [];
-        (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
-            var data, i, msecs, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, res.json()];
-                    case 1:
-                        data = _a.sent();
-                        i = 0;
-                        _a.label = 2;
-                    case 2:
-                        if (!(i < data.length)) return [3 /*break*/, 7];
-                        console.log("Checking RPC: ", data[i]);
-                        _a.label = 3;
-                    case 3:
-                        _a.trys.push([3, 5, , 6]);
-                        return [4 /*yield*/, this.pingAsync(data[i].url)];
-                    case 4:
-                        msecs = _a.sent();
-                        data[i].info = data[i].location + " • " + msecs + " ms";
-                        data[i].msecs = msecs;
-                        console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
-                        this.availableHosts.push(data[i]);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        err_1 = _a.sent();
-                        console.log("Error with RPC: " + data[i]);
-                        return [3 /*break*/, 6];
-                    case 6:
-                        i++;
-                        return [3 /*break*/, 2];
-                    case 7:
-                        this.availableHosts.sort(function (a, b) { return a.msecs - b.msecs; });
-                        this.updateRpc();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+        if (peersUrlJson != undefined) {
+            (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
+                var data, i, msecs, err_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, res.json()];
+                        case 1:
+                            data = _a.sent();
+                            i = 0;
+                            _a.label = 2;
+                        case 2:
+                            if (!(i < data.length)) return [3 /*break*/, 7];
+                            console.log("Checking RPC: ", data[i]);
+                            _a.label = 3;
+                        case 3:
+                            _a.trys.push([3, 5, , 6]);
+                            return [4 /*yield*/, this.pingAsync(data[i].url)];
+                        case 4:
+                            msecs = _a.sent();
+                            data[i].info = data[i].location + " • " + msecs + " ms";
+                            data[i].msecs = msecs;
+                            console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+                            this.availableHosts.push(data[i]);
+                            return [3 /*break*/, 6];
+                        case 5:
+                            err_1 = _a.sent();
+                            console.log("Error with RPC: " + data[i]);
+                            return [3 /*break*/, 6];
+                        case 6:
+                            i++;
+                            return [3 /*break*/, 2];
+                        case 7:
+                            this.availableHosts.sort(function (a, b) { return a.msecs - b.msecs; });
+                            this.updateRpc();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        }
     }
     PhantasmaAPI.prototype.pingAsync = function (host) {
         return new Promise(function (resolve, reject) {

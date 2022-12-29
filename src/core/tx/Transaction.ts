@@ -5,7 +5,7 @@ import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
 const curve = new eddsa("ed25519");
 
-interface ISignature {
+export interface ISignature {
   signature: string;
   kind: number;
 }
@@ -24,14 +24,12 @@ export class Transaction {
     nexusName: string,
     chainName: string,
     script: string,
-    sender: string,
     expiration: Date,
     payload: string
   ) {
     this.nexusName = nexusName;
     this.chainName = chainName;
     this.script = script;
-    this.sender = sender;
     this.expiration = expiration;
     this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
     this.signatures = [];
@@ -65,10 +63,7 @@ export class Transaction {
       .emitVarString(this.chainName)
       .emitVarInt(this.script.length / 2)
       .appendHexEncoded(this.script)
-      .emitAddress(this.sender)
-      // .emitAddress(this.gasTarget)
-      .emitByteArray(new Array(34).fill(0))
-      .emitBytes(expirationBytes)
+      .emitVarInt(num)
       .emitVarInt(this.payload.length / 2)
       .appendHexEncoded(this.payload);
 
@@ -108,7 +103,6 @@ export class Transaction {
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
       JSON.parse(JSON.stringify(this.script)),
-      JSON.parse(JSON.stringify(this.sender)),
       this.expiration,
       JSON.parse(JSON.stringify(this.payload)),
   );
