@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import fetch from "cross-fetch";
+import { ISignature } from "../tx/Transaction";
 
 export interface Balance {
   chain: string;
@@ -36,6 +37,7 @@ export interface Organization {
 
 export interface Nexus {
   name: string; //Name of the nexus
+  protocol: string;
   platforms: Array<Platform>; //List of platforms
   tokens: Array<Token>; //List of tokens
   chains: Array<Chain>; //List of chains
@@ -49,6 +51,13 @@ export interface Stake {
   unclaimed: string; //Amount of claimable KCAL
 }
 
+export interface Storage {
+  available: number;
+  used: number;
+  avatar: string;
+  archives: Array<Archive>;
+}
+
 export interface Account {
   address: string;
   name: string;
@@ -57,6 +66,7 @@ export interface Account {
   unclaimed: string;
   relay: string; //Amount of available KCAL for relay channel
   validator: string; //Validator role
+  storage: Storage;
   balances: Array<Balance>;
   txs: Array<string>;
 }
@@ -99,6 +109,11 @@ export interface Oracle {
   content: string; //Byte array content read by the oracle, encoded as hex string
 }
 
+export interface SignatureResult{
+  Kind:string;
+  Data:string;
+}
+
 export interface TransactionData {
   hash: string; //Hash of the transaction
   chainAddress: string; //Transaction chain address
@@ -110,6 +125,14 @@ export interface TransactionData {
   events: Array<Event>; //List of events that triggered in the transaction
   result: string; //Result of the transaction, if any. Serialized, in hexadecimal format
   fee: string; //Fee of the transaction, in KCAL, fixed point
+  state: string;
+  signatures: Array<SignatureResult>;
+  sender: string;
+  gasPayer: string;
+  gasTarget: string;
+  gasPrice: string;
+  gasLimit: string;
+  expiration: number;
 }
 
 export interface AccountTransactions {
@@ -139,24 +162,61 @@ export interface Block {
   oracles: Array<Oracle>; //Block oracles
 }
 
+export interface TokenExternal{
+  platform:string;
+  hash:string;
+}
+
+export interface TokenPrice{
+  Timestamp:number;
+  Open:string;
+  High:string;
+  Low:string;
+  Close:string;
+}
+
 export interface Token {
   symbol: string; //Ticker symbol for the token
   name: string;
   decimals: number; //Amount of decimals when converting from fixed point format to decimal format
   currentSupply: string; //Amount of minted tokens
   maxSupply: string; //Max amount of tokens that can be minted
-  platform: string; //Platform of token
-  external?: { hash: string; platform: string }[];
-  hash: string; //Hash of token
+  burnedSupply: string;
+  address: string;
+  owner: string;
   flags: string;
+  script: string;
+  series: Array<TokenSeries>;
+  external?: Array<TokenExternal>;
+  price?: Array<TokenPrice>;
+  //external?: { hash: string; platform: string }[];
+}
+
+export interface TokenSeries{
+  seriesID:number;
+  currentSupply:string;
+  maxSupply:string;
+  burnedSupply:string;
+  mode:TokenSeriesMode;
+  script: string;
+  methods: Array<ABIMethod>;
+}
+
+export enum TokenSeriesMode{
+  Unique,
+  Duplicated
 }
 
 export interface TokenData {
   ID: string; //ID of token
+  series: string;
+  mint: string;
   chainName: string; //Chain where currently is stored
   ownerAddress: string; //Address who currently owns the token
+  creatorAddress: string;
   ram: string; //Writable data of token, hex encoded
   rom: string; //Read-only data of token, hex encoded
+  status: string;
   forSale: boolean; //True if is being sold in market
 }
 
@@ -186,12 +246,14 @@ export interface Script {
 }
 
 export interface Archive {
+  name: string;
   hash: string; //Archive hash
+  time: number;
   size: number; //Size of archive in bytes
-  flags: string; //Archive flags
-  key: string; //Encryption key
+  encryption: string;
   blockCount: number; //Number of blocks
-  metadata: Array<string>; //Metadata
+  missingBlocks: Array<number>;
+  owners: Array<string>;
 }
 
 export interface ABIParameter {
@@ -319,25 +381,28 @@ export class PhantasmaAPI {
     this.host = defHost;
     this.availableHosts = [];
 
-    fetch(peersUrlJson + "?_=" + new Date().getTime()).then(async (res) => {
-      const data = await res.json();
-      for (var i = 0; i < data.length; i++) {
-        console.log("Checking RPC: ", data[i]);
-        try {
-          const msecs = await this.pingAsync(data[i].url);
-          data[i].info = data[i].location + " • " + msecs + " ms";
-          data[i].msecs = msecs;
-          console.log(
-            data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc"
-          );
-          this.availableHosts.push(data[i]);
-        } catch (err) {
-          console.log("Error with RPC: " + data[i]);
+    if ( peersUrlJson != undefined)
+    {
+      fetch(peersUrlJson + "?_=" + new Date().getTime()).then(async (res) => {
+        const data = await res.json();
+        for (var i = 0; i < data.length; i++) {
+          console.log("Checking RPC: ", data[i]);
+          try {
+            const msecs = await this.pingAsync(data[i].url);
+            data[i].info = data[i].location + " • " + msecs + " ms";
+            data[i].msecs = msecs;
+            console.log(
+              data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc"
+            );
+            this.availableHosts.push(data[i]);
+          } catch (err) {
+            console.log("Error with RPC: " + data[i]);
+          }
         }
-      }
-      this.availableHosts.sort((a, b) => a.msecs - b.msecs);
-      this.updateRpc();
-    });
+        this.availableHosts.sort((a, b) => a.msecs - b.msecs);
+        this.updateRpc();
+      });
+    }
   }
 
   async JSONRPC(method: string, params: Array<any>): Promise<any> {
