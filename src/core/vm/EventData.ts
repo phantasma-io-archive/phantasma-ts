@@ -128,7 +128,7 @@ export class Decoder {
 
       case SignatureKind.Ed25519:
         let len = this.readVarInt();
-        signature.signature = this.readString();
+        signature.signature = this.read(len);
         break;
       case SignatureKind.ECDSA:
         curve = this.readByte();
