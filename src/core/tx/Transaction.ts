@@ -5,7 +5,7 @@ import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
 const curve = new eddsa("ed25519");
 
-export interface ISignature {
+export class ISignature {
   signature: string;
   kind: number;
 }
