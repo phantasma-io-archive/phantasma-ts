@@ -144,7 +144,7 @@ var Decoder = /** @class */ (function () {
             case SignatureKind_1.SignatureKind.None: return null;
             case SignatureKind_1.SignatureKind.Ed25519:
                 var len = this.readVarInt();
-                signature.signature = this.readString();
+                signature.signature = this.read(len);
                 break;
             case SignatureKind_1.SignatureKind.ECDSA:
                 curve = this.readByte();
