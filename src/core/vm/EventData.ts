@@ -120,7 +120,7 @@ export class Decoder {
 
   readSignature(){
     let kind = this.readByte() as SignatureKind;
-    let signature : ISignature;
+    let signature : ISignature = new ISignature();
     let curve;
     signature.kind = kind;
     switch (kind){

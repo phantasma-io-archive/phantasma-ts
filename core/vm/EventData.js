@@ -30,6 +30,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getString = exports.getMarketEventData = exports.getInfusionEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.decodeVMObject = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
 var big_integer_1 = __importDefault(require("big-integer"));
+var tx_1 = require("../tx");
 var SignatureKind_1 = require("../tx/SignatureKind");
 var VMType_1 = require("./VMType");
 var EventKind;
@@ -136,7 +137,7 @@ var Decoder = /** @class */ (function () {
     };
     Decoder.prototype.readSignature = function () {
         var kind = this.readByte();
-        var signature;
+        var signature = new tx_1.ISignature();
         var curve;
         signature.kind = kind;
         switch (kind) {
