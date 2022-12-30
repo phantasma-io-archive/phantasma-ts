@@ -1,4 +1,6 @@
 import bigInt from "big-integer";
+import { ISignature } from "../tx";
+import { SignatureKind } from "../tx/SignatureKind";
 import { VMType } from "./VMType";
 
 export enum EventKind {
@@ -103,6 +105,48 @@ export class Decoder {
       res += String.fromCharCode(this.readByte());
     }
     return res;
+  }
+
+  readByteArray(){
+    var res;
+    var length = this.readVarInt();
+    if (length == 0)
+      return [];
+    
+    res = this.read(length);
+    return res;
+  }
+
+  readSignature(){
+    let kind = this.readByte() as SignatureKind;
+    let signature : ISignature;
+    let curve;
+    signature.kind = kind;
+    switch (kind){
+      case SignatureKind.None: return null;
+
+      case SignatureKind.Ed25519:
+        signature.signature = this.readString();
+        break;
+      case SignatureKind.ECDSA:
+        curve = this.readByte();
+        signature.signature = this.readString();
+        break;
+      default:
+        throw "read signature: " +  kind
+    }
+
+    return signature;
+  }
+
+  readTimestamp(){
+    var len = this.readByte();
+    let result = 0;
+    let bytes = this.read(4);
+    bytes.match(/.{1,2}/g)
+      .reverse()
+      .forEach((c) => (result = result * 256 + parseInt(c, 16)));
+    return result;
   }
 
   readVarInt() {

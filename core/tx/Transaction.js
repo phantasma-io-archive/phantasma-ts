@@ -36,7 +36,7 @@ var Transaction = /** @class */ (function () {
             .emitVarString(this.chainName)
             .emitVarInt(this.script.length / 2)
             .appendHexEncoded(this.script)
-            .emitVarInt(num)
+            .emitByteArray(expirationBytes)
             .emitVarInt(this.payload.length / 2)
             .appendHexEncoded(this.payload);
         if (withSignature) {
@@ -90,6 +90,22 @@ var Transaction = /** @class */ (function () {
         var privateKeyBuffer = Buffer.from(privateKey, "hex");
         var sig = curve.sign(msgHashHex, privateKeyBuffer);
         return sig.toHex();
+    };
+    Transaction.prototype.unserialize = function (serializedData) {
+        var dec = new vm_1.Decoder(serializedData);
+        var nexusName = dec.readString();
+        var chainName = dec.readString();
+        var scriptLength = dec.readVarInt();
+        var script = dec.read(scriptLength);
+        var date = new Date(dec.readTimestamp() * 1000);
+        var payloadLength = dec.readVarInt();
+        var payload = dec.read(payloadLength);
+        var nTransaction = new Transaction(nexusName, chainName, script, date, payload);
+        var signatureCount = dec.readVarInt();
+        for (var i = 0; i < signatureCount; i++) {
+            nTransaction.signatures.push(dec.readSignature());
+        }
+        return nTransaction;
     };
     return Transaction;
 }());

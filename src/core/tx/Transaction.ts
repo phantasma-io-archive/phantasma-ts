@@ -1,5 +1,5 @@
 import { eddsa } from "elliptic";
-import { ScriptBuilder } from "../vm";
+import { Decoder, ScriptBuilder } from "../vm";
 import { hexStringToBytes, byteArrayToHex, getDifficulty } from "../utils";
 import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
@@ -62,7 +62,7 @@ export class Transaction {
       .emitVarString(this.chainName)
       .emitVarInt(this.script.length / 2)
       .appendHexEncoded(this.script)
-      .emitVarInt(num)
+      .emitByteArray(expirationBytes)
       .emitVarInt(this.payload.length / 2)
       .appendHexEncoded(this.payload);
 
@@ -133,5 +133,29 @@ export class Transaction {
     const sig = curve.sign(msgHashHex, privateKeyBuffer);
 
     return sig.toHex();
+  }
+
+  public unserialize(serializedData:string):Transaction{
+    let dec = new Decoder(serializedData);
+    let nexusName = dec.readString();
+    let chainName = dec.readString();
+    let scriptLength = dec.readVarInt();
+    let script = dec.read(scriptLength);
+    let date = new Date(dec.readTimestamp() * 1000);
+    let payloadLength = dec.readVarInt();
+    let payload = dec.read(payloadLength);
+
+    let nTransaction = new Transaction(
+        nexusName,
+        chainName,
+        script,
+        date,
+        payload
+    );
+    let signatureCount = dec.readVarInt();
+    for (let i = 0; i < signatureCount; i++){
+      nTransaction.signatures.push(dec.readSignature());
+    }
+    return nTransaction;
   }
 }

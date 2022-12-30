@@ -30,6 +30,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getString = exports.getMarketEventData = exports.getInfusionEventData = exports.getGasEventData = exports.getTransactionSettleEventData = exports.getChainValueEventData = exports.getTokenEventData = exports.decodeVMObject = exports.Decoder = exports.TypeAuction = exports.EventKind = void 0;
 var big_integer_1 = __importDefault(require("big-integer"));
+var SignatureKind_1 = require("../tx/SignatureKind");
 var VMType_1 = require("./VMType");
 var EventKind;
 (function (EventKind) {
@@ -124,6 +125,42 @@ var Decoder = /** @class */ (function () {
             res += String.fromCharCode(this.readByte());
         }
         return res;
+    };
+    Decoder.prototype.readByteArray = function () {
+        var res;
+        var length = this.readVarInt();
+        if (length == 0)
+            return [];
+        res = this.read(length);
+        return res;
+    };
+    Decoder.prototype.readSignature = function () {
+        var kind = this.readByte();
+        var signature;
+        var curve;
+        signature.kind = kind;
+        switch (kind) {
+            case SignatureKind_1.SignatureKind.None: return null;
+            case SignatureKind_1.SignatureKind.Ed25519:
+                signature.signature = this.readString();
+                break;
+            case SignatureKind_1.SignatureKind.ECDSA:
+                curve = this.readByte();
+                signature.signature = this.readString();
+                break;
+            default:
+                throw "read signature: " + kind;
+        }
+        return signature;
+    };
+    Decoder.prototype.readTimestamp = function () {
+        var len = this.readByte();
+        var result = 0;
+        var bytes = this.read(4);
+        bytes.match(/.{1,2}/g)
+            .reverse()
+            .forEach(function (c) { return (result = result * 256 + parseInt(c, 16)); });
+        return result;
     };
     Decoder.prototype.readVarInt = function () {
         var len = this.readByte();

@@ -188,8 +188,6 @@ async function sendTransaction() {
             'testnet',  //Nexus Name - if you're using mainnet change it to mainnet
             'main',     //Chain
             script,     //In string format
-            sender,     //Address of wallet sending
-            version,    //Number
             expiration, //Date Object
             payload     //Extra Info to attach to Transaction in Serialized Hex
         );
@@ -244,7 +242,6 @@ async function stakeSOUL() {
             'testnet',  //Nexus Name - if you're using mainnet change it to mainnet
             'main',     //Chain
             script,     //In string format
-            sender,     //Address of wallet sending
             expiration, //Date Object
             payload     //Extra Info to attach to Transaction in Serialized Hex
         );
@@ -305,7 +302,6 @@ async function deployContract() {
         'testnet',  //Nexus Name
         'main',     //Chain
         script,     //In string format
-        sender,     //Address of wallet sending
         expiration, //Date Object
         payload     //Extra Info to attach to Transaction in Serialized Hex
     );
