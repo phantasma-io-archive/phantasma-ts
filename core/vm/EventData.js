@@ -142,6 +142,7 @@ var Decoder = /** @class */ (function () {
         switch (kind) {
             case SignatureKind_1.SignatureKind.None: return null;
             case SignatureKind_1.SignatureKind.Ed25519:
+                var len = this.readVarInt();
                 signature.signature = this.readString();
                 break;
             case SignatureKind_1.SignatureKind.ECDSA:

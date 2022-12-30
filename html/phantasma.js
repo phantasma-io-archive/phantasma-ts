@@ -1410,13 +1410,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Transaction = void 0;
+exports.Transaction = exports.ISignature = void 0;
 var elliptic_1 = require("elliptic");
 var vm_1 = require("../vm");
 var utils_1 = require("../utils");
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var curve = new elliptic_1.eddsa("ed25519");
+var ISignature = /** @class */ (function () {
+    function ISignature() {
+    }
+    return ISignature;
+}());
+exports.ISignature = ISignature;
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, expiration, payload) {
         this.nexusName = nexusName;
@@ -1910,6 +1916,7 @@ var Decoder = /** @class */ (function () {
         switch (kind) {
             case SignatureKind_1.SignatureKind.None: return null;
             case SignatureKind_1.SignatureKind.Ed25519:
+                var len = this.readVarInt();
                 signature.signature = this.readString();
                 break;
             case SignatureKind_1.SignatureKind.ECDSA:
