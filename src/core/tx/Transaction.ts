@@ -40,7 +40,7 @@ export class Transaction {
   }
 
   public toString(withSignature: boolean): string {
-    const utc = Date.UTC(
+    /*const utc = Date.UTC(
       this.expiration.getUTCFullYear(),
       this.expiration.getUTCMonth(),
       this.expiration.getUTCDate(),
@@ -55,14 +55,14 @@ export class Transaction {
     let c = (num & 0x0000ff00) >> 8;
     let d = num & 0x000000ff;
 
-    let expirationBytes = [d, c, b, a];
+    let expirationBytes = [d, c, b, a];*/
 
     let sb = new ScriptBuilder()
       .emitVarString(this.nexusName)
       .emitVarString(this.chainName)
       .emitVarInt(this.script.length / 2)
       .appendHexEncoded(this.script)
-      .emitByteArray(expirationBytes)
+      .emitTimestamp(this.expiration)
       .emitVarInt(this.payload.length / 2)
       .appendHexEncoded(this.payload);
 
