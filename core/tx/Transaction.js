@@ -30,19 +30,28 @@ var Transaction = /** @class */ (function () {
         this.signatures.unshift({ signature: signature, kind: 1 });
     };
     Transaction.prototype.toString = function (withSignature) {
-        var utc = Date.UTC(this.expiration.getUTCFullYear(), this.expiration.getUTCMonth(), this.expiration.getUTCDate(), this.expiration.getUTCHours(), this.expiration.getUTCMinutes(), this.expiration.getUTCSeconds());
-        var num = utc / 1000;
-        var a = (num & 0xff000000) >> 24;
-        var b = (num & 0x00ff0000) >> 16;
-        var c = (num & 0x0000ff00) >> 8;
-        var d = num & 0x000000ff;
-        var expirationBytes = [d, c, b, a];
+        /*const utc = Date.UTC(
+          this.expiration.getUTCFullYear(),
+          this.expiration.getUTCMonth(),
+          this.expiration.getUTCDate(),
+          this.expiration.getUTCHours(),
+          this.expiration.getUTCMinutes(),
+          this.expiration.getUTCSeconds()
+        );
+        let num = utc / 1000;
+    
+        let a = (num & 0xff000000) >> 24;
+        let b = (num & 0x00ff0000) >> 16;
+        let c = (num & 0x0000ff00) >> 8;
+        let d = num & 0x000000ff;
+    
+        let expirationBytes = [d, c, b, a];*/
         var sb = new vm_1.ScriptBuilder()
             .emitVarString(this.nexusName)
             .emitVarString(this.chainName)
             .emitVarInt(this.script.length / 2)
             .appendHexEncoded(this.script)
-            .emitByteArray(expirationBytes)
+            .emitTimestamp(this.expiration)
             .emitVarInt(this.payload.length / 2)
             .appendHexEncoded(this.payload);
         if (withSignature) {

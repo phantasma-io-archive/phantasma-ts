@@ -345,6 +345,16 @@ var ScriptBuilder = /** @class */ (function () {
         });
     };
     //#endregion
+    ScriptBuilder.prototype.emitTimestamp = function (obj) {
+        var num = (obj.getTime() + obj.getTimezoneOffset() * 60 * 1000) / 1000;
+        var a = (num & 0xff000000) >> 24;
+        var b = (num & 0x00ff0000) >> 16;
+        var c = (num & 0x0000ff00) >> 8;
+        var d = num & 0x000000ff;
+        var bytes = [d, c, b, a];
+        this.appendBytes(bytes);
+        return this;
+    };
     ScriptBuilder.prototype.emitByteArray = function (bytes) {
         this.emitVarInt(bytes.length);
         this.emitBytes(bytes);
@@ -392,6 +402,21 @@ var ScriptBuilder = /** @class */ (function () {
             this.appendByte(C);
             this.appendByte(D);
         }
+        return this;
+    };
+    ScriptBuilder.prototype.emitUInt32 = function (value) {
+        if (value < 0)
+            throw "negative value invalid";
+        var D = (value & 0xff000000) >> 24;
+        var C = (value & 0x00ff0000) >> 16;
+        var B = (value & 0x0000ff00) >> 8;
+        var A = value & 0x000000ff;
+        // TODO check if the endianess is correct, might have to reverse order of appends
+        this.appendByte(0xff);
+        this.appendByte(A);
+        this.appendByte(B);
+        this.appendByte(C);
+        this.appendByte(D);
         return this;
     };
     ScriptBuilder.prototype.emitBytes = function (bytes) {

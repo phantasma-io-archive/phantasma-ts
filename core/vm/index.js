@@ -14,3 +14,4 @@ __exportStar(require("./ScriptBuilder"), exports);
 __exportStar(require("./Opcode"), exports);
 __exportStar(require("./VMType"), exports);
 __exportStar(require("./EventData"), exports);
+__exportStar(require("./Decoder"), exports);

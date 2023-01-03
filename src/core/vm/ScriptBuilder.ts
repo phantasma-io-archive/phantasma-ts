@@ -336,6 +336,19 @@ export class ScriptBuilder {
 
   //#endregion
 
+  public emitTimestamp(obj: Date): this {
+    let num = (obj.getTime() + obj.getTimezoneOffset() * 60 * 1000) / 1000;
+
+    let a = (num & 0xff000000) >> 24;
+    let b = (num & 0x00ff0000) >> 16;
+    let c = (num & 0x0000ff00) >> 8;
+    let d = num & 0x000000ff;
+
+    let bytes = [d, c, b, a];
+    this.appendBytes(bytes);
+    return this;
+  }
+
   public emitByteArray(bytes: number[]) {
     this.emitVarInt(bytes.length)
     this.emitBytes(bytes)
@@ -385,6 +398,24 @@ export class ScriptBuilder {
       this.appendByte(C);
       this.appendByte(D);
     }
+    return this;
+  }
+
+  public emitUInt32(value: number): this {
+    if (value < 0) throw "negative value invalid";
+
+    let D = (value & 0xff000000) >> 24;
+    let C = (value & 0x00ff0000) >> 16;
+    let B = (value & 0x0000ff00) >> 8;
+    let A = value & 0x000000ff;
+
+    // TODO check if the endianess is correct, might have to reverse order of appends
+    this.appendByte(0xff);
+    this.appendByte(A);
+    this.appendByte(B);
+    this.appendByte(C);
+    this.appendByte(D);
+    
     return this;
   }
 
