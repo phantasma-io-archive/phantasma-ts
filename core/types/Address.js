@@ -21,7 +21,7 @@ var AddressKind;
 var Address = /** @class */ (function () {
     function Address(publicKey) {
         if (publicKey.length != Address.LengthInBytes) {
-            throw new Error("publicKey length must be " + Address.LengthInBytes);
+            throw new Error("publicKey length must be ".concat(Address.LengthInBytes));
         }
         this._bytes = new Uint8Array(Address.LengthInBytes);
         this._bytes.set(publicKey);

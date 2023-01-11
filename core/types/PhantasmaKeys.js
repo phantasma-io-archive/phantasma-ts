@@ -17,7 +17,7 @@ var PhantasmaKeys = /** @class */ (function () {
             privateKey = privateKey.slice(0, 32);
         }
         if (privateKey.length != PhantasmaKeys.PrivateKeyLength) {
-            throw new Error("privateKey should have length " + PhantasmaKeys.PrivateKeyLength + " but has " + privateKey.length);
+            throw new Error("privateKey should have length ".concat(PhantasmaKeys.PrivateKeyLength, " but has ").concat(privateKey.length));
         }
         this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
         this._privateKey.set(privateKey);

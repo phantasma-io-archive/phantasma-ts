@@ -237,7 +237,7 @@ var ContractMethod = /** @class */ (function () {
     };
     ContractMethod.prototype.constructorOne = function (name, returnType, labels, parameters) {
         if (!labels.has(name)) {
-            throw new Error("Missing offset in label map for method " + name);
+            throw new Error("Missing offset in label map for method ".concat(name));
         }
         var offset = labels.get(name);
         this.name = name;
@@ -261,7 +261,7 @@ var ContractMethod = /** @class */ (function () {
         return false;
     };
     ContractMethod.prototype.toString = function () {
-        return this.name + " : " + this.returnType;
+        return "".concat(this.name, " : ").concat(this.returnType);
     };
     ContractMethod.fromBytes = function (bytes) {
         var stream = new Uint8Array(bytes);
@@ -314,7 +314,7 @@ var ContractEvent = /** @class */ (function () {
         return ContractEvent.Unserialize(reader);
     };
     ContractEvent.prototype.toString = function () {
-        return this.name + " : " + this.returnType + " => " + this.value;
+        return "".concat(this.name, " : ").concat(this.returnType, " => ").concat(this.value);
     };
     ContractEvent.Unserialize = function (reader) {
         var value = reader.readByte();

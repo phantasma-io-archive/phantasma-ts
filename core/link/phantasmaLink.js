@@ -14,8 +14,8 @@ var ProofOfWork;
 var PhantasmaLink = /** @class */ (function () {
     //Construct The Link
     function PhantasmaLink(dappID, logging) {
-        var _this = this;
         if (logging === void 0) { logging = true; }
+        var _this = this;
         this.requestID = 0;
         //Message Logging
         this.onMessage = function (msg) {
