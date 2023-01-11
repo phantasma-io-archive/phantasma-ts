@@ -40,13 +40,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PhantasmaAPI = exports.TokenSeriesMode = void 0;
+exports.PhantasmaAPI = void 0;
 var cross_fetch_1 = __importDefault(require("cross-fetch"));
-var TokenSeriesMode;
-(function (TokenSeriesMode) {
-    TokenSeriesMode[TokenSeriesMode["Unique"] = 0] = "Unique";
-    TokenSeriesMode[TokenSeriesMode["Duplicated"] = 1] = "Duplicated";
-})(TokenSeriesMode = exports.TokenSeriesMode || (exports.TokenSeriesMode = {}));
 var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;

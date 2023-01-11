@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import fetch from "cross-fetch";
-import { ISignature } from "../tx/Transaction";
+import { TokenSeriesMode } from "../interfaces";
 
 export interface Balance {
   chain: string;
@@ -200,11 +200,6 @@ export interface TokenSeries{
   mode:TokenSeriesMode;
   script: string;
   methods: Array<ABIMethod>;
-}
-
-export enum TokenSeriesMode{
-  Unique,
-  Duplicated
 }
 
 export interface TokenData {

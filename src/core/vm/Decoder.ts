@@ -1,5 +1,5 @@
 import bigInt from "big-integer";
-import { ISignature, SignatureKind } from "../tx";
+import { ISignature, SignatureKind } from "../interfaces";
 import { VMType } from "./VMType";
 
 export class Decoder {

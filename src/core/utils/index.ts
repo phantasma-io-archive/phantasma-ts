@@ -66,3 +66,43 @@ export function encodeBase16(str: string){
   .map(c => c.charCodeAt(0).toString(16).padStart(2, "0"))
   .join("");
 }
+
+export function uint8ArrayToString(array: Uint8Array): string {
+  let result = '';
+  for (let i = 0; i < array.length; i++) {
+    result += String.fromCharCode(array[i]);
+  }
+  return result;
+}
+
+export function uint8ArrayToNumberArray(array: Uint8Array): number[] {
+  let result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(array[i]);
+  }
+  return result;
+}
+
+export function stringToUint8Array(str: string): Uint8Array {
+  let result = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    result[i] = str.charCodeAt(i);
+  }
+  return result;
+}
+
+export function arrayNumberToUint8Array(arr: number[]): Uint8Array {
+  let result = new Uint8Array(arr.length);
+  for (let i = 0; i < arr.length; i++) {
+    result[i] = arr[i];
+  }
+  return result;
+}
+
+export function uint8ArrayToBytes(array: Uint8Array): number[] {
+  let result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(array[i]);
+  }
+  return result;
+}

@@ -3,12 +3,8 @@ import { Decoder, ScriptBuilder } from "../vm";
 import { hexStringToBytes, byteArrayToHex, getDifficulty } from "../utils";
 import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
+import { ISignature } from "../interfaces";
 const curve = new eddsa("ed25519");
-
-export class ISignature {
-  signature: string;
-  kind: number;
-}
 
 export class Transaction {
   script: string;
@@ -18,6 +14,11 @@ export class Transaction {
   expiration: Date;
   signatures: Array<ISignature>;
   hash: string;
+
+  public static FromBytes(serializedData: string): Transaction {
+    let transaction = new Transaction("", "", "", new Date(), "");
+    return transaction.unserialize(serializedData);
+  }
 
   constructor(
     nexusName: string,
