@@ -123,7 +123,7 @@
   "resolved" "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   "version" "1.5.1"
 
-"big-integer@^1.6.50":
+"big-integer@^1.6.48", "big-integer@^1.6.50":
   "integrity" "sha512-+O2uoQWFRo8ysZNo/rjtri2jIwjr3XfeAgRjAUADRqGG+ZITvyn8J1kvXLTaKVr3hhGXk+f23tKfdzmklVM9vQ=="
   "resolved" "https://registry.npmjs.org/big-integer/-/big-integer-1.6.50.tgz"
   "version" "1.6.50"
@@ -479,6 +479,13 @@
   "integrity" "sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw=="
   "resolved" "https://registry.npmjs.org/crypto-js/-/crypto-js-4.1.1.tgz"
   "version" "4.1.1"
+
+"csharp-binary-stream@^1.0.3":
+  "integrity" "sha512-ddUuET89AkDGYQRcClsR6X0Bo5bIpPXpu/DHVwhSjb77hx4hf8WfMZfgXM83hZnD48P63ZC6T3JGo01gHIKEpw=="
+  "resolved" "https://registry.npmjs.org/csharp-binary-stream/-/csharp-binary-stream-1.0.3.tgz"
+  "version" "1.0.3"
+  dependencies:
+    "big-integer" "^1.6.48"
 
 "dash-ast@^1.0.0":
   "integrity" "sha512-Vy4dx7gquTeMcQR/hDkYLGUnwVil6vk4FOOct+djUnHOUWt+zJPJAaRIXaAFkPXtJjvlY7o3rfRu0/3hpnwoUA=="

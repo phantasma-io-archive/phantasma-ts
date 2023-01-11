@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -92,3 +92,43 @@ function encodeBase16(str) {
         .join("");
 }
 exports.encodeBase16 = encodeBase16;
+function uint8ArrayToString(array) {
+    var result = '';
+    for (var i = 0; i < array.length; i++) {
+        result += String.fromCharCode(array[i]);
+    }
+    return result;
+}
+exports.uint8ArrayToString = uint8ArrayToString;
+function uint8ArrayToNumberArray(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i++) {
+        result.push(array[i]);
+    }
+    return result;
+}
+exports.uint8ArrayToNumberArray = uint8ArrayToNumberArray;
+function stringToUint8Array(str) {
+    var result = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) {
+        result[i] = str.charCodeAt(i);
+    }
+    return result;
+}
+exports.stringToUint8Array = stringToUint8Array;
+function arrayNumberToUint8Array(arr) {
+    var result = new Uint8Array(arr.length);
+    for (var i = 0; i < arr.length; i++) {
+        result[i] = arr[i];
+    }
+    return result;
+}
+exports.arrayNumberToUint8Array = arrayNumberToUint8Array;
+function uint8ArrayToBytes(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i++) {
+        result.push(array[i]);
+    }
+    return result;
+}
+exports.uint8ArrayToBytes = uint8ArrayToBytes;

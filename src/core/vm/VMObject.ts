@@ -11,8 +11,8 @@ export class VMObject {
     private _localSize = 0;
     private static readonly TimeFormat: string = "MM/dd/yyyy HH:mm:ss";
   
-    /*public GetChildren(): Dictionary<VMObject, VMObject> {
-      return this.Type == VMType.Struct ? (this.Data as Dictionary<VMObject, VMObject>) : null;
+    public GetChildren(): Map<VMObject, VMObject> | null {
+      return this.Type == VMType.Struct ? (this.Data as Map<VMObject, VMObject>) : null;
     }
   
     public get Size(): number {
@@ -20,15 +20,16 @@ export class VMObject {
   
       if (this.Type == VMType.Object) {
         const children = this.GetChildren();
-        for (const entry of children.values()) {
-          total += entry.Size;
+        let values = children?.values;
+        for (let entry in values) {
+          total += entry.length;
         }
       } else {
         total = this._localSize;
       }
   
       return total;
-    }*/
+    }
 
     constructor() {
         this.Type = VMType.None;
@@ -107,11 +108,34 @@ export class VMObject {
             default:
             throw new ArgumentException("Unsupported VM cast");
         }
-    }
+    }*/
     
-    public AsEnum<T>(): T {
-        if (!(typeof T).IsEnum) {
-        throw new ArgumentException("T must be an enumerated type");
+    isEnum(instance: Object): boolean {
+        let keys = Object.keys(instance);
+        let values : any[] = [];
+    
+        for (let key of keys) {
+          let value = instance[key];
+    
+          if (typeof value === 'number') {
+            value = value.toString();
+          }
+    
+          values.push(value);
+        }
+    
+        for (let key of keys) {
+          if (values.indexOf(key) < 0) {
+            return false;
+          }
+        }
+    
+        return true;
+      }
+
+    /*public AsEnum<T>(): T {
+        if (isEnum(this.Data)) {
+            throw new ArgumentException("T must be an enumerated type");
         }
         if (this.Type != VMType.Enum) {
             const num = this.AsNumber();
@@ -119,12 +143,12 @@ export class VMObject {
           }
           
           return (T) Enum.Parse(typeof T, this.Data.toString());
-    }
+    }*/
 
-    public AsString(): string {
+    /*public AsString(): string {
         switch (this.Type) {
             case VMType.String:
-            return this.Data as string;
+            return this.Data as unknown as string;
             case VMType.Object:
             {
                 const sb = new StringBuilder();
@@ -149,22 +173,22 @@ export class VMObject {
             default:
                 return this.Data.toString();
         }
-    }
+    }*/
 
-    public AsBool(): bool {
+    public AsBool(): boolean {
         switch (this.Type) {
             case VMType.String:
-                return (this.Data as string).toLowerCase() == "true";
+                return (this.Data as unknown as string).toLowerCase() == "true";
             case VMType.Number:
-                return (this.Data as BigInteger) != BigInteger.zero;
+                return (this.Data as BigInt) != BigInt(0);
             case VMType.Bool:
-                return this.Data as boolean;
+                return this.Data as unknown as boolean;
             default:
-                throw new Error(Invalid cast: expected bool, got ${this.Type});
+                throw new Error(`Invalid cast: expected bool, got ${this.Type}`);
         }
     }
 
-    public AsByteArray(): Uint8Array {
+    /*public AsByteArray(): Uint8Array {
         switch (this.Type) {
             case VMType.Bytes:
                 return this.Data as Uint8Array;

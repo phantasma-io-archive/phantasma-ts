@@ -1,7 +1,5 @@
 import bigInt from "big-integer";
 import { isCallSignatureDeclaration } from "typescript";
-import { ISignature } from "../tx";
-import { SignatureKind } from "../tx/SignatureKind";
 import { Decoder } from "./Decoder";
 import { VMType } from "./VMType";
 

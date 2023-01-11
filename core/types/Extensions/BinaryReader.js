@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
@@ -28,50 +43,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Decoder = void 0;
+exports.PBinaryReader = void 0;
 var big_integer_1 = __importDefault(require("big-integer"));
-var interfaces_1 = require("../interfaces");
-var VMType_1 = require("./VMType");
-var Decoder = /** @class */ (function () {
-    function Decoder(str) {
-        this.str = str;
+var csharp_binary_stream_1 = require("csharp-binary-stream");
+var interfaces_1 = require("../../interfaces");
+var utils_1 = require("../../utils");
+var vm_1 = require("../../vm");
+var Timestamp_1 = require("../Timestamp");
+var PBinaryReader = /** @class */ (function (_super) {
+    __extends(PBinaryReader, _super);
+    function PBinaryReader() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    Decoder.prototype.isEnd = function () {
-        return this.str.length == 0;
-    };
-    Decoder.prototype.readCharPair = function () {
-        var res = this.str.substr(0, 2);
-        this.str = this.str.slice(2);
+    PBinaryReader.prototype.read = function (numBytes) {
+        var res = (0, utils_1.byteArrayToHex)(this.readBytes(numBytes)).substr(0, numBytes * 2);
+        this.position += (numBytes * 2);
         return res;
     };
-    Decoder.prototype.readByte = function () {
-        return parseInt(this.readCharPair(), 16);
-    };
-    Decoder.prototype.read = function (numBytes) {
-        var res = this.str.substr(0, numBytes * 2);
-        this.str = this.str.slice(numBytes * 2);
-        return res;
-    };
-    Decoder.prototype.readString = function () {
+    PBinaryReader.prototype.readString = function () {
         var len = this.readVarInt();
         return this.readStringBytes(len);
     };
-    Decoder.prototype.readStringBytes = function (numBytes) {
+    PBinaryReader.prototype.readStringBytes = function (numBytes) {
         var res = "";
         for (var i = 0; i < numBytes; ++i) {
             res += String.fromCharCode(this.readByte());
         }
         return res;
     };
-    Decoder.prototype.readByteArray = function () {
-        var res;
-        var length = this.readVarInt();
-        if (length == 0)
-            return [];
-        res = this.read(length);
-        return res;
+    PBinaryReader.prototype.readBigInteger = function () {
+        // TO DO: implement negative numbers
+        var len = this.readVarInt();
+        var res = 0;
+        var stringBytes = this.read(len);
+        __spreadArray([], __read(stringBytes.match(/.{1,2}/g)), false).reverse()
+            .forEach(function (c) { return (res = res * 256 + parseInt(c, 16)); });
+        var bigInt = BigInt(res);
+        return bigInt;
     };
-    Decoder.prototype.readSignature = function () {
+    PBinaryReader.prototype.readBigIntAccurate = function () {
+        var len = this.readVarInt();
+        var res = (0, big_integer_1.default)();
+        var stringBytes = this.read(len);
+        __spreadArray([], __read(stringBytes.match(/.{1,2}/g)), false).reverse().forEach(function (c) {
+            res = res.times(256).plus(parseInt(c, 16));
+        });
+        return res.toString();
+    };
+    PBinaryReader.prototype.readSignature = function () {
         var kind = this.readByte();
         var signature = new interfaces_1.ISignature();
         var curve;
@@ -91,16 +110,25 @@ var Decoder = /** @class */ (function () {
         }
         return signature;
     };
-    Decoder.prototype.readTimestamp = function () {
+    PBinaryReader.prototype.readByteArray = function () {
+        var res;
+        var length = this.readVarInt();
+        if (length == 0)
+            return [];
+        res = this.read(length);
+        return res;
+    };
+    PBinaryReader.prototype.readTimestamp = function () {
         //var len = this.readByte();
         var result = 0;
         var bytes = this.read(4);
         bytes.match(/.{1,2}/g)
             .reverse()
             .forEach(function (c) { return (result = result * 256 + parseInt(c, 16)); });
-        return result;
+        var timestamp = new Timestamp_1.Timestamp(result);
+        return timestamp;
     };
-    Decoder.prototype.readVarInt = function () {
+    PBinaryReader.prototype.readVarInt = function () {
         var len = this.readByte();
         var res = 0;
         if (len === 0xfd) {
@@ -120,35 +148,17 @@ var Decoder = /** @class */ (function () {
         }
         return len;
     };
-    Decoder.prototype.readBigInt = function () {
-        // TO DO: implement negative numbers
-        var len = this.readVarInt();
-        var res = 0;
-        var stringBytes = this.read(len);
-        __spreadArray([], __read(stringBytes.match(/.{1,2}/g)), false).reverse()
-            .forEach(function (c) { return (res = res * 256 + parseInt(c, 16)); });
-        return res;
-    };
-    Decoder.prototype.readBigIntAccurate = function () {
-        var len = this.readVarInt();
-        var res = (0, big_integer_1.default)();
-        var stringBytes = this.read(len);
-        __spreadArray([], __read(stringBytes.match(/.{1,2}/g)), false).reverse().forEach(function (c) {
-            res = res.times(256).plus(parseInt(c, 16));
-        });
-        return res.toString();
-    };
-    Decoder.prototype.readVmObject = function () {
+    PBinaryReader.prototype.readVmObject = function () {
         var type = this.readByte();
         console.log('type', type);
         switch (type) {
-            case VMType_1.VMType.String:
+            case vm_1.VMType.String:
                 return this.readString();
-            case VMType_1.VMType.Number:
+            case vm_1.VMType.Number:
                 return this.readBigIntAccurate();
-            case VMType_1.VMType.Bool:
+            case vm_1.VMType.Bool:
                 return this.readByte() != 0;
-            case VMType_1.VMType.Struct:
+            case vm_1.VMType.Struct:
                 var numFields = this.readVarInt();
                 var res = {};
                 for (var i = 0; i < numFields; ++i) {
@@ -159,15 +169,15 @@ var Decoder = /** @class */ (function () {
                     res[key] = value;
                 }
                 return res;
-            case VMType_1.VMType.Enum:
+            case vm_1.VMType.Enum:
                 return this.readVarInt();
-            case VMType_1.VMType.Object:
+            case vm_1.VMType.Object:
                 var numBytes = this.readVarInt();
                 return this.read(numBytes);
             default:
                 return "unsupported type " + type;
         }
     };
-    return Decoder;
-}());
-exports.Decoder = Decoder;
+    return PBinaryReader;
+}(csharp_binary_stream_1.BinaryReader));
+exports.PBinaryReader = PBinaryReader;
