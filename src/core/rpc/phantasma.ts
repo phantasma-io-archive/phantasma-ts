@@ -593,9 +593,9 @@ export class PhantasmaAPI {
     )) as Organization;
   }
 
-  async getOrganizations(extended: boolean = false): Promise<Organization> {
+  async getOrganizations(extended: boolean = false): Promise<Organization[]> {
     let params: Array<any> = [extended];
-    return (await this.JSONRPC("getOrganizations", params)) as Organization;
+    return (await this.JSONRPC("getOrganizations", params)) as Organization[];
   }
 
   //Returns content of a Phantasma leaderboard.
