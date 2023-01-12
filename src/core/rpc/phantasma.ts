@@ -109,9 +109,9 @@ export interface Oracle {
   content: string; //Byte array content read by the oracle, encoded as hex string
 }
 
-export interface SignatureResult{
-  Kind:string;
-  Data:string;
+export interface SignatureResult {
+  Kind: string;
+  Data: string;
 }
 
 export interface TransactionData {
@@ -162,17 +162,17 @@ export interface Block {
   oracles: Array<Oracle>; //Block oracles
 }
 
-export interface TokenExternal{
-  platform:string;
-  hash:string;
+export interface TokenExternal {
+  platform: string;
+  hash: string;
 }
 
-export interface TokenPrice{
-  Timestamp:number;
-  Open:string;
-  High:string;
-  Low:string;
-  Close:string;
+export interface TokenPrice {
+  Timestamp: number;
+  Open: string;
+  High: string;
+  Low: string;
+  Close: string;
 }
 
 export interface Token {
@@ -192,12 +192,12 @@ export interface Token {
   //external?: { hash: string; platform: string }[];
 }
 
-export interface TokenSeries{
-  seriesID:number;
-  currentSupply:string;
-  maxSupply:string;
-  burnedSupply:string;
-  mode:TokenSeriesMode;
+export interface TokenSeries {
+  seriesID: number;
+  currentSupply: string;
+  maxSupply: string;
+  burnedSupply: string;
+  mode: TokenSeriesMode;
   script: string;
   methods: Array<ABIMethod>;
 }
@@ -376,8 +376,7 @@ export class PhantasmaAPI {
     this.host = defHost;
     this.availableHosts = [];
 
-    if ( peersUrlJson != undefined)
-    {
+    if (peersUrlJson != undefined) {
       fetch(peersUrlJson + "?_=" + new Date().getTime()).then(async (res) => {
         const data = await res.json();
         for (var i = 0; i < data.length; i++) {
@@ -526,9 +525,10 @@ export class PhantasmaAPI {
     pageSize: number
   ): Promise<Paginated<AccountTransactions>> {
     let params: Array<any> = [account, page, pageSize];
-    return (await this.JSONRPC("getAddressTransactions", params)) as Paginated<
-      AccountTransactions
-    >;
+    return (await this.JSONRPC(
+      "getAddressTransactions",
+      params
+    )) as Paginated<AccountTransactions>;
   }
 
   //Get number of transactions in a specific address and chain
@@ -583,6 +583,19 @@ export class PhantasmaAPI {
   async getOrganization(ID: string): Promise<Organization> {
     let params: Array<any> = [ID];
     return (await this.JSONRPC("getOrganization", params)) as Organization;
+  }
+
+  async getOrganizationByName(name: string): Promise<Organization> {
+    let params: Array<any> = [name];
+    return (await this.JSONRPC(
+      "getOrganizationByName",
+      params
+    )) as Organization;
+  }
+
+  async getOrganizations(extended: boolean = false): Promise<Organization> {
+    let params: Array<any> = [extended];
+    return (await this.JSONRPC("getOrganizations", params)) as Organization;
   }
 
   //Returns content of a Phantasma leaderboard.
@@ -731,7 +744,6 @@ export class PhantasmaAPI {
     let params: Array<any> = [account, platform, false];
     return (await this.JSONRPC("getSwapsForAddress", params)) as Swap[];
   }
-
 
   //Returns info of a nft.
   async getNFT(symbol: string, nftId: string): Promise<NFT> {

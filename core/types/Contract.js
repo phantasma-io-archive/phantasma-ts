@@ -111,7 +111,9 @@ var ContractInterface = /** @class */ (function () {
         try {
             for (var _b = __values(this.Events()), _c = _b.next(); !_c.done; _c = _b.next()) {
                 var entry = _c.value;
-                if (entry.name === evt.name && entry.value === evt.value && entry.returnType === evt.returnType) {
+                if (entry.name === evt.name &&
+                    entry.value === evt.value &&
+                    entry.returnType === evt.returnType) {
                     return true;
                 }
             }
@@ -246,16 +248,22 @@ var ContractMethod = /** @class */ (function () {
         this.parameters = parameters;
     };
     ContractMethod.prototype.isProperty = function () {
-        if (this.name.length >= 4 && this.name.startsWith("get") && this.name[3] === this.name[3].toUpperCase()) {
+        if (this.name.length >= 4 &&
+            this.name.startsWith("get") &&
+            this.name[3] === this.name[3].toUpperCase()) {
             return true;
         }
-        if (this.name.length >= 3 && this.name.startsWith("is") && this.name[2] === this.name[2].toUpperCase()) {
+        if (this.name.length >= 3 &&
+            this.name.startsWith("is") &&
+            this.name[2] === this.name[2].toUpperCase()) {
             return true;
         }
         return false;
     };
     ContractMethod.prototype.isTrigger = function () {
-        if (this.name.length >= 3 && this.name.startsWith("on") && this.name[2] === this.name[2].toUpperCase()) {
+        if (this.name.length >= 3 &&
+            this.name.startsWith("on") &&
+            this.name[2] === this.name[2].toUpperCase()) {
             return true;
         }
         return false;

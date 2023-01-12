@@ -61,14 +61,15 @@ export function decodeBase16(hex: string) {
   return str;
 }
 
-export function encodeBase16(str: string){
-  return str.split("")
-  .map(c => c.charCodeAt(0).toString(16).padStart(2, "0"))
-  .join("");
+export function encodeBase16(str: string) {
+  return str
+    .split("")
+    .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export function uint8ArrayToString(array: Uint8Array): string {
-  let result = '';
+  let result = "";
   for (let i = 0; i < array.length; i++) {
     result += String.fromCharCode(array[i]);
   }

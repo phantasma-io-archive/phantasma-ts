@@ -32,25 +32,41 @@ var Timestamp = /** @class */ (function () {
     Timestamp.prototype.getSize = function () {
         return 4;
     };
-    Timestamp.equal = function (A, B) { return A.value === B.value; };
-    Timestamp.notEqual = function (A, B) { return !(A.value === B.value); };
-    Timestamp.lessThan = function (A, B) { return A.value < B.value; };
-    Timestamp.greaterThan = function (A, B) { return A.value > B.value; };
-    Timestamp.lessThanOrEqual = function (A, B) { return A.value <= B.value; };
-    Timestamp.greaterThanOrEqual = function (A, B) { return A.value >= B.value; };
-    Timestamp.subtract = function (A, B) { return A.value - B.value; };
+    Timestamp.equal = function (A, B) {
+        return A.value === B.value;
+    };
+    Timestamp.notEqual = function (A, B) {
+        return !(A.value === B.value);
+    };
+    Timestamp.lessThan = function (A, B) {
+        return A.value < B.value;
+    };
+    Timestamp.greaterThan = function (A, B) {
+        return A.value > B.value;
+    };
+    Timestamp.lessThanOrEqual = function (A, B) {
+        return A.value <= B.value;
+    };
+    Timestamp.greaterThanOrEqual = function (A, B) {
+        return A.value >= B.value;
+    };
+    Timestamp.subtract = function (A, B) {
+        return A.value - B.value;
+    };
     Timestamp.fromNumber = function (ticks) {
         return new Timestamp(ticks);
     };
     Timestamp.fromDate = function (time) {
         return new Timestamp(time.getTime() / 1000);
     };
-    Timestamp.addTimeSpan = function (A, B) { return A.value + B; };
-    Timestamp.subtractTimeSpan = function (A, B) { return A.value - B; };
-    Timestamp.Serialize = function () {
+    Timestamp.addTimeSpan = function (A, B) {
+        return A.value + B;
     };
-    Timestamp.Unserialize = function () {
+    Timestamp.subtractTimeSpan = function (A, B) {
+        return A.value - B;
     };
+    Timestamp.Serialize = function () { };
+    Timestamp.Unserialize = function () { };
     Timestamp.now = Date.now();
     Timestamp.null = new Timestamp(0);
     return Timestamp;

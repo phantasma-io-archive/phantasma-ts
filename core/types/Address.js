@@ -29,9 +29,9 @@ var Address = /** @class */ (function () {
     }
     Object.defineProperty(Address.prototype, "Kind", {
         /*public get Kind(): AddressKind {
-            return this.IsNull ? AddressKind.System : (this._bytes[0] >= 3) ? AddressKind.Interop
-                : (AddressKind)this._bytes[0];
-        }*/
+              return this.IsNull ? AddressKind.System : (this._bytes[0] >= 3) ? AddressKind.Interop
+                  : (AddressKind)this._bytes[0];
+          }*/
         get: function () {
             if (this.IsNull) {
                 return AddressKind.System;
@@ -69,12 +69,12 @@ var Address = /** @class */ (function () {
     });
     Object.defineProperty(Address.prototype, "IsNull", {
         /*public get TendermintAddress(): string {
-            return encodeBase16(this._bytes.slice(2).SHA256().slice(0, 20));
-        }
-        public get TendermintAddress() {
-            return SHA256(this._bytes.slice(2)).slice(0, 20).toString('hex');
-        }
-        */
+              return encodeBase16(this._bytes.slice(2).SHA256().slice(0, 20));
+          }
+          public get TendermintAddress() {
+              return SHA256(this._bytes.slice(2)).slice(0, 20).toString('hex');
+          }
+          */
         get: function () {
             if (this._bytes == null || this._bytes.length == 0) {
                 return true;
@@ -102,13 +102,13 @@ var Address = /** @class */ (function () {
                     var prefix = void 0;
                     switch (this.Kind) {
                         case AddressKind.User:
-                            prefix = 'P';
+                            prefix = "P";
                             break;
                         case AddressKind.Interop:
-                            prefix = 'X';
+                            prefix = "X";
                             break;
                         default:
-                            prefix = 'S';
+                            prefix = "S";
                             break;
                     }
                     this._text = prefix + bs58_1.default.encode(this._bytes);

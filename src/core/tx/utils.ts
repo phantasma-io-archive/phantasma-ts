@@ -1,8 +1,8 @@
 import WIF from "wif";
 import { eddsa } from "elliptic";
 import base58 from "bs58";
-import * as bip39 from 'bip39';
-import { hdkey }from 'ethereumjs-wallet';
+import * as bip39 from "bip39";
+import { hdkey } from "ethereumjs-wallet";
 const curve = new eddsa("ed25519");
 
 function ab2hexstring(arr: ArrayBuffer | ArrayLike<number>): string {
@@ -34,7 +34,7 @@ export function getAddressFromWif(wif: string): string {
   return "P" + base58.encode(addressHex);
 }
 
-export function generateNewSeed() : string {
+export function generateNewSeed(): string {
   let buffer = new Uint8Array(32);
   let privateKey = Buffer.alloc(32);
   crypto.getRandomValues(buffer);
@@ -47,22 +47,21 @@ export function generateNewSeed() : string {
   return mnemonic;
 }
 
-export function generateNewSeedWords() : string[] {
+export function generateNewSeedWords(): string[] {
   let buffer = new Uint8Array(32);
-  let privateKey =Buffer.alloc(32);
+  let privateKey = Buffer.alloc(32);
   crypto.getRandomValues(buffer);
   for (let i = 0; i < 32; ++i) {
     privateKey.writeUInt8(buffer[i], i);
   }
 
   const wif = WIF.encode(128, privateKey, true);
-  const mnemonic = bip39.generateMnemonic()
-  const seedWords = mnemonic.split(' ')
+  const mnemonic = bip39.generateMnemonic();
+  const seedWords = mnemonic.split(" ");
   return seedWords;
 }
 
 export function generateNewWif(): string {
-
   let buffer = new Uint8Array(32);
   let privateKey = Buffer.alloc(32);
   crypto.getRandomValues(buffer);
@@ -73,7 +72,6 @@ export function generateNewWif(): string {
   const wif = WIF.encode(128, privateKey, true);
   return wif;
 }
-
 
 export function signData(msgHex: string, privateKey: string): string {
   const msgHashHex = Buffer.from(msgHex, "hex");
@@ -87,11 +85,14 @@ export function signData(msgHex: string, privateKey: string): string {
   );
 }
 
-export function verifyData(msgHex: string, phaSig: string, address: string): boolean {
+export function verifyData(
+  msgHex: string,
+  phaSig: string,
+  address: string
+): boolean {
   const msgBytes = Buffer.from(msgHex, "hex");
-  const realSig = phaSig.substring(4)
-  const pubKey = base58.decode(address.substring(1)).slice(2)
-    
-  return curve.verify(msgBytes, realSig, pubKey.toString("hex"))
-}
+  const realSig = phaSig.substring(4);
+  const pubKey = base58.decode(address.substring(1)).slice(2);
 
+  return curve.verify(msgBytes, realSig, pubKey.toString("hex"));
+}

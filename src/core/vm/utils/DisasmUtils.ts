@@ -3,30 +3,37 @@ import { Stack } from "../../types";
 import { VMObject } from "../VMObject";
 
 export class DisasmUtils {
-    private static PopArgs(contract: string, method: string, stack: Stack<VMObject>, methodArgumentCountTable: { [key: string]: number }): VMObject[] {
-        let key = method;
-        if (contract != null) {
-            key = `${contract}.${method}`;
-        }
-
-        if (methodArgumentCountTable.hasOwnProperty(key)) {
-            let argCount = methodArgumentCountTable[key];
-            let result : Array<VMObject> = new Array<VMObject>(argCount);
-            for (let i = 0; i < argCount; i++) {
-                if (stack.size() == 0) {
-                    throw new Error(`Cannot disassemble method => method ${key} expected ${argCount} args, ${i} were fetched`);
-                }
-                //result[i] = stack.pop();
-            }
-            return result;
-        } else {
-            throw new Error(`Cannot disassemble method => unknown name: ${key}`);
-        }
+  private static PopArgs(
+    contract: string,
+    method: string,
+    stack: Stack<VMObject>,
+    methodArgumentCountTable: { [key: string]: number }
+  ): VMObject[] {
+    let key = method;
+    if (contract != null) {
+      key = `${contract}.${method}`;
     }
-    
-    //private static _defaultDisasmTable = DisasmUtils.GetDefaultDisasmTable();
 
-    /*public static GetDefaultDisasmTable(): { [key: string]: number } {
+    if (methodArgumentCountTable.hasOwnProperty(key)) {
+      let argCount = methodArgumentCountTable[key];
+      let result: Array<VMObject> = new Array<VMObject>(argCount);
+      for (let i = 0; i < argCount; i++) {
+        if (stack.size() == 0) {
+          throw new Error(
+            `Cannot disassemble method => method ${key} expected ${argCount} args, ${i} were fetched`
+          );
+        }
+        //result[i] = stack.pop();
+      }
+      return result;
+    } else {
+      throw new Error(`Cannot disassemble method => unknown name: ${key}`);
+    }
+  }
+
+  //private static _defaultDisasmTable = DisasmUtils.GetDefaultDisasmTable();
+
+  /*public static GetDefaultDisasmTable(): { [key: string]: number } {
         if (DisasmUtils._defaultDisasmTable != null) {
             return DisasmUtils._defaultDisasmTable;
         }

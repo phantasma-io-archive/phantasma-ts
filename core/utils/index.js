@@ -87,13 +87,14 @@ function decodeBase16(hex) {
 }
 exports.decodeBase16 = decodeBase16;
 function encodeBase16(str) {
-    return str.split("")
+    return str
+        .split("")
         .map(function (c) { return c.charCodeAt(0).toString(16).padStart(2, "0"); })
         .join("");
 }
 exports.encodeBase16 = encodeBase16;
 function uint8ArrayToString(array) {
-    var result = '';
+    var result = "";
     for (var i = 0; i < array.length; i++) {
         result += String.fromCharCode(array[i]);
     }

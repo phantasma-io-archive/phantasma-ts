@@ -3,48 +3,50 @@ import { VMType } from "./VMType";
 import { Timestamp } from "../types/Timestamp";
 
 export class VMObject {
-    public Type: VMType;
-    public Data: object | null | undefined;
-    public get IsEmpty(): boolean {
-      return this.Data == null || this.Data == undefined;
-    }
-    private _localSize = 0;
-    private static readonly TimeFormat: string = "MM/dd/yyyy HH:mm:ss";
-  
-    public GetChildren(): Map<VMObject, VMObject> | null {
-      return this.Type == VMType.Struct ? (this.Data as Map<VMObject, VMObject>) : null;
-    }
-  
-    public get Size(): number {
-      let total = 0;
-  
-      if (this.Type == VMType.Object) {
-        const children = this.GetChildren();
-        let values = children?.values;
-        for (let entry in values) {
-          total += entry.length;
-        }
-      } else {
-        total = this._localSize;
+  public Type: VMType;
+  public Data: object | null | undefined;
+  public get IsEmpty(): boolean {
+    return this.Data == null || this.Data == undefined;
+  }
+  private _localSize = 0;
+  private static readonly TimeFormat: string = "MM/dd/yyyy HH:mm:ss";
+
+  public GetChildren(): Map<VMObject, VMObject> | null {
+    return this.Type == VMType.Struct
+      ? (this.Data as Map<VMObject, VMObject>)
+      : null;
+  }
+
+  public get Size(): number {
+    let total = 0;
+
+    if (this.Type == VMType.Object) {
+      const children = this.GetChildren();
+      let values = children?.values;
+      for (let entry in values) {
+        total += entry.length;
       }
-  
-      return total;
+    } else {
+      total = this._localSize;
     }
 
-    constructor() {
-        this.Type = VMType.None;
-        this.Data = null;
-    }
-    
-    public AsTimestamp(): Timestamp {
-        if (this.Type != VMType.Timestamp) {
-            throw new Error(`Invalid cast: expected timestamp, got ${this.Type}`);
-        }
+    return total;
+  }
 
-        return this.Data as Timestamp;
+  constructor() {
+    this.Type = VMType.None;
+    this.Data = null;
+  }
+
+  public AsTimestamp(): Timestamp {
+    if (this.Type != VMType.Timestamp) {
+      throw new Error(`Invalid cast: expected timestamp, got ${this.Type}`);
     }
 
-    /*public AsNumber(): BigInteger {
+    return this.Data as Timestamp;
+  }
+
+  /*public AsNumber(): BigInteger {
         if ((this.Type == VMType.Object || this.Type == VMType.Timestamp) && (this.Data instanceof Timestamp)) {
             return (this.Data as Timestamp).Value;
         }
@@ -109,31 +111,31 @@ export class VMObject {
             throw new ArgumentException("Unsupported VM cast");
         }
     }*/
-    
-    isEnum(instance: Object): boolean {
-        let keys = Object.keys(instance);
-        let values : any[] = [];
-    
-        for (let key of keys) {
-          let value = instance[key];
-    
-          if (typeof value === 'number') {
-            value = value.toString();
-          }
-    
-          values.push(value);
-        }
-    
-        for (let key of keys) {
-          if (values.indexOf(key) < 0) {
-            return false;
-          }
-        }
-    
-        return true;
+
+  isEnum(instance: Object): boolean {
+    let keys = Object.keys(instance);
+    let values: any[] = [];
+
+    for (let key of keys) {
+      let value = instance[key];
+
+      if (typeof value === "number") {
+        value = value.toString();
       }
 
-    /*public AsEnum<T>(): T {
+      values.push(value);
+    }
+
+    for (let key of keys) {
+      if (values.indexOf(key) < 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /*public AsEnum<T>(): T {
         if (isEnum(this.Data)) {
             throw new ArgumentException("T must be an enumerated type");
         }
@@ -145,7 +147,7 @@ export class VMObject {
           return (T) Enum.Parse(typeof T, this.Data.toString());
     }*/
 
-    /*public AsString(): string {
+  /*public AsString(): string {
         switch (this.Type) {
             case VMType.String:
             return this.Data as unknown as string;
@@ -175,20 +177,20 @@ export class VMObject {
         }
     }*/
 
-    public AsBool(): boolean {
-        switch (this.Type) {
-            case VMType.String:
-                return (this.Data as unknown as string).toLowerCase() == "true";
-            case VMType.Number:
-                return (this.Data as BigInt) != BigInt(0);
-            case VMType.Bool:
-                return this.Data as unknown as boolean;
-            default:
-                throw new Error(`Invalid cast: expected bool, got ${this.Type}`);
-        }
+  public AsBool(): boolean {
+    switch (this.Type) {
+      case VMType.String:
+        return (this.Data as unknown as string).toLowerCase() == "true";
+      case VMType.Number:
+        return (this.Data as BigInt) != BigInt(0);
+      case VMType.Bool:
+        return this.Data as unknown as boolean;
+      default:
+        throw new Error(`Invalid cast: expected bool, got ${this.Type}`);
     }
+  }
 
-    /*public AsByteArray(): Uint8Array {
+  /*public AsByteArray(): Uint8Array {
         switch (this.Type) {
             case VMType.Bytes:
                 return this.Data as Uint8Array;
@@ -198,4 +200,4 @@ export class VMObject {
                 throw new Error(Invalid cast: expected bytes, got ${this.Type});
         }
     }*/
-}  
+}

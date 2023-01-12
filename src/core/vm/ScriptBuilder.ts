@@ -76,35 +76,31 @@ export class ScriptBuilder {
   }
 
   public emitBigInteger(value: string) {
+    let bytes: number[] = [];
 
-    let bytes: number[] = []
-
-    if (value == '0') {
-      bytes = [0]
-    }
-    else if (value.startsWith('-1'))
-    {
-      throw new Error('Unsigned bigint serialization not suppoted')
-    }
-    else {
-      let hex = BigInt(value).toString(16)
-      if (hex.length % 2) hex = '0' + hex
-      const len = hex.length / 2
+    if (value == "0") {
+      bytes = [0];
+    } else if (value.startsWith("-1")) {
+      throw new Error("Unsigned bigint serialization not suppoted");
+    } else {
+      let hex = BigInt(value).toString(16);
+      if (hex.length % 2) hex = "0" + hex;
+      const len = hex.length / 2;
       var i = 0;
       var j = 0;
       while (i < len) {
-        bytes.unshift(parseInt(hex.slice(j, j+2), 16));  // little endian
+        bytes.unshift(parseInt(hex.slice(j, j + 2), 16)); // little endian
         i += 1;
         j += 2;
       }
-      bytes.push(0)  // add sign at the end
+      bytes.push(0); // add sign at the end
     }
-    return this.emitByteArray(bytes)
+    return this.emitByteArray(bytes);
   }
 
   public emitAddress(textAddress: string) {
-    const bytes = [...base58.decode(textAddress.substring(1))]
-    return this.emitByteArray(bytes)
+    const bytes = [...base58.decode(textAddress.substring(1))];
+    return this.emitByteArray(bytes);
   }
 
   rawString(value: string) {
@@ -315,7 +311,12 @@ export class ScriptBuilder {
     gasPrice: number,
     gasLimit: number
   ): this {
-    return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
+    return this.callContract(Contracts.GasContractName, "AllowGas", [
+      from,
+      to,
+      gasPrice,
+      gasLimit,
+    ]);
   }
 
   public spendGas(address: string): this {
@@ -323,7 +324,7 @@ export class ScriptBuilder {
   }
 
   async callRPC<T>(methodName: string, params: any[]): Promise<T> {
-    return ("bla" as unknown) as T;
+    return "bla" as unknown as T;
   }
 
   async getAddressTransactionCount(
@@ -350,9 +351,9 @@ export class ScriptBuilder {
   }
 
   public emitByteArray(bytes: number[]) {
-    this.emitVarInt(bytes.length)
-    this.emitBytes(bytes)
-    return this
+    this.emitVarInt(bytes.length);
+    this.emitBytes(bytes);
+    return this;
   }
 
   public emitVarString(text: string): this {
@@ -415,7 +416,7 @@ export class ScriptBuilder {
     this.appendByte(B);
     this.appendByte(C);
     this.appendByte(D);
-    
+
     return this;
   }
 
@@ -428,7 +429,7 @@ export class ScriptBuilder {
 
   //Custom Modified
   byteToHex(byte: number) {
-    let result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    let result = ("0" + (byte & 0xff).toString(16)).slice(-2);
     return result;
   }
 

@@ -434,6 +434,33 @@ var PhantasmaAPI = /** @class */ (function () {
             });
         });
     };
+    PhantasmaAPI.prototype.getOrganizationByName = function (name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [name];
+                        return [4 /*yield*/, this.JSONRPC("getOrganizationByName", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    PhantasmaAPI.prototype.getOrganizations = function (extended) {
+        if (extended === void 0) { extended = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [extended];
+                        return [4 /*yield*/, this.JSONRPC("getOrganizations", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
     //Returns content of a Phantasma leaderboard.
     PhantasmaAPI.prototype.getLeaderboard = function (name) {
         return __awaiter(this, void 0, void 0, function () {

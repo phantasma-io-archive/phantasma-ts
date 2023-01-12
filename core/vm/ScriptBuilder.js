@@ -129,16 +129,16 @@ var ScriptBuilder = /** @class */ (function () {
     };
     ScriptBuilder.prototype.emitBigInteger = function (value) {
         var bytes = [];
-        if (value == '0') {
+        if (value == "0") {
             bytes = [0];
         }
-        else if (value.startsWith('-1')) {
-            throw new Error('Unsigned bigint serialization not suppoted');
+        else if (value.startsWith("-1")) {
+            throw new Error("Unsigned bigint serialization not suppoted");
         }
         else {
             var hex = BigInt(value).toString(16);
             if (hex.length % 2)
-                hex = '0' + hex;
+                hex = "0" + hex;
             var len = hex.length / 2;
             var i = 0;
             var j = 0;
@@ -319,7 +319,12 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //#region ScriptBuilderExtensions
     ScriptBuilder.prototype.allowGas = function (from, to, gasPrice, gasLimit) {
-        return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
+        return this.callContract(Contracts.GasContractName, "AllowGas", [
+            from,
+            to,
+            gasPrice,
+            gasLimit,
+        ]);
     };
     ScriptBuilder.prototype.spendGas = function (address) {
         return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
@@ -427,7 +432,7 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
-        var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
+        var result = ("0" + (byte & 0xff).toString(16)).slice(-2);
         return result;
     };
     ScriptBuilder.prototype.appendByte = function (byte) {

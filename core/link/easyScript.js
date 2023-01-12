@@ -18,32 +18,32 @@ var EasyScript = /** @class */ (function () {
         if (_options === void 0) { _options = [null]; }
         this.sb = new vm_1.ScriptBuilder();
         switch (_type) {
-            case 'interact':
+            case "interact":
                 var contractNameInteract = _options[0];
                 var methodNameInteract = _options[1];
                 var inputArgumentsInteract = _options[2];
-                return (this.sb
-                    .callContract('gas', 'AllowGas', [])
+                return this.sb
+                    .callContract("gas", "AllowGas", [])
                     .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
-                    .callContract('gas', 'SpendGas', [])
-                    .endScript());
+                    .callContract("gas", "SpendGas", [])
+                    .endScript();
                 break;
-            case 'invoke':
+            case "invoke":
                 var contractNameInvoke = _options[0];
                 var methodNameInvoke = _options[1];
                 var inputArgumentsInvoke = _options[2];
-                return (this.sb
+                return this.sb
                     .callContract(contractNameInvoke, methodNameInvoke, inputArgumentsInvoke) //The Meat of the Script
-                    .endScript());
+                    .endScript();
                 break;
-            case 'interop':
+            case "interop":
                 var interopNameInterop = _options[0];
                 var inputArgumentsInterop = _options[1];
-                return (this.sb
-                    .callContract('gas', 'AllowGas', [])
+                return this.sb
+                    .callContract("gas", "AllowGas", [])
                     .callInterop(interopNameInterop, inputArgumentsInterop)
-                    .callContract('gas', 'SpendGas', [])
-                    .endScript());
+                    .callContract("gas", "SpendGas", [])
+                    .endScript();
                 break;
         }
     };

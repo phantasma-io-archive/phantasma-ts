@@ -101,7 +101,7 @@ function generateNewSeedWords() {
     }
     var wif = wif_1.default.encode(128, privateKey, true);
     var mnemonic = bip39.generateMnemonic();
-    var seedWords = mnemonic.split(' ');
+    var seedWords = mnemonic.split(" ");
     return seedWords;
 }
 exports.generateNewSeedWords = generateNewSeedWords;
