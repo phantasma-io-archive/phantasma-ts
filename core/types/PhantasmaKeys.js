@@ -17,20 +17,26 @@ var PhantasmaKeys = /** @class */ (function () {
             privateKey = privateKey.slice(0, 32);
         }
         if (privateKey.length != PhantasmaKeys.PrivateKeyLength) {
-            throw new Error("privateKey should have length " + PhantasmaKeys.PrivateKeyLength + " but has " + privateKey.length);
+            throw new Error("privateKey should have length ".concat(PhantasmaKeys.PrivateKeyLength, " but has ").concat(privateKey.length));
         }
         this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
         this._privateKey.set(privateKey);
-        this._publicKey = (0, utils_1.stringToUint8Array)(ed25519.keyFromSecret((0, utils_1.uint8ArrayToString)(this._privateKey)).getPublic("hex"));
+        this._publicKey = (0, utils_1.stringToUint8Array)(ed25519
+            .keyFromSecret((0, utils_1.uint8ArrayToString)(this._privateKey))
+            .getPublic("hex"));
         this.Address = Address_1.Address.FromKey(this);
     }
     Object.defineProperty(PhantasmaKeys.prototype, "PrivateKey", {
-        get: function () { return this._privateKey; },
+        get: function () {
+            return this._privateKey;
+        },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(PhantasmaKeys.prototype, "PublicKey", {
-        get: function () { return this._publicKey; },
+        get: function () {
+            return this._publicKey;
+        },
         enumerable: false,
         configurable: true
     });

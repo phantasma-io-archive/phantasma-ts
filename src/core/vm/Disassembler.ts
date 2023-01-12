@@ -1,3 +1,1 @@
-export class Dissassembler{
-    
-}
+export class Dissassembler {}

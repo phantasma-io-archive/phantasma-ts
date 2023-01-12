@@ -111,7 +111,9 @@ var ContractInterface = /** @class */ (function () {
         try {
             for (var _b = __values(this.Events()), _c = _b.next(); !_c.done; _c = _b.next()) {
                 var entry = _c.value;
-                if (entry.name === evt.name && entry.value === evt.value && entry.returnType === evt.returnType) {
+                if (entry.name === evt.name &&
+                    entry.value === evt.value &&
+                    entry.returnType === evt.returnType) {
                     return true;
                 }
             }
@@ -237,7 +239,7 @@ var ContractMethod = /** @class */ (function () {
     };
     ContractMethod.prototype.constructorOne = function (name, returnType, labels, parameters) {
         if (!labels.has(name)) {
-            throw new Error("Missing offset in label map for method " + name);
+            throw new Error("Missing offset in label map for method ".concat(name));
         }
         var offset = labels.get(name);
         this.name = name;
@@ -246,22 +248,28 @@ var ContractMethod = /** @class */ (function () {
         this.parameters = parameters;
     };
     ContractMethod.prototype.isProperty = function () {
-        if (this.name.length >= 4 && this.name.startsWith("get") && this.name[3] === this.name[3].toUpperCase()) {
+        if (this.name.length >= 4 &&
+            this.name.startsWith("get") &&
+            this.name[3] === this.name[3].toUpperCase()) {
             return true;
         }
-        if (this.name.length >= 3 && this.name.startsWith("is") && this.name[2] === this.name[2].toUpperCase()) {
+        if (this.name.length >= 3 &&
+            this.name.startsWith("is") &&
+            this.name[2] === this.name[2].toUpperCase()) {
             return true;
         }
         return false;
     };
     ContractMethod.prototype.isTrigger = function () {
-        if (this.name.length >= 3 && this.name.startsWith("on") && this.name[2] === this.name[2].toUpperCase()) {
+        if (this.name.length >= 3 &&
+            this.name.startsWith("on") &&
+            this.name[2] === this.name[2].toUpperCase()) {
             return true;
         }
         return false;
     };
     ContractMethod.prototype.toString = function () {
-        return this.name + " : " + this.returnType;
+        return "".concat(this.name, " : ").concat(this.returnType);
     };
     ContractMethod.fromBytes = function (bytes) {
         var stream = new Uint8Array(bytes);
@@ -314,7 +322,7 @@ var ContractEvent = /** @class */ (function () {
         return ContractEvent.Unserialize(reader);
     };
     ContractEvent.prototype.toString = function () {
-        return this.name + " : " + this.returnType + " => " + this.value;
+        return "".concat(this.name, " : ").concat(this.returnType, " => ").concat(this.value);
     };
     ContractEvent.Unserialize = function (reader) {
         var value = reader.readByte();

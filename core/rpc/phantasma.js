@@ -15,7 +15,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -429,6 +429,33 @@ var PhantasmaAPI = /** @class */ (function () {
                     case 0:
                         params = [ID];
                         return [4 /*yield*/, this.JSONRPC("getOrganization", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    PhantasmaAPI.prototype.getOrganizationByName = function (name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [name];
+                        return [4 /*yield*/, this.JSONRPC("getOrganizationByName", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    PhantasmaAPI.prototype.getOrganizations = function (extended) {
+        if (extended === void 0) { extended = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [extended];
+                        return [4 /*yield*/, this.JSONRPC("getOrganizations", params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });

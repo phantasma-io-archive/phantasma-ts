@@ -1,66 +1,65 @@
-export enum Opcode
-{
-    NOP,
+export enum Opcode {
+  NOP,
 
-    // register
-    MOVE,    // copy reference
-    COPY,   // copy by value
-    PUSH,
-    POP,
-    SWAP,
+  // register
+  MOVE, // copy reference
+  COPY, // copy by value
+  PUSH,
+  POP,
+  SWAP,
 
-    // flow
-    CALL,
-    EXTCALL,
-    JMP,
-    JMPIF,
-    JMPNOT,
-    RET,
-    THROW,
+  // flow
+  CALL,
+  EXTCALL,
+  JMP,
+  JMPIF,
+  JMPNOT,
+  RET,
+  THROW,
 
-    // data
-    LOAD,
-    CAST,
-    CAT,
-    SUBSTR, //TODO: needs to be implemented
-    LEFT,
-    RIGHT,
-    SIZE,
-    COUNT,
+  // data
+  LOAD,
+  CAST,
+  CAT,
+  SUBSTR, //TODO: needs to be implemented
+  LEFT,
+  RIGHT,
+  SIZE,
+  COUNT,
 
-    // logical
-    NOT,
-    AND,
-    OR,
-    XOR,
-    EQUAL,
-    LT,
-    GT,
-    LTE,
-    GTE,
-    
-    // numeric
-    INC,
-    DEC,
-    SIGN,
-    NEGATE,
-    ABS,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    SHL,
-    SHR,
-    MIN,
-    MAX,
+  // logical
+  NOT,
+  AND,
+  OR,
+  XOR,
+  EQUAL,
+  LT,
+  GT,
+  LTE,
+  GTE,
 
-    // context
-    THIS,
-    CTX,
-    SWITCH,
+  // numeric
+  INC,
+  DEC,
+  SIGN,
+  NEGATE,
+  ABS,
+  ADD,
+  SUB,
+  MUL,
+  DIV,
+  MOD,
+  SHL,
+  SHR,
+  MIN,
+  MAX,
 
-    // array
-    PUT,
-    GET, // lookups a key and copies a reference into register
+  // context
+  THIS,
+  CTX,
+  SWITCH,
+
+  // array
+  PUT,
+  GET, // lookups a key and copies a reference into register
 }

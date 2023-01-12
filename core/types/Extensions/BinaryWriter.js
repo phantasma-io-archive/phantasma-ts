@@ -133,16 +133,16 @@ var PBinaryWriter = /** @class */ (function (_super) {
     };
     PBinaryWriter.prototype.writeBigIntegerString = function (value) {
         var bytes = [];
-        if (value == '0') {
+        if (value == "0") {
             bytes = [0];
         }
-        else if (value.startsWith('-1')) {
-            throw new Error('Unsigned bigint serialization not suppoted');
+        else if (value.startsWith("-1")) {
+            throw new Error("Unsigned bigint serialization not suppoted");
         }
         else {
             var hex = BigInt(value).toString(16);
             if (hex.length % 2)
-                hex = '0' + hex;
+                hex = "0" + hex;
             var len = hex.length / 2;
             var i = 0;
             var j = 0;

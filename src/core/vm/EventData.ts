@@ -105,7 +105,7 @@ export function getGasEventData(str: string) {
     address: dec.read(dec.readByte()),
     price: dec.readBigInt(),
     amount: dec.readBigInt(),
-    endAmount: dec.isEnd() ? 0 : dec.readBigInt()
+    endAmount: dec.isEnd() ? 0 : dec.readBigInt(),
   };
 }
 

@@ -31,7 +31,8 @@ export class Transaction {
     this.chainName = chainName;
     this.script = script;
     this.expiration = expiration;
-    this.payload = payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
+    this.payload =
+      payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
     this.signatures = [];
   }
 
@@ -87,41 +88,47 @@ export class Transaction {
   }
 
   public getHash() {
-    let generatedHash = SHA256(hexEncoding.parse(this.toString(false)))
-    this.hash = byteArrayToHex(hexStringToBytes(generatedHash.toString(hexEncoding)).reverse());
+    let generatedHash = SHA256(hexEncoding.parse(this.toString(false)));
+    this.hash = byteArrayToHex(
+      hexStringToBytes(generatedHash.toString(hexEncoding)).reverse()
+    );
     return this.hash;
   }
 
   public mineTransaction(difficulty: number) {
-    if(difficulty < 0 || difficulty > 256){
+    if (difficulty < 0 || difficulty > 256) {
       console.log("Error adding difficulty");
       return;
     }
-    
+
     let nonce = 0;
     let deepCopy = new Transaction(
       JSON.parse(JSON.stringify(this.nexusName)),
       JSON.parse(JSON.stringify(this.chainName)),
       JSON.parse(JSON.stringify(this.script)),
       this.expiration,
-      JSON.parse(JSON.stringify(this.payload)),
-  );
-    let payload = Buffer.alloc(4)
-
+      JSON.parse(JSON.stringify(this.payload))
+    );
+    let payload = Buffer.alloc(4);
 
     while (true) {
       if (getDifficulty(deepCopy.getHash()) >= difficulty) {
         this.payload = deepCopy.payload;
-        console.log('It took ' + nonce +' iterations to get a difficulty of >' + difficulty)
+        console.log(
+          "It took " +
+            nonce +
+            " iterations to get a difficulty of >" +
+            difficulty
+        );
         return;
       }
 
       nonce++;
 
-      payload[0] = ((nonce >> 0) & 0xFF);
-      payload[1] = ((nonce >> 8) & 0xFF);
-      payload[2] = ((nonce >> 16) & 0xFF);
-      payload[3] = ((nonce >> 24) & 0xFF);
+      payload[0] = (nonce >> 0) & 0xff;
+      payload[1] = (nonce >> 8) & 0xff;
+      payload[2] = (nonce >> 16) & 0xff;
+      payload[3] = (nonce >> 24) & 0xff;
 
       deepCopy.payload = byteArrayToHex(payload);
     }
@@ -136,7 +143,7 @@ export class Transaction {
     return sig.toHex();
   }
 
-  public unserialize(serializedData:string):Transaction{
+  public unserialize(serializedData: string): Transaction {
     let dec = new Decoder(serializedData);
     let nexusName = dec.readString();
     let chainName = dec.readString();
@@ -147,14 +154,14 @@ export class Transaction {
     let payload = dec.read(payloadLength);
 
     let nTransaction = new Transaction(
-        nexusName,
-        chainName,
-        script,
-        date,
-        payload
+      nexusName,
+      chainName,
+      script,
+      date,
+      payload
     );
     let signatureCount = dec.readVarInt();
-    for (let i = 0; i < signatureCount; i++){
+    for (let i = 0; i < signatureCount; i++) {
       nTransaction.signatures.push(dec.readSignature());
     }
     return nTransaction;

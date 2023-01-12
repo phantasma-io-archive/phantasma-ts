@@ -57,7 +57,7 @@ var PBinaryReader = /** @class */ (function (_super) {
     }
     PBinaryReader.prototype.read = function (numBytes) {
         var res = (0, utils_1.byteArrayToHex)(this.readBytes(numBytes)).substr(0, numBytes * 2);
-        this.position += (numBytes * 2);
+        this.position += numBytes * 2;
         return res;
     };
     PBinaryReader.prototype.readString = function () {
@@ -96,7 +96,8 @@ var PBinaryReader = /** @class */ (function (_super) {
         var curve;
         signature.kind = kind;
         switch (kind) {
-            case interfaces_1.SignatureKind.None: return null;
+            case interfaces_1.SignatureKind.None:
+                return null;
             case interfaces_1.SignatureKind.Ed25519:
                 var len = this.readVarInt();
                 signature.signature = this.read(len);
@@ -122,7 +123,8 @@ var PBinaryReader = /** @class */ (function (_super) {
         //var len = this.readByte();
         var result = 0;
         var bytes = this.read(4);
-        bytes.match(/.{1,2}/g)
+        bytes
+            .match(/.{1,2}/g)
             .reverse()
             .forEach(function (c) { return (result = result * 256 + parseInt(c, 16)); });
         var timestamp = new Timestamp_1.Timestamp(result);
@@ -150,7 +152,7 @@ var PBinaryReader = /** @class */ (function (_super) {
     };
     PBinaryReader.prototype.readVmObject = function () {
         var type = this.readByte();
-        console.log('type', type);
+        console.log("type", type);
         switch (type) {
             case vm_1.VMType.String:
                 return this.readString();
@@ -163,9 +165,9 @@ var PBinaryReader = /** @class */ (function (_super) {
                 var res = {};
                 for (var i = 0; i < numFields; ++i) {
                     var key = this.readVmObject();
-                    console.log('  key', key);
+                    console.log("  key", key);
                     var value = this.readVmObject();
-                    console.log('  value', value);
+                    console.log("  value", value);
                     res[key] = value;
                 }
                 return res;

@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -129,16 +129,16 @@ var ScriptBuilder = /** @class */ (function () {
     };
     ScriptBuilder.prototype.emitBigInteger = function (value) {
         var bytes = [];
-        if (value == '0') {
+        if (value == "0") {
             bytes = [0];
         }
-        else if (value.startsWith('-1')) {
-            throw new Error('Unsigned bigint serialization not suppoted');
+        else if (value.startsWith("-1")) {
+            throw new Error("Unsigned bigint serialization not suppoted");
         }
         else {
             var hex = BigInt(value).toString(16);
             if (hex.length % 2)
-                hex = '0' + hex;
+                hex = "0" + hex;
             var len = hex.length / 2;
             var i = 0;
             var j = 0;
@@ -319,7 +319,12 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //#region ScriptBuilderExtensions
     ScriptBuilder.prototype.allowGas = function (from, to, gasPrice, gasLimit) {
-        return this.callContract(Contracts.GasContractName, "AllowGas", [from, to, gasPrice, gasLimit]);
+        return this.callContract(Contracts.GasContractName, "AllowGas", [
+            from,
+            to,
+            gasPrice,
+            gasLimit,
+        ]);
     };
     ScriptBuilder.prototype.spendGas = function (address) {
         return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
@@ -427,7 +432,7 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //Custom Modified
     ScriptBuilder.prototype.byteToHex = function (byte) {
-        var result = ('0' + (byte & 0xFF).toString(16)).slice(-2);
+        var result = ("0" + (byte & 0xff).toString(16)).slice(-2);
         return result;
     };
     ScriptBuilder.prototype.appendByte = function (byte) {

@@ -103,7 +103,7 @@ function getGasEventData(str) {
         address: dec.read(dec.readByte()),
         price: dec.readBigInt(),
         amount: dec.readBigInt(),
-        endAmount: dec.isEnd() ? 0 : dec.readBigInt()
+        endAmount: dec.isEnd() ? 0 : dec.readBigInt(),
     };
 }
 exports.getGasEventData = getGasEventData;
