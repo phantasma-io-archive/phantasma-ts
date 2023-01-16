@@ -8,3 +8,4 @@ export * from "./PhantasmaKeys";
 export * from "./DomainSettings";
 export * from "./Entropy";
 export * from "./Extensions";
+export * from "./Serialization";

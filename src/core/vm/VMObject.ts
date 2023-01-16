@@ -1,9 +1,11 @@
 import BigInteger from "big-integer";
 import { VMType } from "./VMType";
 import { Timestamp } from "../types/Timestamp";
-import { Address } from "../types";
+import { Address, PBinaryReader, PBinaryWriter, Serialization } from "../types";
+import { ISerializable } from "../interfaces";
+import { uint8ArrayToBytes } from "../utils";
 
-export class VMObject {
+export class VMObject implements ISerializable {
   public Type: VMType;
   public Data: object | null | undefined;
   public get IsEmpty(): boolean {
@@ -723,5 +725,175 @@ export class VMObject {
         return null;
     }
     return result;
+  }
+
+  // Serialization
+  public static FromBytes(bytes: any): VMObject {
+    var result = new VMObject();
+    result.UnserializeData(bytes);
+    return result;
+  }
+
+  SerializeData(writer: PBinaryWriter) {
+    writer.writeByte(this.Type);
+    if (this.Type == VMType.None) {
+      return;
+    }
+
+    let dataType = typeof this.Data;
+
+    switch (this.Type) {
+      case VMType.Struct: {
+        let children = this.GetChildren();
+        writer.writeVarInt(children.size);
+        children.forEach((key, value) => {
+          key.SerializeData(writer);
+          value.SerializeData(writer);
+        });
+        break;
+      }
+
+      case VMType.Object: {
+        var obj = this.Data as ISerializable;
+
+        if (obj != null) {
+          var bytes = Serialization.Serialize(obj);
+          var uintBytes = uint8ArrayToBytes(bytes);
+          writer.writeByteArray(uintBytes);
+        } else {
+          throw `Objects of type ${dataType} cannot be serialized`;
+        }
+
+        break;
+      }
+
+      case VMType.Enum: {
+        let temp2: number = 0;
+
+        if (this.Data instanceof Enumerator) {
+          var temp1 = this.Data.item;
+          temp2 = temp1 as unknown as number;
+        } else {
+          temp2 = this.Data as unknown as number;
+        }
+
+        writer.writeVarInt(temp2);
+        break;
+      }
+      default:
+        Serialization.SerializeObject(writer, this.Data, null);
+        break;
+    }
+  }
+
+  /*UnserializeData(reader: PBinaryReader) {
+    this.Type = reader.readByte();
+    if (this.Type == VMType.None) {
+      return;
+    }
+
+    switch (this.Type) {
+      case VMType.Struct: {
+        let children = new Map<VMObject, VMObject>();
+        let count = reader.readVarInt();
+        for (let i = 0; i < count; i++) {
+          let key = new VMObject();
+          key.UnserializeData(reader);
+          let value = new VMObject();
+          value.UnserializeData(reader);
+          children.set(key, value);
+        }
+        this.Data = children;
+        break;
+      }
+
+      case VMType.Object: {
+        var bytes = reader.readByteArray();
+        var obj = Serialization.Unserialize(bytes);
+        this.Data = obj as Object;
+        break;
+      }
+
+      case VMType.Enum: {
+        let temp = reader.readVarInt();
+        this.Data = temp as unknown as Enumerator;
+        break;
+      }
+
+      default:
+        this.Data = Serialization.UnserializeObject(reader, null);
+        break;
+    }
+  }*/
+
+  UnserializeData(reader: PBinaryReader) {
+    this.Type = reader.readByte() as VMType;
+    switch (this.Type) {
+      case VMType.Bool:
+        this.Data = Serialization.Unserialize<Boolean>(reader);
+        break;
+
+      case VMType.Bytes:
+        this.Data = Serialization.Unserialize<Uint8Array>(reader);
+        break;
+
+      case VMType.Number:
+        this.Data = Serialization.Unserialize<BigInteger>(reader);
+        break;
+
+      case VMType.Timestamp:
+        this.Data = Serialization.Unserialize<Timestamp>(reader);
+        break;
+
+      case VMType.String:
+        this.Data = Serialization.Unserialize<String>(reader);
+        break;
+
+      case VMType.Struct:
+        let childCount = reader.readVarInt();
+        let children = new Map<VMObject, VMObject>();
+        while (childCount > 0) {
+          let key = new VMObject();
+          key.UnserializeData(reader);
+
+          VMObject.ValidateStructKey(key);
+
+          let val = new VMObject();
+          val.UnserializeData(reader);
+
+          children.set(key, val);
+          childCount--;
+        }
+
+        this.Data = children;
+        break;
+
+      case VMType.Object:
+        let bytes = reader.readByteArray();
+
+        if (bytes.length == 35) {
+          let addr = Serialization.Unserialize<Address>(bytes);
+          this.Data = addr;
+          this.Type = VMType.Object;
+        } else {
+          this.Type = VMType.Bytes;
+          this.Data = bytes;
+        }
+
+        break;
+
+      case VMType.Enum:
+        this.Type = VMType.Enum;
+        this.Data = reader.readVarInt() as Number;
+        break;
+
+      case VMType.None:
+        this.Type = VMType.None;
+        this.Data = null;
+        break;
+
+      default:
+        throw new Error(`invalid unserialize: type ${this.Type}`);
+    }
   }
 }
