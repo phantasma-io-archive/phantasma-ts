@@ -3,7 +3,7 @@
   "version": "0.1.30",
   "description": "Javascript SDK for interacting with the PhantasmaChain",
   "main": "index.js",
-  "types": "src/index.ts",
+  "types": "index.d.ts",
   "scripts": {
     "build": "tsc",
     "export": "tsc && browserify index.js -s phantasma > html/phantasma.js"
