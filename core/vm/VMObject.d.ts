@@ -1,0 +1,45 @@
+import { VMType } from "./VMType";
+import { Timestamp } from "../types/Timestamp";
+import { PBinaryReader, PBinaryWriter } from "../types";
+import { ISerializable } from "../interfaces";
+export declare class VMObject implements ISerializable {
+    Type: VMType;
+    Data: object | null | undefined;
+    get IsEmpty(): boolean;
+    private _localSize;
+    private static readonly TimeFormat;
+    GetChildren(): Map<VMObject, VMObject> | null;
+    get Size(): number;
+    constructor();
+    AsTimestamp(): Timestamp;
+    AsByteArray(): Uint8Array;
+    AsString(): string;
+    ToString(): string;
+    AsNumber(): BigInt;
+    AsEnum<T extends any>(): T;
+    GetArrayType(): VMType;
+    static isEnum(instance: Object): boolean;
+    AsBool(): boolean;
+    static isStructOrClass(type: any): boolean;
+    static isSerializable(type: any): boolean;
+    static isPrimitive(type: any): boolean;
+    static isValueType(type: any): boolean;
+    static isClass(type: any): boolean;
+    static isInterface(type: any): boolean;
+    ToStruct(structType: any): any;
+    static GetVMType(type: any): any;
+    static IsVMType(type: any): boolean;
+    SetValue(value: any): VMObject;
+    setValue(val: any, type: VMType): void;
+    static ValidateStructKey(key: VMObject): void;
+    CastViaReflection(srcObj: any, level: number, dontConvertSerializables?: boolean): any;
+    SetKey(key: VMObject, obj: VMObject): void;
+    Copy(other: VMObject): void;
+    static FromArray(array: any[]): VMObject;
+    static CastTo(srcObj: VMObject, type: VMType): VMObject;
+    static FromObject(obj: any): any;
+    static FromBytes(bytes: any): VMObject;
+    SerializeData(writer: PBinaryWriter): void;
+    UnserializeData(reader: PBinaryReader): void;
+}
+//# sourceMappingURL=VMObject.d.ts.map
