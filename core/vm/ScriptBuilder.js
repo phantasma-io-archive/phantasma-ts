@@ -66,6 +66,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScriptBuilder = exports.Contracts = void 0;
 var bs58_1 = __importDefault(require("bs58"));
+var interfaces_1 = require("../interfaces");
+var types_1 = require("../types");
 var Opcode_1 = require("./Opcode");
 var VMType_1 = require("./VMType");
 var MaxRegisterCount = 32;
@@ -189,6 +191,9 @@ var ScriptBuilder = /** @class */ (function () {
                 else if (obj instanceof Date) {
                     this.emitLoadTimestamp(reg, obj);
                 }
+                else if (obj instanceof interfaces_1.ISerializable) {
+                    this.emitLoadISerializable(reg, obj);
+                }
                 else
                     throw Error("Load type " + typeof obj + " not supported");
                 break;
@@ -220,6 +225,12 @@ var ScriptBuilder = /** @class */ (function () {
             //this.appendByte(reg);
         }
         //this.emitLoadBytes(reg, obj as number[]);
+        return this;
+    };
+    ScriptBuilder.prototype.emitLoadISerializable = function (reg, obj) {
+        var writer = new types_1.PBinaryWriter();
+        obj.SerializeData(writer);
+        this.emitLoadBytes(reg, writer.toArray(), VMType_1.VMType.Bytes);
         return this;
     };
     ScriptBuilder.prototype.emitLoadEnum = function (reg, enumVal) {

@@ -1,5 +1,8 @@
 import base58 from "bs58";
+import { ISerializable } from "../interfaces";
+import { PBinaryWriter } from "../types";
 import { Opcode } from "./Opcode";
+import { VMObject } from "./VMObject";
 import { VMType } from "./VMType";
 
 type byte = number;
@@ -139,6 +142,8 @@ export class ScriptBuilder {
           this.emitLoadArray(reg, obj);
         } else if (obj instanceof Date) {
           this.emitLoadTimestamp(reg, obj);
+        } else if (obj instanceof ISerializable) {
+          this.emitLoadISerializable(reg, obj);
         } else throw Error("Load type " + typeof obj + " not supported");
         break;
       default:
@@ -177,6 +182,13 @@ export class ScriptBuilder {
 
     //this.emitLoadBytes(reg, obj as number[]);
 
+    return this;
+  }
+
+  public emitLoadISerializable(reg: number, obj: ISerializable): this {
+    let writer = new PBinaryWriter();
+    obj.SerializeData(writer);
+    this.emitLoadBytes(reg, writer.toArray(), VMType.Bytes);
     return this;
   }
 

@@ -24,3 +24,4 @@ __exportStar(require("./PhantasmaKeys"), exports);
 __exportStar(require("./DomainSettings"), exports);
 __exportStar(require("./Entropy"), exports);
 __exportStar(require("./Extensions"), exports);
+__exportStar(require("./Serialization"), exports);
