@@ -184,7 +184,7 @@ var ScriptBuilder = /** @class */ (function () {
             }
             case "object":
                 if (Array.isArray(obj)) {
-                    this.emitLoadBytes(reg, obj);
+                    this.emitLoadArray(reg, obj);
                 }
                 else if (obj instanceof Date) {
                     this.emitLoadTimestamp(reg, obj);
@@ -206,6 +206,20 @@ var ScriptBuilder = /** @class */ (function () {
         this.appendByte(type);
         this.emitVarInt(bytes.length);
         this.emitBytes(bytes);
+        return this;
+    };
+    ScriptBuilder.prototype.emitLoadArray = function (reg, obj) {
+        this.emitLoadBytes(Opcode_1.Opcode.CAST, [reg, reg], VMType_1.VMType.None);
+        for (var i = 0; i < obj.length; i++) {
+            var element = obj[i];
+            var temp_regVal = reg + 1;
+            var temp_regKey = reg + 2;
+            this.emitLoad(temp_regVal, element);
+            this.emitLoad(temp_regKey, i);
+            this.emit(Opcode_1.Opcode.PUT, [temp_regVal, reg, temp_regKey]);
+            //this.appendByte(reg);
+        }
+        //this.emitLoadBytes(reg, obj as number[]);
         return this;
     };
     ScriptBuilder.prototype.emitLoadEnum = function (reg, enumVal) {

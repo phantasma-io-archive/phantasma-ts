@@ -136,7 +136,7 @@ export class ScriptBuilder {
 
       case "object":
         if (Array.isArray(obj)) {
-          this.emitLoadBytes(reg, obj as number[]);
+          this.emitLoadArray(reg, obj);
         } else if (obj instanceof Date) {
           this.emitLoadTimestamp(reg, obj);
         } else throw Error("Load type " + typeof obj + " not supported");
@@ -160,6 +160,23 @@ export class ScriptBuilder {
 
     this.emitVarInt(bytes.length);
     this.emitBytes(bytes);
+    return this;
+  }
+
+  public emitLoadArray(reg: number, obj: any): this {
+    this.emitLoadBytes(Opcode.CAST, [reg, reg], VMType.None);
+    for (let i = 0; i < obj.length; i++) {
+      let element = obj[i];
+      let temp_regVal = reg + 1;
+      let temp_regKey = reg + 2;
+      this.emitLoad(temp_regVal, element);
+      this.emitLoad(temp_regKey, i);
+      this.emit(Opcode.PUT, [temp_regVal, reg, temp_regKey]);
+      //this.appendByte(reg);
+    }
+
+    //this.emitLoadBytes(reg, obj as number[]);
+
     return this;
   }
 
