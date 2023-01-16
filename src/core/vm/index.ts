@@ -3,3 +3,4 @@ export * from "./Opcode";
 export * from "./VMType";
 export * from "./EventData";
 export * from "./Decoder";
+export * from "./VMObject";

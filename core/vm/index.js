@@ -19,3 +19,4 @@ __exportStar(require("./Opcode"), exports);
 __exportStar(require("./VMType"), exports);
 __exportStar(require("./EventData"), exports);
 __exportStar(require("./Decoder"), exports);
+__exportStar(require("./VMObject"), exports);

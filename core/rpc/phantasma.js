@@ -46,7 +46,7 @@ var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
         this.rpcName = "Auto";
-        this.nexus = this.nexus;
+        this.nexus = nexus;
         this.host = defHost;
         this.availableHosts = [];
         if (peersUrlJson != undefined) {

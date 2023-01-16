@@ -78,11 +78,11 @@ export class Decoder {
   readTimestamp() {
     //var len = this.readByte();
     let result = 0;
-    let bytes = this.read(4);
+    let bytes: any = this.read(4);
     bytes
       .match(/.{1,2}/g)
       .reverse()
-      .forEach((c) => (result = result * 256 + parseInt(c, 16)));
+      .forEach((c: any) => (result = result * 256 + parseInt(c, 16)));
     return result;
   }
 
@@ -141,7 +141,7 @@ export class Decoder {
         return this.readByte() != 0;
       case VMType.Struct:
         const numFields = this.readVarInt();
-        let res = {};
+        let res: any = {};
         for (let i = 0; i < numFields; ++i) {
           const key: any = this.readVmObject();
           console.log("  key", key);
