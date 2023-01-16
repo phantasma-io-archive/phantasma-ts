@@ -4,6 +4,7 @@ import { Timestamp } from "../types/Timestamp";
 import { Address, PBinaryReader, PBinaryWriter, Serialization } from "../types";
 import { ISerializable } from "../interfaces";
 import { uint8ArrayToBytes } from "../utils";
+import { Type } from "typescript";
 
 export class VMObject implements ISerializable {
   public Type: VMType;
@@ -56,7 +57,7 @@ export class VMObject implements ISerializable {
       case VMType.Bool:
         return new Uint8Array([(this.Data as unknown as boolean) ? 1 : 0]);
       case VMType.String:
-        return new TextEncoder().encode(this.AsString());
+        return new TextEncoder().encode(this.AsString() as string);
       case VMType.Number:
       // Here you will have to convert BigInteger to Uint8Array manually
       case VMType.Enum:
@@ -81,7 +82,7 @@ export class VMObject implements ISerializable {
   public AsString(): string {
     switch (this.Type) {
       case VMType.String:
-        return this.Data as unknown as string;
+        return this.Data?.toString() as string;
       case VMType.Number:
         return (this.Data as BigInteger).toString();
       case VMType.Bytes:
@@ -281,7 +282,8 @@ export class VMObject implements ISerializable {
         }
     }*/
 
-  static isEnum(instance: Object): boolean {
+  static isEnum(instance: any): boolean {
+    if (instance == null) return false;
     let keys = Object.keys(instance);
     let values: any[] = [];
 
@@ -323,16 +325,17 @@ export class VMObject implements ISerializable {
       case VMType.Number:
         return (this.Data as BigInt) != BigInt(0);
       case VMType.Bool:
-        return this.Data as unknown as boolean;
+        return (this.Data as unknown as boolean) ? true : false;
       default:
         throw new Error(`Invalid cast: expected bool, got ${this.Type}`);
     }
   }
 
-  public static isStructOrClass(type: any): boolean {
-    if (type === String) {
+  public static isStructOrClass(type: Type): boolean {
+    /*if (type == ) {
+      console.log("isStructOrClass: String");
       return false;
-    }
+    }*/
     return (
       (!VMObject.isPrimitive(type) &&
         VMObject.isValueType(type) &&
@@ -344,6 +347,7 @@ export class VMObject implements ISerializable {
 
   public static isSerializable(type: any): boolean {
     return (
+      type instanceof ISerializable ||
       VMObject.isPrimitive(type) ||
       VMObject.isStructOrClass(type) ||
       VMObject.isEnum(type)
@@ -361,7 +365,13 @@ export class VMObject implements ISerializable {
   }
 
   public static isClass(type: any): boolean {
-    return type === Array;
+    return (
+      type === Array ||
+      type === Map ||
+      type === Set ||
+      type instanceof Object ||
+      (typeof type).toLowerCase() === "object"
+    );
   }
 
   public static isInterface(type: any): boolean {
@@ -375,36 +385,49 @@ export class VMObject implements ISerializable {
     if (!VMObject.isStructOrClass(structType)) {
       throw new Error("not a valid destination struct");
     }
+
+    let localType = Object.apply(typeof structType);
     const dict = this.GetChildren();
-    const fields = Object.getOwnPropertyNames(structType);
     const result = new structType();
+    const fields = Object.keys(result);
+    console.log("Fields:", fields);
     for (const field of fields) {
       const key = VMObject.FromObject(field);
+      console.log(
+        "Key:",
+        key,
+        "Field:",
+        field,
+        "Type:",
+        typeof structType[field],
+        ""
+      );
       let val;
-      if (dict?.hasOwnProperty(key)) {
+      console.log("Does it has? ", dict.hasOwnProperty(key));
+      if (dict.hasOwnProperty(key)) {
         val = dict[key].toObject(structType[field]);
       } else {
+        console.log(`field not present in source struct: ${field}`);
         if (!VMObject.isStructOrClass(structType[field])) {
-          throw new Error(`field not present in source struct: ${field}`);
+          //throw new Error(`field not present in source struct: ${field}`);
         }
-        val = null;
+        //val = null;
       }
-      if (
-        val !== null &&
-        structType[field] !== "Uint8Array" &&
-        val.constructor.name === "Uint8Array"
-      ) {
-        if (VMObject.isSerializable(structType[field])) {
+
+      console.log(structType[field]);
+      /*if (val !== null && localType[field] !== "Uint8Array") {
+        if (VMObject.isSerializable(localType[field])) {
           const temp = new structType[field]();
-          const bytes = new Uint8Array(val);
-          const stream = new Uint8Array(bytes);
-          const reader = new Uint8Array(stream);
-          temp.unserializeData(reader);
+          const stream = new Uint8Array(val);
+          const reader = new PBinaryReader(stream);
+          (temp as ISerializable).UnserializeData(reader);
           val = temp;
         }
-      }
-      if (VMObject.isEnum(structType[field]) && !VMObject.isEnum(val)) {
-        val = structType[field][val.toString()];
+      }*/
+      console.log(" Value is ", val);
+
+      if (VMObject.isEnum(typeof structType[field]) && !VMObject.isEnum(val)) {
+        val = localType[field][val?.toString()];
       }
       result[field] = val;
     }
@@ -415,16 +438,25 @@ export class VMObject implements ISerializable {
     if (VMObject.isEnum(type)) {
       return VMType.Enum;
     }
-    if (type === Boolean) {
+    if (type === Boolean || type.toLowerCase() === "boolean") {
       return VMType.Bool;
     }
-    if (type === String) {
+    if (
+      typeof type == typeof String ||
+      type === String ||
+      type.toLowerCase() === "string"
+    ) {
       return VMType.String;
     }
     if (type === "Uint8Array") {
       return VMType.Bytes;
     }
-    if (type === "BigInt" || type === Number) {
+    if (
+      type === "BigInt" ||
+      type === Number ||
+      type === BigInt ||
+      type.toLowerCase() === "number"
+    ) {
       return VMType.Number;
     }
     if (type === Timestamp || type === Number) {
@@ -436,7 +468,7 @@ export class VMObject implements ISerializable {
     if (VMObject.isClass(type) || VMObject.isValueType(type)) {
       return VMType.Object;
     }
-    return VMType.Object;
+    return VMType.Struct;
   }
 
   public static IsVMType(type: any): boolean {
@@ -534,20 +566,25 @@ export class VMObject implements ISerializable {
       let result: any;
       let isKnownType =
         srcType === VMType.Number || srcType === VMType.Timestamp;
+
+      let localType = Object.apply(typeof srcType);
+
       if (
         !isKnownType &&
         dontConvertSerializables &&
-        VMObject.isSerializable(srcObj)
+        VMObject.isSerializable(localType)
       ) {
         isKnownType = true;
       }
-      if (VMObject.isStructOrClass(srcType) && !isKnownType) {
+
+      if (VMObject.isStructOrClass(localType) && !isKnownType) {
         const children = new Map<any, any>();
-        const fields = Object.keys(srcObj);
+        const fields = Object.keys(srcObj as typeof srcType);
+        console.log("fields", fields);
         if (fields.length > 0) {
           fields.forEach((field: any) => {
-            const key = new VMObject();
-            key.SetValue(field);
+            const key = VMObject.FromObject(field);
+            console.log(key);
             VMObject.ValidateStructKey(key);
             const val = srcObj[field];
             const vmVal = this.CastViaReflection(val, level + 1, true);
@@ -555,9 +592,12 @@ export class VMObject implements ISerializable {
           });
           result = new VMObject();
           result.SetValue(children);
+          result.Type = VMType.Struct;
+          console.log(" My local result = ", result);
           return result;
         }
       }
+
       result = VMObject.FromObject(srcObj);
       if (result != null) {
         return result;
@@ -684,9 +724,10 @@ export class VMObject implements ISerializable {
   public static FromObject(obj: any): any {
     const objType = obj.constructor.name;
     const type = this.GetVMType(objType);
-    if (type === "None") {
+    if (type === VMType.None) {
       throw new Error("not a valid object");
     }
+
     const result = new VMObject();
     switch (type) {
       case VMType.Bool:
@@ -705,18 +746,20 @@ export class VMObject implements ISerializable {
         result.setValue(obj, VMType.Object);
         break;
       case VMType.Number:
-        if (objType === "Number") {
+        /*if (objType === Number) {
           obj = BigInt(obj);
-        }
+        }*/
         result.setValue(obj, VMType.Number);
         break;
       case VMType.Timestamp:
-        if (objType === "Number") {
+        /*if (objType === "Number") {
           obj = new Timestamp(obj);
-        }
+        }*/
         result.setValue(obj, VMType.Timestamp);
         break;
-      case "Struct":
+      case VMType.Struct:
+        result.Type = VMType.Struct;
+
         if (Array.isArray(obj)) {
           return this.FromArray(obj);
         }

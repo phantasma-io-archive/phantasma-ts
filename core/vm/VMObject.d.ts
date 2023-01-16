@@ -2,6 +2,7 @@ import { VMType } from "./VMType";
 import { Timestamp } from "../types/Timestamp";
 import { PBinaryReader, PBinaryWriter } from "../types";
 import { ISerializable } from "../interfaces";
+import { Type } from "typescript";
 export declare class VMObject implements ISerializable {
     Type: VMType;
     Data: object | null | undefined;
@@ -18,9 +19,9 @@ export declare class VMObject implements ISerializable {
     AsNumber(): BigInt;
     AsEnum<T extends any>(): T;
     GetArrayType(): VMType;
-    static isEnum(instance: Object): boolean;
+    static isEnum(instance: any): boolean;
     AsBool(): boolean;
-    static isStructOrClass(type: any): boolean;
+    static isStructOrClass(type: Type): boolean;
     static isSerializable(type: any): boolean;
     static isPrimitive(type: any): boolean;
     static isValueType(type: any): boolean;
