@@ -2,6 +2,7 @@ import { BinaryReader } from "csharp-binary-stream";
 import { ISignature } from "../../interfaces";
 import { Timestamp } from "../Timestamp";
 export declare class PBinaryReader extends BinaryReader {
+    constructor(Uint8Array: Uint8Array);
     read(numBytes: number): string;
     readString(): string;
     readStringBytes(numBytes: number): string;

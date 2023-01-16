@@ -52,8 +52,15 @@ var vm_1 = require("../../vm");
 var Timestamp_1 = require("../Timestamp");
 var PBinaryReader = /** @class */ (function (_super) {
     __extends(PBinaryReader, _super);
-    function PBinaryReader() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function PBinaryReader(buffer) {
+        var _this = this;
+        if (Buffer.isBuffer(arguments[0])) {
+            _this = _super.call(this, arguments[0]) || this;
+        }
+        else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
+            _this = _super.call(this, arguments[0]) || this;
+        }
+        return _this;
     }
     PBinaryReader.prototype.read = function (numBytes) {
         var res = (0, utils_1.byteArrayToHex)(this.readBytes(numBytes)).substr(0, numBytes * 2);

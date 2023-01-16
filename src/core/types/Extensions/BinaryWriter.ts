@@ -4,6 +4,19 @@ import { Timestamp } from "../Timestamp";
 type byte = number;
 
 export class PBinaryWriter extends BinaryWriter {
+  constructor();
+  constructor(Uint8Array: Uint8Array);
+  constructor(Buffer: Buffer);
+  constructor() {
+    if (Buffer.isBuffer(arguments[0])) {
+      super(arguments[0]);
+    } else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
+      super(arguments[0]);
+    } else {
+      super();
+    }
+  }
+
   public appendByte(value: number): this {
     this.writeByte(value);
     return this;

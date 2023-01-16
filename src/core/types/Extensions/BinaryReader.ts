@@ -6,6 +6,15 @@ import { VMType } from "../../vm";
 import { Timestamp } from "../Timestamp";
 
 export class PBinaryReader extends BinaryReader {
+  constructor(Uint8Array: Uint8Array);
+  constructor(buffer: Buffer) {
+    if (Buffer.isBuffer(arguments[0])) {
+      super(arguments[0]);
+    } else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
+      super(arguments[0]);
+    }
+  }
+
   public read(numBytes: number): string {
     var res = byteArrayToHex(this.readBytes(numBytes)).substr(0, numBytes * 2);
     this.position += numBytes * 2;
