@@ -38,6 +38,7 @@ export declare class VMObject implements ISerializable {
     static FromArray(array: any[]): VMObject;
     static CastTo(srcObj: VMObject, type: VMType): VMObject;
     static FromObject(obj: any): any;
+    static FromStruct(obj: any): VMObject;
     static FromBytes(bytes: any): VMObject;
     SerializeData(writer: PBinaryWriter): void;
     UnserializeData(reader: PBinaryReader): void;

@@ -1,7 +1,11 @@
+/// <reference types="node" />
 import { BinaryWriter } from "csharp-binary-stream";
 import { Timestamp } from "../Timestamp";
 type byte = number;
 export declare class PBinaryWriter extends BinaryWriter {
+    constructor();
+    constructor(Uint8Array: Uint8Array);
+    constructor(Buffer: Buffer);
     appendByte(value: number): this;
     appendBytes(bytes: byte[]): void;
     writeBytes(bytes: byte[]): this;

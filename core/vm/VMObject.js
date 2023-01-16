@@ -657,31 +657,31 @@ var VMObject = /** @class */ (function () {
         var result = new VMObject();
         switch (type) {
             case VMType_1.VMType.Bool:
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.Bool);
                 break;
             case VMType_1.VMType.Bytes:
                 result.setValue(new Uint8Array(obj), VMType_1.VMType.Bytes);
                 break;
             case VMType_1.VMType.String:
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.String);
                 break;
             case VMType_1.VMType.Enum:
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.Enum);
                 break;
             case VMType_1.VMType.Object:
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.Object);
                 break;
             case VMType_1.VMType.Number:
                 if (objType === "Number") {
                     obj = BigInt(obj);
                 }
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.Number);
                 break;
             case VMType_1.VMType.Timestamp:
                 if (objType === "Number") {
                     obj = new Timestamp_1.Timestamp(obj);
                 }
-                result.SetValue(obj);
+                result.setValue(obj, VMType_1.VMType.Timestamp);
                 break;
             case "Struct":
                 if (Array.isArray(obj)) {
@@ -692,6 +692,10 @@ var VMObject = /** @class */ (function () {
                 return null;
         }
         return result;
+    };
+    VMObject.FromStruct = function (obj) {
+        var vm = new VMObject();
+        return vm.CastViaReflection(obj, 0, false);
     };
     // Serialization
     VMObject.FromBytes = function (bytes) {

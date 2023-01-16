@@ -690,31 +690,31 @@ export class VMObject implements ISerializable {
     const result = new VMObject();
     switch (type) {
       case VMType.Bool:
-        result.SetValue(obj);
+        result.setValue(obj, VMType.Bool);
         break;
       case VMType.Bytes:
         result.setValue(new Uint8Array(obj), VMType.Bytes);
         break;
       case VMType.String:
-        result.SetValue(obj);
+        result.setValue(obj, VMType.String);
         break;
       case VMType.Enum:
-        result.SetValue(obj);
+        result.setValue(obj, VMType.Enum);
         break;
       case VMType.Object:
-        result.SetValue(obj);
+        result.setValue(obj, VMType.Object);
         break;
       case VMType.Number:
         if (objType === "Number") {
           obj = BigInt(obj);
         }
-        result.SetValue(obj);
+        result.setValue(obj, VMType.Number);
         break;
       case VMType.Timestamp:
         if (objType === "Number") {
           obj = new Timestamp(obj);
         }
-        result.SetValue(obj);
+        result.setValue(obj, VMType.Timestamp);
         break;
       case "Struct":
         if (Array.isArray(obj)) {
@@ -725,6 +725,11 @@ export class VMObject implements ISerializable {
         return null;
     }
     return result;
+  }
+
+  public static FromStruct(obj: any): VMObject {
+    let vm = new VMObject();
+    return vm.CastViaReflection(obj, 0, false);
   }
 
   // Serialization

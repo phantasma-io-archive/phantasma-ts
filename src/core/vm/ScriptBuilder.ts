@@ -186,7 +186,7 @@ export class ScriptBuilder {
   }
 
   public emitLoadISerializable(reg: number, obj: ISerializable): this {
-    let writer = new PBinaryWriter();
+    let writer: PBinaryWriter = new PBinaryWriter();
     obj.SerializeData(writer);
     this.emitLoadBytes(reg, writer.toArray(), VMType.Bytes);
     return this;

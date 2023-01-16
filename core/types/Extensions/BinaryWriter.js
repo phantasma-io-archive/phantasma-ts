@@ -20,7 +20,17 @@ var csharp_binary_stream_1 = require("csharp-binary-stream");
 var PBinaryWriter = /** @class */ (function (_super) {
     __extends(PBinaryWriter, _super);
     function PBinaryWriter() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = this;
+        if (Buffer.isBuffer(arguments[0])) {
+            _this = _super.call(this, arguments[0]) || this;
+        }
+        else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
+            _this = _super.call(this, arguments[0]) || this;
+        }
+        else {
+            _this = _super.call(this) || this;
+        }
+        return _this;
     }
     PBinaryWriter.prototype.appendByte = function (value) {
         this.writeByte(value);
