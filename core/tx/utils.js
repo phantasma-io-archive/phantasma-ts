@@ -42,6 +42,7 @@ var wif_1 = __importDefault(require("wif"));
 var elliptic_1 = require("elliptic");
 var bs58_1 = __importDefault(require("bs58"));
 var bip39 = __importStar(require("bip39"));
+var crypto_1 = __importDefault(require("crypto"));
 var curve = new elliptic_1.eddsa("ed25519");
 function ab2hexstring(arr) {
     var e_1, _a;
@@ -83,7 +84,7 @@ exports.getAddressFromWif = getAddressFromWif;
 function generateNewSeed() {
     var buffer = new Uint8Array(32);
     var privateKey = Buffer.alloc(32);
-    crypto.getRandomValues(buffer);
+    crypto_1.default.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
     }
@@ -95,7 +96,7 @@ exports.generateNewSeed = generateNewSeed;
 function generateNewSeedWords() {
     var buffer = new Uint8Array(32);
     var privateKey = Buffer.alloc(32);
-    crypto.getRandomValues(buffer);
+    crypto_1.default.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
     }
@@ -108,7 +109,7 @@ exports.generateNewSeedWords = generateNewSeedWords;
 function generateNewWif() {
     var buffer = new Uint8Array(32);
     var privateKey = Buffer.alloc(32);
-    crypto.getRandomValues(buffer);
+    crypto_1.default.getRandomValues(buffer);
     for (var i = 0; i < 32; ++i) {
         privateKey.writeUInt8(buffer[i], i);
     }

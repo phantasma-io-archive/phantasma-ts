@@ -3,6 +3,7 @@ import { eddsa } from "elliptic";
 import base58 from "bs58";
 import * as bip39 from "bip39";
 import { hdkey } from "ethereumjs-wallet";
+import crypto from "crypto";
 const curve = new eddsa("ed25519");
 
 function ab2hexstring(arr: ArrayBuffer | ArrayLike<number>): string {
