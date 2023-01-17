@@ -96,7 +96,7 @@ export class Serialization<T> {
       (obj as ISerializable).SerializeData(writer);
       return;
     } else if (Array.isArray(obj)) {
-      writer.writeByte(obj.length);
+      writer.writeVarInt(obj.length);
       obj.forEach((entry) => {
         this.SerializeObject(writer, entry, typeof entry);
       });
