@@ -3,6 +3,8 @@ import { BinaryWriter } from "csharp-binary-stream";
 import { Timestamp } from "../Timestamp";
 type byte = number;
 export declare class PBinaryWriter extends BinaryWriter {
+    static FromBuffer(buffer: Buffer): PBinaryWriter;
+    static FromUint8Array(uint8Array: Uint8Array): PBinaryWriter;
     constructor();
     constructor(Uint8Array: Uint8Array);
     constructor(Buffer: Buffer);

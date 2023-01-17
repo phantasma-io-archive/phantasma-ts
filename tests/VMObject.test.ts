@@ -1,5 +1,12 @@
+import { BinaryWriter } from "csharp-binary-stream";
 import { Type } from "typescript";
-import { PollChoice, Serialization, Transaction, VMObject } from "../core";
+import {
+  PBinaryWriter,
+  PollChoice,
+  Serialization,
+  Transaction,
+  VMObject,
+} from "../core";
 import { phantasmaJS } from "../index";
 
 describe("VM index file", () => {
@@ -78,5 +85,20 @@ describe("VM index file", () => {
     expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
     let result = myNewVM.ToArray(PollChoice) as PollChoice[];
     expect(result).toStrictEqual(choices);
+  });
+
+  test("Serialization", () => {
+    let vm = new phantasmaJS.VMObject();
+    let choice = new phantasmaJS.PollChoice("myChoice");
+    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choices: PollChoice[] = [choice, choice2];
+    let myNewVM = VMObject.FromArray(choices);
+
+    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
+    expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
+    let bytes = Buffer.alloc(0);
+    let writer = new PBinaryWriter(bytes);
+    //let result = myNewVM.SerializeData(writer);
+    //expect(result).toStrictEqual(choices);
   });
 });

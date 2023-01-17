@@ -326,10 +326,6 @@ var VMObject = /** @class */ (function () {
         }
     };
     VMObject.isStructOrClass = function (type) {
-        /*if (type == ) {
-          console.log("isStructOrClass: String");
-          return false;
-        }*/
         return ((!VMObject.isPrimitive(type) &&
             VMObject.isValueType(type) &&
             !VMObject.isEnum(type)) ||
@@ -369,7 +365,6 @@ var VMObject = /** @class */ (function () {
             var tempValue = fieldValue;
             fieldValue = tempValue;
         }
-        console.log("ConvertObjectInternal: ", fieldValue);
         return fieldValue;
     };
     VMObject.prototype.ToArray = function (arrayElementType) {
@@ -382,7 +377,6 @@ var VMObject = /** @class */ (function () {
         try {
             for (var children_1 = __values(children), children_1_1 = children_1.next(); !children_1_1.done; children_1_1 = children_1.next()) {
                 var child = children_1_1.value;
-                console.log("child: " + child);
                 if (child[0].Type !== VMType_1.VMType.Number) {
                     throw new Error("source contains an element with invalid array index");
                 }
@@ -413,7 +407,6 @@ var VMObject = /** @class */ (function () {
                 var temp = child[0].AsNumber();
                 var index = Math.floor(temp);
                 var val = child[1].ToObjectType(arrayElementType);
-                console.log("child", child, "val: " + val);
                 val = VMObject.ConvertObjectInternal(val, arrayElementType);
                 array[index] = val;
             }
@@ -431,11 +424,9 @@ var VMObject = /** @class */ (function () {
         if (this.Type === VMType_1.VMType.Struct) {
             if (Array.isArray(type)) {
                 var elementType = typeof type;
-                console.log("array array: ", this.Type, this.Data);
                 return this.ToArray(elementType);
             }
             else if (VMObject.isStructOrClass(type)) {
-                console.log("Object struct omg: ", this.Type, this.Data);
                 return this.ToStruct(type);
             }
             else {
@@ -443,7 +434,6 @@ var VMObject = /** @class */ (function () {
             }
         }
         else {
-            console.log("ToObjectType: ", this.Type, this.Data);
             var temp = this.ToObject();
             return temp;
         }
@@ -484,7 +474,6 @@ var VMObject = /** @class */ (function () {
         var result = new structType();
         var fields = Object.keys(result);
         var myLocalFields = new structType();
-        console.log("Fields:", fields, "Dict:", dict, "LocalType:", localType);
         try {
             for (var fields_1 = __values(fields), fields_1_1 = fields_1.next(); !fields_1_1.done; fields_1_1 = fields_1.next()) {
                 var field = fields_1_1.value;
@@ -495,13 +484,12 @@ var VMObject = /** @class */ (function () {
                     val = dict.get(dictKey).ToObjectType(structType[field]);
                 }
                 else {
-                    console.log("field not present in source struct: ".concat(field));
                     if (!VMObject.isStructOrClass(structType[field])) {
+                        console.log("field not present in source struct: ".concat(field));
                         //throw new Error(`field not present in source struct: ${field}`);
                     }
                     //val = null;
                 }
-                console.log(structType[field]);
                 /*if (val !== null && localType[field] !== "Uint8Array") {
                   if (VMObject.isSerializable(localType[field])) {
                     const temp = new structType[field]();
@@ -511,7 +499,6 @@ var VMObject = /** @class */ (function () {
                     val = temp;
                   }
                 }*/
-                console.log(" Value is ", val);
                 if (VMObject.isEnum(typeof structType[field]) && !VMObject.isEnum(val)) {
                     val = localType[field][val === null || val === void 0 ? void 0 : val.toString()];
                 }
@@ -652,11 +639,9 @@ var VMObject = /** @class */ (function () {
             if (VMObject.isStructOrClass(localType) && !isKnownType) {
                 var children_3 = new Map();
                 var fields = Object.keys(srcObj);
-                console.log("fields", fields);
                 if (fields.length > 0) {
                     fields.forEach(function (field) {
                         var key = VMObject.FromObject(field);
-                        console.log(key);
                         VMObject.ValidateStructKey(key);
                         var val = srcObj[field];
                         var vmVal = _this.CastViaReflection(val, level + 1, true);
@@ -665,7 +650,6 @@ var VMObject = /** @class */ (function () {
                     result = new VMObject();
                     result.SetValue(children_3);
                     result.Type = VMType_1.VMType.Struct;
-                    console.log(" My local result = ", result);
                     return result;
                 }
             }
@@ -724,7 +708,6 @@ var VMObject = /** @class */ (function () {
         for (var i = 0; i < array.length; i++) {
             var key = VMObject.FromObject(i);
             var val = VMObject.FromObject(array[i]);
-            console.log("From Array = key", key, "val", val);
             result.SetKey(key, val);
         }
         return result;
@@ -786,7 +769,6 @@ var VMObject = /** @class */ (function () {
     VMObject.FromObject = function (obj) {
         var objType = obj.constructor.name;
         var type = this.GetVMType(objType);
-        console.log("From Object = obj", obj, "objType", objType, "type", type);
         if (type === VMType_1.VMType.None) {
             throw new Error("not a valid object");
         }

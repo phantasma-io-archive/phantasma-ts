@@ -32,6 +32,12 @@ var PBinaryWriter = /** @class */ (function (_super) {
         }
         return _this;
     }
+    PBinaryWriter.FromBuffer = function (buffer) {
+        return new PBinaryWriter(buffer);
+    };
+    PBinaryWriter.FromUint8Array = function (uint8Array) {
+        return new PBinaryWriter(uint8Array);
+    };
     PBinaryWriter.prototype.appendByte = function (value) {
         this.writeByte(value);
         return this;

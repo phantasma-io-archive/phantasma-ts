@@ -331,10 +331,6 @@ export class VMObject implements ISerializable {
   }
 
   public static isStructOrClass(type: Type): boolean {
-    /*if (type == ) {
-      console.log("isStructOrClass: String");
-      return false;
-    }*/
     return (
       (!VMObject.isPrimitive(type) &&
         VMObject.isValueType(type) &&
@@ -389,7 +385,6 @@ export class VMObject implements ISerializable {
       let tempValue: typeof fieldType = fieldValue as keyof typeof fieldType;
       fieldValue = tempValue;
     }
-    console.log("ConvertObjectInternal: ", fieldValue);
     return fieldValue;
   }
 
@@ -401,7 +396,6 @@ export class VMObject implements ISerializable {
     const children = this.GetChildren();
     let maxIndex = -1;
     for (const child of children) {
-      console.log("child: " + child);
       if (child[0].Type !== VMType.Number) {
         throw new Error("source contains an element with invalid array index");
       }
@@ -431,8 +425,6 @@ export class VMObject implements ISerializable {
 
       let val = child[1].ToObjectType(arrayElementType);
 
-      console.log("child", child, "val: " + val);
-
       val = VMObject.ConvertObjectInternal(val, arrayElementType);
 
       array[index] = val;
@@ -445,18 +437,13 @@ export class VMObject implements ISerializable {
     if (this.Type === VMType.Struct) {
       if (Array.isArray(type)) {
         const elementType = typeof type;
-        console.log("array array: ", this.Type, this.Data);
-
         return this.ToArray(elementType);
       } else if (VMObject.isStructOrClass(type)) {
-        console.log("Object struct omg: ", this.Type, this.Data);
-
         return this.ToStruct(type);
       } else {
         throw new Error("some stuff still missing: eg: lists, dictionaries..");
       }
     } else {
-      console.log("ToObjectType: ", this.Type, this.Data);
       const temp = this.ToObject();
       return temp;
     }
@@ -502,7 +489,6 @@ export class VMObject implements ISerializable {
     const fields = Object.keys(result);
     const myLocalFields: keyof typeof structType = new structType();
 
-    console.log("Fields:", fields, "Dict:", dict, "LocalType:", localType);
     for (const field of fields) {
       const key = VMObject.FromObject(field);
       const dictKey = dict.keys().next().value;
@@ -510,14 +496,13 @@ export class VMObject implements ISerializable {
       if (dictKey?.toString() == key.toString()) {
         val = dict.get(dictKey).ToObjectType(structType[field]);
       } else {
-        console.log(`field not present in source struct: ${field}`);
         if (!VMObject.isStructOrClass(structType[field])) {
+          console.log(`field not present in source struct: ${field}`);
+
           //throw new Error(`field not present in source struct: ${field}`);
         }
         //val = null;
       }
-
-      console.log(structType[field]);
       /*if (val !== null && localType[field] !== "Uint8Array") {
         if (VMObject.isSerializable(localType[field])) {
           const temp = new structType[field]();
@@ -527,7 +512,6 @@ export class VMObject implements ISerializable {
           val = temp;
         }
       }*/
-      console.log(" Value is ", val);
 
       if (VMObject.isEnum(typeof structType[field]) && !VMObject.isEnum(val)) {
         val = localType[field][val?.toString()];
@@ -683,11 +667,9 @@ export class VMObject implements ISerializable {
       if (VMObject.isStructOrClass(localType) && !isKnownType) {
         const children = new Map<any, any>();
         const fields = Object.keys(srcObj as typeof srcType);
-        console.log("fields", fields);
         if (fields.length > 0) {
           fields.forEach((field: any) => {
             const key = VMObject.FromObject(field);
-            console.log(key);
             VMObject.ValidateStructKey(key);
             const val = srcObj[field];
             const vmVal = this.CastViaReflection(val, level + 1, true);
@@ -696,7 +678,6 @@ export class VMObject implements ISerializable {
           result = new VMObject();
           result.SetValue(children);
           result.Type = VMType.Struct;
-          console.log(" My local result = ", result);
           return result;
         }
       }
@@ -757,7 +738,6 @@ export class VMObject implements ISerializable {
     for (let i = 0; i < array.length; i++) {
       const key = VMObject.FromObject(i);
       const val = VMObject.FromObject(array[i]);
-      console.log("From Array = key", key, "val", val);
       result.SetKey(key, val);
     }
     return result;
@@ -828,7 +808,6 @@ export class VMObject implements ISerializable {
   public static FromObject(obj: any): any {
     const objType = obj.constructor.name;
     const type = this.GetVMType(objType);
-    console.log("From Object = obj", obj, "objType", objType, "type", type);
     if (type === VMType.None) {
       throw new Error("not a valid object");
     }

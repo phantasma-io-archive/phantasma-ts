@@ -4,6 +4,14 @@ import { Timestamp } from "../Timestamp";
 type byte = number;
 
 export class PBinaryWriter extends BinaryWriter {
+  static FromBuffer(buffer: Buffer): PBinaryWriter {
+    return new PBinaryWriter(buffer);
+  }
+
+  static FromUint8Array(uint8Array: Uint8Array): PBinaryWriter {
+    return new PBinaryWriter(uint8Array);
+  }
+
   constructor();
   constructor(Uint8Array: Uint8Array);
   constructor(Buffer: Buffer);
