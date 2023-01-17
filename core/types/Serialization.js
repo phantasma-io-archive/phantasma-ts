@@ -80,7 +80,7 @@ var Serialization = /** @class */ (function () {
             return;
         }
         else if (Array.isArray(obj)) {
-            writer.writeByte(obj.length);
+            writer.writeVarInt(obj.length);
             obj.forEach(function (entry) {
                 _this.SerializeObject(writer, entry, typeof entry);
             });
