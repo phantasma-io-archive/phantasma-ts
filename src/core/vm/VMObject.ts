@@ -816,7 +816,6 @@ export class VMObject implements ISerializable {
     const objType = obj.constructor.name;
 
     const type = this.GetVMType(objType);
-    console.log("FromObject", obj, objType, type);
     if (type === VMType.None) {
       throw new Error("not a valid object");
     }
