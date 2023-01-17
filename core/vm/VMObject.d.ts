@@ -16,9 +16,10 @@ export declare class VMObject implements ISerializable {
     AsByteArray(): Uint8Array;
     AsString(): string;
     ToString(): string;
-    AsNumber(): BigInt;
+    AsNumber(): number;
     AsEnum<T extends any>(): T;
     GetArrayType(): VMType;
+    AsType(type: VMType): any;
     static isEnum(instance: any): boolean;
     AsBool(): boolean;
     static isStructOrClass(type: Type): boolean;
@@ -27,6 +28,10 @@ export declare class VMObject implements ISerializable {
     static isValueType(type: any): boolean;
     static isClass(type: any): boolean;
     static isInterface(type: any): boolean;
+    private static ConvertObjectInternal;
+    ToArray(arrayElementType: any): any[];
+    ToObjectType(type: any): any;
+    ToObject(): any;
     ToStruct(structType: any): any;
     static GetVMType(type: any): any;
     static IsVMType(type: any): boolean;

@@ -178,19 +178,19 @@ export class VMObject implements ISerializable {
     }
   }
 
-  public AsNumber(): BigInt {
+  public AsNumber(): number {
     if (
       (this.Type === VMType.Object || this.Type === VMType.Timestamp) &&
       this.Data instanceof Timestamp
     ) {
-      return (this.Data as Timestamp).value as unknown as BigInt;
+      return (this.Data as Timestamp).value as unknown as number;
     }
 
     switch (this.Type) {
       case VMType.String: {
         let number: BigInt = BigInt(this.Data as unknown as string);
         if (number.toString() === (this.Data as unknown as string)) {
-          return number;
+          return number as unknown as number;
         } else {
           throw new Error(
             `Cannot convert String '${this.Data}' to BigInteger.`
@@ -201,17 +201,17 @@ export class VMObject implements ISerializable {
       case VMType.Bytes: {
         const bytes = new Uint8Array(this.Data as ArrayBuffer);
         const num = BigInt(`0x${bytes.join("")}`);
-        return num;
+        return num as unknown as number;
       }
 
       case VMType.Enum: {
         const num = Number(this.Data);
-        return BigInt(num);
+        return BigInt(num) as unknown as number;
       }
 
       case VMType.Bool: {
         const val = this.Data as unknown as boolean;
-        return val ? BigInt(1) : BigInt(0);
+        return val ? 1 : 0;
       }
 
       default: {
@@ -219,7 +219,7 @@ export class VMObject implements ISerializable {
           throw new Error(`Invalid cast: expected number, got ${this.Type}`);
         }
 
-        return this.Data as BigInt;
+        return this.Data as unknown as number;
       }
     }
   }
@@ -264,23 +264,22 @@ export class VMObject implements ISerializable {
     return result;
   }
 
-  /*
-    public AsType(type: VMType): object {
-        switch (type) {
-            case VMType.Bool:
-            return this.AsBool();
-            case VMType.String:
-            return this.AsString();
-            case VMType.Bytes:
-            return this.AsByteArray();
-            case VMType.Number:
-            return this.AsNumber();
-            case VMType.Timestamp:
-            return this.AsTimestamp();
-            default:
-            throw ("Unsupported VM cast");
-        }
-    }*/
+  public AsType(type: VMType): any {
+    switch (type) {
+      case VMType.Bool:
+        return this.AsBool();
+      case VMType.String:
+        return this.AsString();
+      case VMType.Bytes:
+        return this.AsByteArray();
+      case VMType.Number:
+        return this.AsNumber();
+      case VMType.Timestamp:
+        return this.AsTimestamp();
+      default:
+        throw "Unsupported VM cast";
+    }
+  }
 
   static isEnum(instance: any): boolean {
     if (instance == null) return false;
@@ -378,6 +377,104 @@ export class VMObject implements ISerializable {
     return type === Map;
   }
 
+  private static ConvertObjectInternal(fieldValue: any, fieldType: any): any {
+    if (fieldType.isStructOrClass() && fieldValue instanceof Uint8Array) {
+      const bytes = fieldValue as Uint8Array;
+      fieldValue = Serialization.Unserialize<typeof fieldType>(bytes);
+    } else if (VMObject.isEnum(fieldType)) {
+      let tempValue: typeof fieldType = fieldValue as keyof typeof fieldType;
+      fieldValue = tempValue;
+    }
+    return fieldValue;
+  }
+
+  public ToArray(arrayElementType: any): any[] {
+    if (this.Type !== VMType.Struct) {
+      throw new Error("not a valid source struct");
+    }
+
+    const children = this.GetChildren();
+    let maxIndex = -1;
+    for (const child of children) {
+      if (child[0].Type !== VMType.Number) {
+        throw new Error("source contains an element with invalid array index");
+      }
+
+      const temp = child[0].AsNumber();
+      // TODO use a constant for VM max array size
+      if (temp >= 1024) {
+        throw new Error(
+          "source contains an element with a very large array index"
+        );
+      }
+
+      const index = Math.floor(temp);
+      if (index < 0) {
+        throw new Error("source contains an array index with negative value");
+      }
+
+      maxIndex = Math.max(index, maxIndex);
+    }
+
+    const length = maxIndex + 1;
+    const array: any[] = new Array(length);
+
+    for (const child of children) {
+      const temp = child[0].AsNumber();
+      const index = Math.floor(temp);
+
+      let val = child[1].ToObjectType(arrayElementType);
+
+      val = VMObject.ConvertObjectInternal(val, arrayElementType);
+
+      array[index] = val;
+    }
+
+    return array;
+  }
+
+  public ToObjectType(type: any): any {
+    if (this.Type === VMType.Struct) {
+      if (Array.isArray(type)) {
+        const elementType = typeof type;
+        return this.ToArray(elementType);
+      } else if (VMObject.isStructOrClass(type)) {
+        return this.ToStruct(type);
+      } else {
+        throw new Error("some stuff still missing: eg: lists, dictionaries..");
+      }
+    } else {
+      const temp = this.ToObject();
+      return temp;
+    }
+  }
+
+  public ToObject(): any {
+    if (this.Type === VMType.None) {
+      throw new Error("not a valid object");
+    }
+
+    switch (this.Type) {
+      case VMType.Bool:
+        return this.AsBool();
+      case VMType.Bytes:
+        return this.AsByteArray();
+      case VMType.String:
+        return this.AsString();
+      case VMType.Number:
+        return this.AsNumber();
+      case VMType.Timestamp:
+        return this.AsTimestamp();
+      case VMType.Object:
+        return this.Data;
+      case VMType.Enum:
+        return this.Data;
+
+      default:
+        throw new Error(`Cannot cast ${this.Type} to object`);
+    }
+  }
+
   public ToStruct(structType: any): any {
     if (this.Type !== VMType.Struct) {
       throw new Error("not a valid source struct");
@@ -390,22 +487,15 @@ export class VMObject implements ISerializable {
     const dict = this.GetChildren();
     const result = new structType();
     const fields = Object.keys(result);
-    console.log("Fields:", fields);
+    const myLocalFields: keyof typeof structType = new structType();
+
+    console.log("Fields:", fields, "Dict:", dict, "LocalType:", localType);
     for (const field of fields) {
       const key = VMObject.FromObject(field);
-      console.log(
-        "Key:",
-        key,
-        "Field:",
-        field,
-        "Type:",
-        typeof structType[field],
-        ""
-      );
+      const dictKey = dict.keys().next().value;
       let val;
-      console.log("Does it has? ", dict.hasOwnProperty(key));
-      if (dict.hasOwnProperty(key)) {
-        val = dict[key].toObject(structType[field]);
+      if (dictKey.toString() == key.toString()) {
+        val = dict.get(dictKey).ToObjectType(structType[field]);
       } else {
         console.log(`field not present in source struct: ${field}`);
         if (!VMObject.isStructOrClass(structType[field])) {

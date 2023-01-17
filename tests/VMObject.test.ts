@@ -49,11 +49,10 @@ describe("VM index file", () => {
     expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
     expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
     let result = myNewVM.ToStruct(PollChoice) as PollChoice;
-    console.log(result);
-    expect(result).toBe(choice);
+    expect(result).toStrictEqual(choice);
   });
 
-  /*test("TestTypes", () => {
+  test("TestTypes", () => {
     let vm = new phantasmaJS.VMObject();
     let choice = new phantasmaJS.PollChoice("myChoice");
     let myNewVM = VMObject.FromStruct(choice);
@@ -66,5 +65,5 @@ describe("VM index file", () => {
     expect(VMObject.isInterface(PollChoice)).toBe(false);
     expect(VMObject.isStructOrClass(PollChoice as unknown as Type)).toBe(true);
     expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
-  });*/
+  });
 });

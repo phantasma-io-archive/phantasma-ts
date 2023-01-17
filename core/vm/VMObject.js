@@ -206,7 +206,7 @@ var VMObject = /** @class */ (function () {
             }
             case VMType_1.VMType.Bool: {
                 var val = this.Data;
-                return val ? BigInt(1) : BigInt(0);
+                return val ? 1 : 0;
             }
             default: {
                 if (this.Type !== VMType_1.VMType.Number) {
@@ -246,23 +246,22 @@ var VMObject = /** @class */ (function () {
         }
         return result;
     };
-    /*
-      public AsType(type: VMType): object {
-          switch (type) {
-              case VMType.Bool:
-              return this.AsBool();
-              case VMType.String:
-              return this.AsString();
-              case VMType.Bytes:
-              return this.AsByteArray();
-              case VMType.Number:
-              return this.AsNumber();
-              case VMType.Timestamp:
-              return this.AsTimestamp();
-              default:
-              throw ("Unsupported VM cast");
-          }
-      }*/
+    VMObject.prototype.AsType = function (type) {
+        switch (type) {
+            case VMType_1.VMType.Bool:
+                return this.AsBool();
+            case VMType_1.VMType.String:
+                return this.AsString();
+            case VMType_1.VMType.Bytes:
+                return this.AsByteArray();
+            case VMType_1.VMType.Number:
+                return this.AsNumber();
+            case VMType_1.VMType.Timestamp:
+                return this.AsTimestamp();
+            default:
+                throw "Unsupported VM cast";
+        }
+    };
     VMObject.isEnum = function (instance) {
         var e_1, _a, e_2, _b;
         if (instance == null)
@@ -359,8 +358,113 @@ var VMObject = /** @class */ (function () {
     VMObject.isInterface = function (type) {
         return type === Map;
     };
+    VMObject.ConvertObjectInternal = function (fieldValue, fieldType) {
+        if (fieldType.isStructOrClass() && fieldValue instanceof Uint8Array) {
+            var bytes = fieldValue;
+            fieldValue = types_1.Serialization.Unserialize(bytes);
+        }
+        else if (VMObject.isEnum(fieldType)) {
+            var tempValue = fieldValue;
+            fieldValue = tempValue;
+        }
+        return fieldValue;
+    };
+    VMObject.prototype.ToArray = function (arrayElementType) {
+        var e_3, _a, e_4, _b;
+        if (this.Type !== VMType_1.VMType.Struct) {
+            throw new Error("not a valid source struct");
+        }
+        var children = this.GetChildren();
+        var maxIndex = -1;
+        try {
+            for (var children_1 = __values(children), children_1_1 = children_1.next(); !children_1_1.done; children_1_1 = children_1.next()) {
+                var child = children_1_1.value;
+                if (child[0].Type !== VMType_1.VMType.Number) {
+                    throw new Error("source contains an element with invalid array index");
+                }
+                var temp = child[0].AsNumber();
+                // TODO use a constant for VM max array size
+                if (temp >= 1024) {
+                    throw new Error("source contains an element with a very large array index");
+                }
+                var index = Math.floor(temp);
+                if (index < 0) {
+                    throw new Error("source contains an array index with negative value");
+                }
+                maxIndex = Math.max(index, maxIndex);
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (children_1_1 && !children_1_1.done && (_a = children_1.return)) _a.call(children_1);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+        var length = maxIndex + 1;
+        var array = new Array(length);
+        try {
+            for (var children_2 = __values(children), children_2_1 = children_2.next(); !children_2_1.done; children_2_1 = children_2.next()) {
+                var child = children_2_1.value;
+                var temp = child[0].AsNumber();
+                var index = Math.floor(temp);
+                var val = child[1].ToObjectType(arrayElementType);
+                val = VMObject.ConvertObjectInternal(val, arrayElementType);
+                array[index] = val;
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (children_2_1 && !children_2_1.done && (_b = children_2.return)) _b.call(children_2);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        return array;
+    };
+    VMObject.prototype.ToObjectType = function (type) {
+        if (this.Type === VMType_1.VMType.Struct) {
+            if (Array.isArray(type)) {
+                var elementType = typeof type;
+                return this.ToArray(elementType);
+            }
+            else if (VMObject.isStructOrClass(type)) {
+                return this.ToStruct(type);
+            }
+            else {
+                throw new Error("some stuff still missing: eg: lists, dictionaries..");
+            }
+        }
+        else {
+            var temp = this.ToObject();
+            return temp;
+        }
+    };
+    VMObject.prototype.ToObject = function () {
+        if (this.Type === VMType_1.VMType.None) {
+            throw new Error("not a valid object");
+        }
+        switch (this.Type) {
+            case VMType_1.VMType.Bool:
+                return this.AsBool();
+            case VMType_1.VMType.Bytes:
+                return this.AsByteArray();
+            case VMType_1.VMType.String:
+                return this.AsString();
+            case VMType_1.VMType.Number:
+                return this.AsNumber();
+            case VMType_1.VMType.Timestamp:
+                return this.AsTimestamp();
+            case VMType_1.VMType.Object:
+                return this.Data;
+            case VMType_1.VMType.Enum:
+                return this.Data;
+            default:
+                throw new Error("Cannot cast ".concat(this.Type, " to object"));
+        }
+    };
     VMObject.prototype.ToStruct = function (structType) {
-        var e_3, _a;
+        var e_5, _a;
         if (this.Type !== VMType_1.VMType.Struct) {
             throw new Error("not a valid source struct");
         }
@@ -371,16 +475,16 @@ var VMObject = /** @class */ (function () {
         var dict = this.GetChildren();
         var result = new structType();
         var fields = Object.keys(result);
-        console.log("Fields:", fields);
+        var myLocalFields = new structType();
+        console.log("Fields:", fields, "Dict:", dict, "LocalType:", localType);
         try {
             for (var fields_1 = __values(fields), fields_1_1 = fields_1.next(); !fields_1_1.done; fields_1_1 = fields_1.next()) {
                 var field = fields_1_1.value;
                 var key = VMObject.FromObject(field);
-                console.log("Key:", key, "Field:", field, "Type:", typeof structType[field], "");
+                var dictKey = dict.keys().next().value;
                 var val = void 0;
-                console.log("Does it has? ", dict.hasOwnProperty(key));
-                if (dict.hasOwnProperty(key)) {
-                    val = dict[key].toObject(structType[field]);
+                if (dictKey.toString() == key.toString()) {
+                    val = dict.get(dictKey).ToObjectType(structType[field]);
                 }
                 else {
                     console.log("field not present in source struct: ".concat(field));
@@ -406,12 +510,12 @@ var VMObject = /** @class */ (function () {
                 result[field] = val;
             }
         }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
         finally {
             try {
                 if (fields_1_1 && !fields_1_1.done && (_a = fields_1.return)) _a.call(fields_1);
             }
-            finally { if (e_3) throw e_3.error; }
+            finally { if (e_5) throw e_5.error; }
         }
         return result;
     };
@@ -538,7 +642,7 @@ var VMObject = /** @class */ (function () {
                 isKnownType = true;
             }
             if (VMObject.isStructOrClass(localType) && !isKnownType) {
-                var children_1 = new Map();
+                var children_3 = new Map();
                 var fields = Object.keys(srcObj);
                 console.log("fields", fields);
                 if (fields.length > 0) {
@@ -548,10 +652,10 @@ var VMObject = /** @class */ (function () {
                         VMObject.ValidateStructKey(key);
                         var val = srcObj[field];
                         var vmVal = _this.CastViaReflection(val, level + 1, true);
-                        children_1.set(key, vmVal);
+                        children_3.set(key, vmVal);
                     });
                     result = new VMObject();
-                    result.SetValue(children_1);
+                    result.SetValue(children_3);
                     result.Type = VMType_1.VMType.Struct;
                     console.log(" My local result = ", result);
                     return result;
@@ -594,14 +698,14 @@ var VMObject = /** @class */ (function () {
         }
         this.Type = other.Type;
         if (other.Type == VMType_1.VMType.Struct) {
-            var children_2 = new Map();
+            var children_4 = new Map();
             var otherChildren = other.GetChildren();
             otherChildren === null || otherChildren === void 0 ? void 0 : otherChildren.forEach(function (val, key) {
                 var temp = new VMObject();
                 temp.Copy(val);
-                children_2.set(key, temp);
+                children_4.set(key, temp);
             });
-            this.Data = children_2;
+            this.Data = children_4;
         }
         else {
             this.Data = other.Data;
