@@ -1,4 +1,3 @@
-import { Type } from "typescript";
 import { PBinaryReader, PBinaryWriter } from "./Extensions";
 export interface CustomReader {
     (reader: PBinaryReader): any;
@@ -15,8 +14,8 @@ export declare class Serialization<T> {
     private static _customSerializers;
     static RegisterType<T>(type: T, reader: CustomReader, writer: CustomWriter): void;
     static Serialize(obj: any): Uint8Array;
-    static SerializeObject(writer: PBinaryWriter, obj: object, type: Type | null): void;
-    static Unserialize<T>(bytesOrBytes: Uint8Array | PBinaryReader): T;
-    static UnserializeObject<T>(reader: PBinaryReader, type: Type): T;
+    static SerializeObject(writer: PBinaryWriter, obj: any, type: any | null): void;
+    static Unserialize<T>(bytesOrBytes: Uint8Array | PBinaryReader, type?: any): T;
+    static UnserializeObject<T>(reader: PBinaryReader, type: any): T;
 }
 //# sourceMappingURL=Serialization.d.ts.map

@@ -1,5 +1,13 @@
+import { BinaryWriter } from "csharp-binary-stream";
 import { Type } from "typescript";
-import { PollChoice, Serialization, Transaction, VMObject } from "../core";
+import {
+  PBinaryWriter,
+  PollChoice,
+  Serialization,
+  Timestamp,
+  Transaction,
+  VMObject,
+} from "../core";
 import { phantasmaJS } from "../index";
 
 describe("VM index file", () => {
@@ -78,5 +86,47 @@ describe("VM index file", () => {
     expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
     let result = myNewVM.ToArray(PollChoice) as PollChoice[];
     expect(result).toStrictEqual(choices);
+  });
+
+  test("Serialization", () => {
+    let vm = new phantasmaJS.VMObject();
+    let choice = new phantasmaJS.PollChoice("myChoice");
+    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let time = new Timestamp(10000);
+    let choices: PollChoice[] = [choice, choice2];
+
+    class myTestClass {
+      name: string = "test";
+      choices: PollChoice[] = choices;
+      time: Timestamp = time;
+      constructor() {}
+    }
+
+    let testClass = new myTestClass();
+
+    let choice1Serialized = Serialization.Serialize(testClass);
+    let choice1Deserialized = Serialization.Unserialize<myTestClass>(
+      choice1Serialized,
+      myTestClass
+    );
+
+    console.log("myclass", choice1Serialized);
+
+    let myVM = VMObject.FromObject(choice1Serialized);
+    let writer = new PBinaryWriter();
+    let result = myVM.SerializeData(writer);
+    console.log(result);
+
+    /*let choicesSerialized: Uint8Array[] = [
+      Serialization.Serialize(choice),
+      Serialization.Serialize(choice2),
+    ];
+    let myNewVM = VMObject.FromArray(choices);
+
+    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
+    expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
+    let writer = new PBinaryWriter();
+    let result = myNewVM.SerializeData(writer);
+    expect(writer.toArray()).toStrictEqual(choices);*/
   });
 });

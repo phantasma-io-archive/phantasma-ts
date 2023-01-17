@@ -288,11 +288,11 @@ export class ContractEvent implements ISerializable {
     this.description = description;
   }
 
-  SerializeData(writer: BinaryWriter) {
+  SerializeData(writer: PBinaryWriter) {
     this.Serialize(writer);
   }
 
-  UnserializeData(reader: BinaryReader) {
+  UnserializeData(reader: PBinaryReader) {
     return ContractEvent.Unserialize(reader);
   }
 
@@ -300,9 +300,9 @@ export class ContractEvent implements ISerializable {
     return `${this.name} : ${this.returnType} => ${this.value}`;
   }
 
-  public static Unserialize(reader: BinaryReader): ContractEvent {
+  public static Unserialize(reader: PBinaryReader): ContractEvent {
     const value = reader.readByte();
-    const name = reader.readString(Encoding.Utf8);
+    const name = reader.readString();
     const returnType = reader.readByte() as VMType;
     const description = reader.readBytes(reader.readByte());
 
@@ -314,9 +314,9 @@ export class ContractEvent implements ISerializable {
     );
   }
 
-  public Serialize(writer: BinaryWriter): void {
+  public Serialize(writer: PBinaryWriter): void {
     writer.writeByte(this.value);
-    writer.writeString(this.name, Encoding.Utf8);
+    writer.writeString(this.name);
     writer.writeByte(this.returnType);
     writer.writeByte(this.description.length);
     writer.writeBytes(uint8ArrayToNumberArray(this.description));

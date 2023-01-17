@@ -1,6 +1,5 @@
 import { ISerializable } from "../interfaces";
 import { VMType } from "../vm/VMType";
-import { BinaryReader, BinaryWriter } from "csharp-binary-stream";
 import { TokenTrigger } from "./DomainSettings";
 import { PBinaryReader, PBinaryWriter } from "./Extensions";
 export declare class ContractParameter {
@@ -52,10 +51,10 @@ export declare class ContractEvent implements ISerializable {
     readonly returnType: VMType;
     readonly description: Uint8Array;
     constructor(value: number, name: string, returnType: VMType, description: Uint8Array);
-    SerializeData(writer: BinaryWriter): void;
-    UnserializeData(reader: BinaryReader): ContractEvent;
+    SerializeData(writer: PBinaryWriter): void;
+    UnserializeData(reader: PBinaryReader): ContractEvent;
     toString(): string;
-    static Unserialize(reader: BinaryReader): ContractEvent;
-    Serialize(writer: BinaryWriter): void;
+    static Unserialize(reader: PBinaryReader): ContractEvent;
+    Serialize(writer: PBinaryWriter): void;
 }
 //# sourceMappingURL=Contract.d.ts.map

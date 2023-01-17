@@ -1,24 +1,85 @@
-import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
+//import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
+import { BinaryWriter, Encoding } from "csharp-binary-stream";
 import { Timestamp } from "../Timestamp";
 
 type byte = number;
 
-export class PBinaryWriter extends BinaryWriter {
-  constructor();
-  constructor(Uint8Array: Uint8Array);
-  constructor(Buffer: Buffer);
-  constructor() {
-    if (Buffer.isBuffer(arguments[0])) {
-      super(arguments[0]);
-    } else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
-      super(arguments[0]);
-    } else {
-      super();
-    }
+export class PBinaryWriter {
+  private writer: BinaryWriter;
+  _buffer: Buffer;
+  _position: number;
+  _length: number;
+  constructor(arg1?: undefined | Buffer | Uint8Array | null) {
+    this.writer = new BinaryWriter(arg1);
+  }
+
+  get length(): number {
+    return this.writer.length;
+  }
+
+  get position(): number {
+    return this.writer.position;
+  }
+
+  set position(value: number) {
+    this.writer.position = value;
+  }
+
+  writeBoolean(value: boolean): void {
+    this.writer.writeBoolean(value);
+  }
+
+  writeByte(value: number): void {
+    this.writer.writeByte(value);
+  }
+  writeSameByte(value: number, repeats: number): void {
+    this.writer.writeSameByte(value, repeats);
+  }
+  writeSignedByte(value: number): void {
+    this.writer.writeSignedByte(value);
+  }
+  writeShort(value: number): void {
+    this.writer.writeShort(value);
+  }
+  writeUnsignedShort(value: number): void {
+    this.writer.writeUnsignedShort(value);
+  }
+  writeInt(value: number): void {
+    this.writer.writeInt(value);
+  }
+  writeUnsignedInt(value: number): void {
+    this.writer.writeUnsignedInt(value);
+  }
+  writeLong(value: string | number): void {
+    this.writer.writeLong(value);
+  }
+  writeUnsignedLong(value: string | number): void {
+    this.writer.writeUnsignedLong(value);
+  }
+  writeFloat(value: number): void {
+    this.writer.writeFloat(value);
+  }
+  writeDouble(value: number): void {
+    this.writer.writeDouble(value);
+  }
+  writeChar(character: string | number, encoding: Encoding): void {
+    this.writer.writeChar(character, encoding);
+  }
+  writeChars(characters: string | number[], encoding: Encoding): void {
+    this.writer.writeChars(characters, encoding);
+  }
+  clear(): void {
+    this.writer.clear();
+  }
+  toArray(): number[] {
+    return this.writer.toArray();
+  }
+  toUint8Array(): Uint8Array {
+    return this.writer.toUint8Array();
   }
 
   public appendByte(value: number): this {
-    this.writeByte(value);
+    this.writer.writeByte(value);
     return this;
   }
 

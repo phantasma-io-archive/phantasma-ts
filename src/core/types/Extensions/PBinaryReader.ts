@@ -5,14 +5,74 @@ import { byteArrayToHex } from "../../utils";
 import { VMType } from "../../vm";
 import { Timestamp } from "../Timestamp";
 
-export class PBinaryReader extends BinaryReader {
-  constructor(Uint8Array: Uint8Array);
-  constructor(buffer: Buffer) {
-    if (Buffer.isBuffer(arguments[0])) {
-      super(arguments[0]);
-    } else if (Uint8Array.prototype.isPrototypeOf(arguments[0])) {
-      super(arguments[0]);
-    }
+export class PBinaryReader {
+  reader: BinaryReader;
+  get length(): number {
+    return this.reader.length;
+  }
+  get position(): number {
+    return this.reader.position;
+  }
+  set position(value: number) {
+    this.reader.position = value;
+  }
+  get isEndOfStream(): boolean {
+    return this.reader.isEndOfStream;
+  }
+  readBoolean(): boolean {
+    return this.reader.readBoolean();
+  }
+  readByte(): number {
+    return this.reader.readByte();
+  }
+  readBytes(bytesToRead: number): number[] {
+    return this.reader.readBytes(bytesToRead);
+  }
+  readSignedByte(): number {
+    return this.reader.readSignedByte();
+  }
+  readShort(): number {
+    return this.reader.readShort();
+  }
+  readUnsignedShort(): number {
+    return this.reader.readUnsignedShort();
+  }
+  readInt(): number {
+    return this.reader.readInt();
+  }
+  readUnsignedInt(): number {
+    return this.reader.readUnsignedInt();
+  }
+  readLongString(): string {
+    return this.reader.readLongString();
+  }
+  readLong(): number {
+    return this.reader.readLong();
+  }
+  readUnsignedLongString(): string {
+    return this.reader.readUnsignedLongString();
+  }
+  readUnsignedLong(): number {
+    return this.reader.readUnsignedLong();
+  }
+  readFloat(): number {
+    return this.reader.readFloat();
+  }
+  readDouble(): number {
+    return this.reader.readDouble();
+  }
+  readChar(encoding: Encoding): string {
+    return this.reader.readChar(encoding);
+  }
+  readChars(charactersToRead: number, encoding: Encoding): string {
+    return this.reader.readChars(charactersToRead, encoding);
+  }
+  readCharBytes(bytesToRead: number, encoding: Encoding): string {
+    return this.reader.readCharBytes(bytesToRead, encoding);
+  }
+
+  constructor(arg1: Buffer | Uint8Array) {
+    this.reader = new BinaryReader(arg1);
   }
 
   public read(numBytes: number): string {
