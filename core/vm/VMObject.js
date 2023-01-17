@@ -359,7 +359,9 @@ var VMObject = /** @class */ (function () {
         return type === Map;
     };
     VMObject.ConvertObjectInternal = function (fieldValue, fieldType) {
-        if (fieldType.isStructOrClass() && fieldValue instanceof Uint8Array) {
+        if ((VMObject.isStructOrClass(fieldType) &&
+            fieldValue instanceof Uint8Array) ||
+            fieldValue instanceof Array) {
             var bytes = fieldValue;
             fieldValue = types_1.Serialization.Unserialize(bytes);
         }
@@ -367,6 +369,7 @@ var VMObject = /** @class */ (function () {
             var tempValue = fieldValue;
             fieldValue = tempValue;
         }
+        console.log("ConvertObjectInternal: ", fieldValue);
         return fieldValue;
     };
     VMObject.prototype.ToArray = function (arrayElementType) {
@@ -379,6 +382,7 @@ var VMObject = /** @class */ (function () {
         try {
             for (var children_1 = __values(children), children_1_1 = children_1.next(); !children_1_1.done; children_1_1 = children_1.next()) {
                 var child = children_1_1.value;
+                console.log("child: " + child);
                 if (child[0].Type !== VMType_1.VMType.Number) {
                     throw new Error("source contains an element with invalid array index");
                 }
@@ -409,6 +413,7 @@ var VMObject = /** @class */ (function () {
                 var temp = child[0].AsNumber();
                 var index = Math.floor(temp);
                 var val = child[1].ToObjectType(arrayElementType);
+                console.log("child", child, "val: " + val);
                 val = VMObject.ConvertObjectInternal(val, arrayElementType);
                 array[index] = val;
             }
@@ -426,9 +431,11 @@ var VMObject = /** @class */ (function () {
         if (this.Type === VMType_1.VMType.Struct) {
             if (Array.isArray(type)) {
                 var elementType = typeof type;
+                console.log("array array: ", this.Type, this.Data);
                 return this.ToArray(elementType);
             }
             else if (VMObject.isStructOrClass(type)) {
+                console.log("Object struct omg: ", this.Type, this.Data);
                 return this.ToStruct(type);
             }
             else {
@@ -436,6 +443,7 @@ var VMObject = /** @class */ (function () {
             }
         }
         else {
+            console.log("ToObjectType: ", this.Type, this.Data);
             var temp = this.ToObject();
             return temp;
         }
@@ -483,7 +491,7 @@ var VMObject = /** @class */ (function () {
                 var key = VMObject.FromObject(field);
                 var dictKey = dict.keys().next().value;
                 var val = void 0;
-                if (dictKey.toString() == key.toString()) {
+                if ((dictKey === null || dictKey === void 0 ? void 0 : dictKey.toString()) == key.toString()) {
                     val = dict.get(dictKey).ToObjectType(structType[field]);
                 }
                 else {
@@ -716,6 +724,7 @@ var VMObject = /** @class */ (function () {
         for (var i = 0; i < array.length; i++) {
             var key = VMObject.FromObject(i);
             var val = VMObject.FromObject(array[i]);
+            console.log("From Array = key", key, "val", val);
             result.SetKey(key, val);
         }
         return result;
@@ -777,6 +786,7 @@ var VMObject = /** @class */ (function () {
     VMObject.FromObject = function (obj) {
         var objType = obj.constructor.name;
         var type = this.GetVMType(objType);
+        console.log("From Object = obj", obj, "objType", objType, "type", type);
         if (type === VMType_1.VMType.None) {
             throw new Error("not a valid object");
         }
@@ -813,6 +823,9 @@ var VMObject = /** @class */ (function () {
                 result.Type = VMType_1.VMType.Struct;
                 if (Array.isArray(obj)) {
                     return this.FromArray(obj);
+                }
+                else {
+                    return this.FromStruct(obj);
                 }
                 break;
             default:
