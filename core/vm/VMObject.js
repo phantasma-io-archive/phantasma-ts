@@ -771,7 +771,6 @@ var VMObject = /** @class */ (function () {
     VMObject.FromObject = function (obj) {
         var objType = obj.constructor.name;
         var type = this.GetVMType(objType);
-        console.log("FromObject", obj, objType, type);
         if (type === VMType_1.VMType.None) {
             throw new Error("not a valid object");
         }

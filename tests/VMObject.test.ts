@@ -110,12 +110,9 @@ describe("VM index file", () => {
       myTestClass
     );
 
-    console.log("myclass", choice1Serialized);
-
     let myVM = VMObject.FromObject(choice1Serialized);
     let writer = new PBinaryWriter();
     let result = myVM.SerializeData(writer);
-    console.log(result);
 
     /*let choicesSerialized: Uint8Array[] = [
       Serialization.Serialize(choice),
@@ -128,5 +125,14 @@ describe("VM index file", () => {
     let writer = new PBinaryWriter();
     let result = myNewVM.SerializeData(writer);
     expect(writer.toArray()).toStrictEqual(choices);*/
+  });
+
+  test("Serialization2", () => {
+    let choice = new phantasmaJS.PollChoice("myChoice");
+    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choices: PollChoice[] = [choice, choice2];
+    let choicesSerialized = Serialization.Serialize(choices);
+
+    console.log("choicesSerialized", choicesSerialized);
   });
 });
