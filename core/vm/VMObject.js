@@ -359,7 +359,7 @@ var VMObject = /** @class */ (function () {
             fieldValue instanceof Uint8Array) ||
             fieldValue instanceof Array) {
             var bytes = fieldValue;
-            fieldValue = types_1.Serialization.Unserialize(bytes);
+            fieldValue = types_1.Serialization.Unserialize(bytes, typeof fieldType);
         }
         else if (VMObject.isEnum(fieldType)) {
             var tempValue = fieldValue;
@@ -526,7 +526,9 @@ var VMObject = /** @class */ (function () {
             type.toLowerCase() === "string") {
             return VMType_1.VMType.String;
         }
-        if (type === "Uint8Array") {
+        if (typeof type === typeof Uint8Array ||
+            type === Uint8Array ||
+            type.toLowerCase() === "uint8array") {
             return VMType_1.VMType.Bytes;
         }
         if (type === "BigInt" ||
@@ -769,6 +771,7 @@ var VMObject = /** @class */ (function () {
     VMObject.FromObject = function (obj) {
         var objType = obj.constructor.name;
         var type = this.GetVMType(objType);
+        console.log("FromObject", obj, objType, type);
         if (type === VMType_1.VMType.None) {
             throw new Error("not a valid object");
         }
@@ -778,7 +781,7 @@ var VMObject = /** @class */ (function () {
                 result.setValue(obj, VMType_1.VMType.Bool);
                 break;
             case VMType_1.VMType.Bytes:
-                result.setValue(new Uint8Array(obj), VMType_1.VMType.Bytes);
+                result.setValue(obj, VMType_1.VMType.Bytes);
                 break;
             case VMType_1.VMType.String:
                 result.setValue(obj, VMType_1.VMType.String);
@@ -826,6 +829,7 @@ var VMObject = /** @class */ (function () {
         return result;
     };
     VMObject.prototype.SerializeData = function (writer) {
+        var e_6, _a;
         writer.writeByte(this.Type);
         if (this.Type == VMType_1.VMType.None) {
             return;
@@ -835,10 +839,24 @@ var VMObject = /** @class */ (function () {
             case VMType_1.VMType.Struct: {
                 var children = this.GetChildren();
                 writer.writeVarInt(children.size);
-                children.forEach(function (key, value) {
-                    key.SerializeData(writer);
-                    value.SerializeData(writer);
-                });
+                try {
+                    for (var children_5 = __values(children), children_5_1 = children_5.next(); !children_5_1.done; children_5_1 = children_5.next()) {
+                        var child = children_5_1.value;
+                        child[0].SerializeData(writer);
+                        child[1].SerializeData(writer);
+                    }
+                }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                finally {
+                    try {
+                        if (children_5_1 && !children_5_1.done && (_a = children_5.return)) _a.call(children_5);
+                    }
+                    finally { if (e_6) throw e_6.error; }
+                }
+                /*children.forEach((key, value) => {
+                  key.SerializeData(writer);
+                  value.SerializeData(writer);
+                });*/
                 break;
             }
             case VMType_1.VMType.Object: {
@@ -866,9 +884,11 @@ var VMObject = /** @class */ (function () {
                 break;
             }
             default:
-                types_1.Serialization.SerializeObject(writer, this.Data, null);
+                var localBytes = types_1.Serialization.Serialize(this.Data);
+                writer.writeByteArray((0, utils_1.uint8ArrayToBytes)(localBytes));
                 break;
         }
+        return writer.toUint8Array();
     };
     /*UnserializeData(reader: PBinaryReader) {
       this.Type = reader.readByte();
@@ -913,19 +933,19 @@ var VMObject = /** @class */ (function () {
         this.Type = reader.readByte();
         switch (this.Type) {
             case VMType_1.VMType.Bool:
-                this.Data = types_1.Serialization.Unserialize(reader);
+                this.Data = types_1.Serialization.Unserialize(reader, Boolean);
                 break;
             case VMType_1.VMType.Bytes:
-                this.Data = types_1.Serialization.Unserialize(reader);
+                this.Data = types_1.Serialization.Unserialize(reader, Uint8Array);
                 break;
             case VMType_1.VMType.Number:
-                this.Data = types_1.Serialization.Unserialize(reader);
+                this.Data = types_1.Serialization.Unserialize(reader, BigInt);
                 break;
             case VMType_1.VMType.Timestamp:
-                this.Data = types_1.Serialization.Unserialize(reader);
+                this.Data = types_1.Serialization.Unserialize(reader, Timestamp_1.Timestamp);
                 break;
             case VMType_1.VMType.String:
-                this.Data = types_1.Serialization.Unserialize(reader);
+                this.Data = types_1.Serialization.Unserialize(reader, String);
                 break;
             case VMType_1.VMType.Struct:
                 var childCount = reader.readVarInt();
@@ -944,7 +964,7 @@ var VMObject = /** @class */ (function () {
             case VMType_1.VMType.Object:
                 var bytes = reader.readByteArray();
                 if (bytes.length == 35) {
-                    var addr = types_1.Serialization.Unserialize(bytes);
+                    var addr = types_1.Serialization.Unserialize(bytes, types_1.Address);
                     this.Data = addr;
                     this.Type = VMType_1.VMType.Object;
                 }

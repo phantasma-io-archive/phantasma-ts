@@ -380,7 +380,10 @@ export class VMObject implements ISerializable {
       fieldValue instanceof Array
     ) {
       const bytes = fieldValue as Uint8Array;
-      fieldValue = Serialization.Unserialize<typeof fieldType>(bytes);
+      fieldValue = Serialization.Unserialize<typeof fieldType>(
+        bytes,
+        typeof fieldType
+      );
     } else if (VMObject.isEnum(fieldType)) {
       let tempValue: typeof fieldType = fieldValue as keyof typeof fieldType;
       fieldValue = tempValue;
@@ -535,7 +538,11 @@ export class VMObject implements ISerializable {
     ) {
       return VMType.String;
     }
-    if (type === "Uint8Array") {
+    if (
+      typeof type === typeof Uint8Array ||
+      type === Uint8Array ||
+      type.toLowerCase() === "uint8array"
+    ) {
       return VMType.Bytes;
     }
     if (
@@ -807,7 +814,9 @@ export class VMObject implements ISerializable {
 
   public static FromObject(obj: any): any {
     const objType = obj.constructor.name;
+
     const type = this.GetVMType(objType);
+    console.log("FromObject", obj, objType, type);
     if (type === VMType.None) {
       throw new Error("not a valid object");
     }
@@ -818,7 +827,7 @@ export class VMObject implements ISerializable {
         result.setValue(obj, VMType.Bool);
         break;
       case VMType.Bytes:
-        result.setValue(new Uint8Array(obj), VMType.Bytes);
+        result.setValue(obj, VMType.Bytes);
         break;
       case VMType.String:
         result.setValue(obj, VMType.String);
@@ -868,7 +877,7 @@ export class VMObject implements ISerializable {
   }
 
   SerializeData(writer: PBinaryWriter) {
-    writer.writeByte(this.Type);
+    writer.writeByte(this.Type as number);
     if (this.Type == VMType.None) {
       return;
     }
@@ -879,10 +888,15 @@ export class VMObject implements ISerializable {
       case VMType.Struct: {
         let children = this.GetChildren();
         writer.writeVarInt(children.size);
-        children.forEach((key, value) => {
+        for (const child of children) {
+          child[0].SerializeData(writer);
+          child[1].SerializeData(writer);
+        }
+
+        /*children.forEach((key, value) => {
           key.SerializeData(writer);
           value.SerializeData(writer);
-        });
+        });*/
         break;
       }
 
@@ -914,9 +928,12 @@ export class VMObject implements ISerializable {
         break;
       }
       default:
-        Serialization.SerializeObject(writer, this.Data, null);
+        let localBytes = Serialization.Serialize(this.Data);
+        writer.writeByteArray(uint8ArrayToBytes(localBytes));
         break;
     }
+
+    return writer.toUint8Array();
   }
 
   /*UnserializeData(reader: PBinaryReader) {
@@ -963,23 +980,23 @@ export class VMObject implements ISerializable {
     this.Type = reader.readByte() as VMType;
     switch (this.Type) {
       case VMType.Bool:
-        this.Data = Serialization.Unserialize<Boolean>(reader);
+        this.Data = Serialization.Unserialize<Boolean>(reader, Boolean);
         break;
 
       case VMType.Bytes:
-        this.Data = Serialization.Unserialize<Uint8Array>(reader);
+        this.Data = Serialization.Unserialize<Uint8Array>(reader, Uint8Array);
         break;
 
       case VMType.Number:
-        this.Data = Serialization.Unserialize<BigInteger>(reader);
+        this.Data = Serialization.Unserialize<BigInt>(reader, BigInt);
         break;
 
       case VMType.Timestamp:
-        this.Data = Serialization.Unserialize<Timestamp>(reader);
+        this.Data = Serialization.Unserialize<Timestamp>(reader, Timestamp);
         break;
 
       case VMType.String:
-        this.Data = Serialization.Unserialize<String>(reader);
+        this.Data = Serialization.Unserialize<String>(reader, String);
         break;
 
       case VMType.Struct:
@@ -1005,7 +1022,7 @@ export class VMObject implements ISerializable {
         let bytes = reader.readByteArray();
 
         if (bytes.length == 35) {
-          let addr = Serialization.Unserialize<Address>(bytes);
+          let addr = Serialization.Unserialize<Address>(bytes, Address);
           this.Data = addr;
           this.Type = VMType.Object;
         } else {

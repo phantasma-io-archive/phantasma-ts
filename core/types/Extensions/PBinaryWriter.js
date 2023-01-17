@@ -1,60 +1,82 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBinaryWriter = exports.Example = void 0;
+exports.PBinaryWriter = void 0;
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
-/*BinaryWriter.prototype.appendByte = function (value: number): this {};
-
-/*
-
-Object.defineProperty(
-  BinaryWriter,
-  "appendByte",
-  (value: number): BinaryWriter => {
-    (this as unknown as BinaryWriter).writeByte(value);
-    return this as unknown as BinaryWriter;
-  }
-);
-
-BinaryWriter.prototype.writeBytes = function (bytes: number[]): this {
-  for (let i = 0; i < bytes.length; i++) this.appendByte(bytes[i]);
-  return this;
-};
-*/
-var Example = /** @class */ (function (_super) {
-    __extends(Example, _super);
-    function Example(arg1) {
-        return _super.call(this, arg1) || this;
-    }
-    Example.prototype.appendByte = function (value) {
-        this.writeByte(value);
-        return this;
-    };
-    return Example;
-}(csharp_binary_stream_1.BinaryWriter));
-exports.Example = Example;
-var PBinaryWriter = /** @class */ (function (_super) {
-    __extends(PBinaryWriter, _super);
+var PBinaryWriter = /** @class */ (function () {
     function PBinaryWriter(arg1) {
-        return _super.call(this, arg1) || this;
+        this.writer = new csharp_binary_stream_1.BinaryWriter(arg1);
     }
+    Object.defineProperty(PBinaryWriter.prototype, "length", {
+        get: function () {
+            return this.writer.length;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(PBinaryWriter.prototype, "position", {
+        get: function () {
+            return this.writer.position;
+        },
+        set: function (value) {
+            this.writer.position = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    PBinaryWriter.prototype.writeBoolean = function (value) {
+        this.writer.writeBoolean(value);
+    };
+    PBinaryWriter.prototype.writeByte = function (value) {
+        this.writer.writeByte(value);
+    };
+    PBinaryWriter.prototype.writeSameByte = function (value, repeats) {
+        this.writer.writeSameByte(value, repeats);
+    };
+    PBinaryWriter.prototype.writeSignedByte = function (value) {
+        this.writer.writeSignedByte(value);
+    };
+    PBinaryWriter.prototype.writeShort = function (value) {
+        this.writer.writeShort(value);
+    };
+    PBinaryWriter.prototype.writeUnsignedShort = function (value) {
+        this.writer.writeUnsignedShort(value);
+    };
+    PBinaryWriter.prototype.writeInt = function (value) {
+        this.writer.writeInt(value);
+    };
+    PBinaryWriter.prototype.writeUnsignedInt = function (value) {
+        this.writer.writeUnsignedInt(value);
+    };
+    PBinaryWriter.prototype.writeLong = function (value) {
+        this.writer.writeLong(value);
+    };
+    PBinaryWriter.prototype.writeUnsignedLong = function (value) {
+        this.writer.writeUnsignedLong(value);
+    };
+    PBinaryWriter.prototype.writeFloat = function (value) {
+        this.writer.writeFloat(value);
+    };
+    PBinaryWriter.prototype.writeDouble = function (value) {
+        this.writer.writeDouble(value);
+    };
+    PBinaryWriter.prototype.writeChar = function (character, encoding) {
+        this.writer.writeChar(character, encoding);
+    };
+    PBinaryWriter.prototype.writeChars = function (characters, encoding) {
+        this.writer.writeChars(characters, encoding);
+    };
+    PBinaryWriter.prototype.clear = function () {
+        this.writer.clear();
+    };
+    PBinaryWriter.prototype.toArray = function () {
+        return this.writer.toArray();
+    };
+    PBinaryWriter.prototype.toUint8Array = function () {
+        return this.writer.toUint8Array();
+    };
     PBinaryWriter.prototype.appendByte = function (value) {
-        _super.prototype.writeByte.call(this, value);
+        this.writer.writeByte(value);
         return this;
     };
     PBinaryWriter.prototype.appendBytes = function (bytes) {
@@ -187,5 +209,5 @@ var PBinaryWriter = /** @class */ (function (_super) {
         return this.writeByteArray(bytes);
     };
     return PBinaryWriter;
-}(csharp_binary_stream_1.BinaryWriter));
+}());
 exports.PBinaryWriter = PBinaryWriter;

@@ -1,5 +1,6 @@
 import { Encoding } from "csharp-binary-stream";
 import { ISerializable } from "../interfaces";
+import { stringToUint8Array, uint8ArrayToBytes } from "../utils";
 import { PBinaryReader, PBinaryWriter } from "./Extensions";
 import { Timestamp } from "./Timestamp";
 

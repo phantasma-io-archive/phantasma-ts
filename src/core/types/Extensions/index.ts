@@ -1,2 +1,2 @@
-export * from "./BinaryReader";
-export * from "./BinaryWriter";
+export * from "./PBinaryReader";
+export * from "./PBinaryWriter";

@@ -28,7 +28,6 @@ var __read = (this && this.__read) || function (o, n) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContractEvent = exports.ContractMethod = exports.ContractInterface = exports.ContractParameter = void 0;
-var csharp_binary_stream_1 = require("csharp-binary-stream");
 var utils_1 = require("../utils");
 var Extensions_1 = require("./Extensions");
 var ContractParameter = /** @class */ (function () {
@@ -326,14 +325,14 @@ var ContractEvent = /** @class */ (function () {
     };
     ContractEvent.Unserialize = function (reader) {
         var value = reader.readByte();
-        var name = reader.readString(csharp_binary_stream_1.Encoding.Utf8);
+        var name = reader.readString();
         var returnType = reader.readByte();
         var description = reader.readBytes(reader.readByte());
         return new ContractEvent(value, name, returnType, (0, utils_1.arrayNumberToUint8Array)(description));
     };
     ContractEvent.prototype.Serialize = function (writer) {
         writer.writeByte(this.value);
-        writer.writeString(this.name, csharp_binary_stream_1.Encoding.Utf8);
+        writer.writeString(this.name);
         writer.writeByte(this.returnType);
         writer.writeByte(this.description.length);
         writer.writeBytes((0, utils_1.uint8ArrayToNumberArray)(this.description));
