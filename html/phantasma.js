@@ -1780,7 +1780,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyData = exports.signData = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
+exports.verifyData = exports.signData = exports.getWifFromPrivateKey = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
 var elliptic_1 = require("elliptic");
 var bs58_1 = __importDefault(require("bs58"));
@@ -1860,6 +1860,12 @@ function generateNewWif() {
     return wif;
 }
 exports.generateNewWif = generateNewWif;
+function getWifFromPrivateKey(privateKey) {
+    var privateKeyBuffer = Buffer.from(privateKey, "hex");
+    var wif = wif_1.default.encode(128, privateKeyBuffer, true);
+    return wif;
+}
+exports.getWifFromPrivateKey = getWifFromPrivateKey;
 function signData(msgHex, privateKey) {
     var msgHashHex = Buffer.from(msgHex, "hex");
     var privateKeyBuffer = Buffer.from(privateKey, "hex");

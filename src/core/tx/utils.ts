@@ -74,6 +74,12 @@ export function generateNewWif(): string {
   return wif;
 }
 
+export function getWifFromPrivateKey(privateKey: string): string {
+  const privateKeyBuffer = Buffer.from(privateKey, "hex");
+  const wif = WIF.encode(128, privateKeyBuffer, true);
+  return wif;
+}
+
 export function signData(msgHex: string, privateKey: string): string {
   const msgHashHex = Buffer.from(msgHex, "hex");
   const privateKeyBuffer = Buffer.from(privateKey, "hex");
