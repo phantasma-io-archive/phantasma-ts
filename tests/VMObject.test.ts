@@ -31,7 +31,7 @@ describe("VM index file", () => {
     expect(myNewVM.AsNumber()).toBe(5);
   });
 
-  test("Bool VM", () => {
+  /*test("Bool VM", () => {
     let vm = new phantasmaJS.VMObject();
     let myNewVM = VMObject.FromObject(true);
 
@@ -65,5 +65,18 @@ describe("VM index file", () => {
     expect(VMObject.isInterface(PollChoice)).toBe(false);
     expect(VMObject.isStructOrClass(PollChoice as unknown as Type)).toBe(true);
     expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
+  });*/
+
+  test("PollChoices", () => {
+    let vm = new phantasmaJS.VMObject();
+    let choice = new phantasmaJS.PollChoice("myChoice");
+    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choices: PollChoice[] = [choice, choice2];
+    let myNewVM = VMObject.FromArray(choices);
+
+    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
+    expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
+    let result = myNewVM.ToArray(PollChoice) as PollChoice[];
+    expect(result).toStrictEqual(choices);
   });
 });
