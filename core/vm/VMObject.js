@@ -570,7 +570,7 @@ var VMObject = /** @class */ (function () {
                 this.Data = new String(val);
                 break;
             case VMType_1.VMType.Enum:
-                this.Data = val.slice(0, 4);
+                this.Data = val;
                 break;
             case VMType_1.VMType.Timestamp:
                 this.Data = new Timestamp_1.Timestamp(val.slice(0, 4));
@@ -817,6 +817,11 @@ var VMObject = /** @class */ (function () {
         }
         return result;
     };
+    VMObject.FromEnum = function (obj) {
+        var vm = new VMObject();
+        vm.setValue(obj, VMType_1.VMType.Enum);
+        return vm;
+    };
     VMObject.FromStruct = function (obj) {
         var vm = new VMObject();
         return vm.CastViaReflection(obj, 0, false);
@@ -872,14 +877,68 @@ var VMObject = /** @class */ (function () {
             }
             case VMType_1.VMType.Enum: {
                 var temp2 = 0;
-                if (this.Data instanceof Enumerator) {
-                    var temp1 = this.Data.item;
-                    temp2 = temp1;
+                temp2 = this.Data;
+                var uint8array = new Uint8Array(4);
+                writer = new types_1.PBinaryWriter(uint8array);
+                writer.writeByte(this.Type);
+                writer.writeEnum(temp2);
+                break;
+            }
+            default:
+                var localBytes = types_1.Serialization.Serialize(this.Data);
+                writer.writeByteArray((0, utils_1.uint8ArrayToBytes)(localBytes));
+                break;
+        }
+        return writer.toUint8Array();
+    };
+    VMObject.prototype.SerializeObjectCall = function (writer) {
+        var e_7, _a;
+        if (this.Type == VMType_1.VMType.None) {
+            return;
+        }
+        var dataType = typeof this.Data;
+        switch (this.Type) {
+            case VMType_1.VMType.Struct: {
+                var children = this.GetChildren();
+                writer.writeVarInt(children.size);
+                try {
+                    for (var children_6 = __values(children), children_6_1 = children_6.next(); !children_6_1.done; children_6_1 = children_6.next()) {
+                        var child = children_6_1.value;
+                        child[0].SerializeData(writer);
+                        child[1].SerializeData(writer);
+                    }
+                }
+                catch (e_7_1) { e_7 = { error: e_7_1 }; }
+                finally {
+                    try {
+                        if (children_6_1 && !children_6_1.done && (_a = children_6.return)) _a.call(children_6);
+                    }
+                    finally { if (e_7) throw e_7.error; }
+                }
+                /*children.forEach((key, value) => {
+                  key.SerializeData(writer);
+                  value.SerializeData(writer);
+                });*/
+                break;
+            }
+            case VMType_1.VMType.Object: {
+                var obj = this.Data;
+                if (obj != null) {
+                    var bytes = types_1.Serialization.Serialize(obj);
+                    var uintBytes = (0, utils_1.uint8ArrayToBytes)(bytes);
+                    writer.writeByteArray(uintBytes);
                 }
                 else {
-                    temp2 = this.Data;
+                    throw "Objects of type ".concat(dataType, " cannot be serialized");
                 }
-                writer.writeVarInt(temp2);
+                break;
+            }
+            case VMType_1.VMType.Enum: {
+                var temp2 = 0;
+                temp2 = this.Data;
+                var uint8array = new Uint8Array(4);
+                writer = new types_1.PBinaryWriter(uint8array);
+                writer.writeEnum(temp2);
                 break;
             }
             default:

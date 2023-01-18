@@ -590,7 +590,7 @@ export class VMObject implements ISerializable {
         this.Data = new String(val);
         break;
       case VMType.Enum:
-        this.Data = val.slice(0, 4);
+        this.Data = val;
         break;
       case VMType.Timestamp:
         this.Data = new Timestamp(val.slice(0, 4));
@@ -863,6 +863,12 @@ export class VMObject implements ISerializable {
     return result;
   }
 
+  public static FromEnum(obj: any): VMObject {
+    let vm = new VMObject();
+    vm.setValue(obj, VMType.Enum);
+    return vm;
+  }
+
   public static FromStruct(obj: any): VMObject {
     let vm = new VMObject();
     return vm.CastViaReflection(obj, 0, false);
@@ -915,15 +921,65 @@ export class VMObject implements ISerializable {
 
       case VMType.Enum: {
         let temp2: number = 0;
+        temp2 = this.Data as unknown as number;
+        let uint8array = new Uint8Array(4);
+        writer = new PBinaryWriter(uint8array);
+        writer.writeByte(this.Type as number);
+        writer.writeEnum(temp2);
+        break;
+      }
+      default:
+        let localBytes = Serialization.Serialize(this.Data);
+        writer.writeByteArray(uint8ArrayToBytes(localBytes));
+        break;
+    }
 
-        if (this.Data instanceof Enumerator) {
-          var temp1 = this.Data.item;
-          temp2 = temp1 as unknown as number;
-        } else {
-          temp2 = this.Data as unknown as number;
+    return writer.toUint8Array();
+  }
+
+  public SerializeObjectCall(writer: PBinaryWriter) {
+    if (this.Type == VMType.None) {
+      return;
+    }
+
+    let dataType = typeof this.Data;
+
+    switch (this.Type) {
+      case VMType.Struct: {
+        let children = this.GetChildren();
+        writer.writeVarInt(children.size);
+        for (const child of children) {
+          child[0].SerializeData(writer);
+          child[1].SerializeData(writer);
         }
 
-        writer.writeVarInt(temp2);
+        /*children.forEach((key, value) => {
+          key.SerializeData(writer);
+          value.SerializeData(writer);
+        });*/
+        break;
+      }
+
+      case VMType.Object: {
+        var obj = this.Data as ISerializable;
+
+        if (obj != null) {
+          var bytes = Serialization.Serialize(obj);
+          var uintBytes = uint8ArrayToBytes(bytes);
+          writer.writeByteArray(uintBytes);
+        } else {
+          throw `Objects of type ${dataType} cannot be serialized`;
+        }
+
+        break;
+      }
+
+      case VMType.Enum: {
+        let temp2: number = 0;
+        temp2 = this.Data as unknown as number;
+        let uint8array = new Uint8Array(4);
+        writer = new PBinaryWriter(uint8array);
+        writer.writeEnum(temp2);
         break;
       }
       default:

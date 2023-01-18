@@ -21,7 +21,7 @@ export enum Opcode {
   LOAD,
   CAST,
   CAT,
-  SUBSTR, //TODO: needs to be implemented
+  RANGE,
   LEFT,
   RIGHT,
   SIZE,
@@ -53,13 +53,22 @@ export enum Opcode {
   SHR,
   MIN,
   MAX,
+  POW,
 
   // context
-  THIS,
   CTX,
   SWITCH,
 
   // array
   PUT,
   GET, // lookups a key and copies a reference into register
+  CLEAR, // clears a register
+  UNPACK, // unpacks serialized struct based on ref struct
+  PACK, // unused for now
+
+  //  debugger
+  DEBUG,
+
+  // add
+  SUBSTR,
 }

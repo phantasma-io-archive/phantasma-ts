@@ -1,11 +1,20 @@
 import { phantasmaJS } from "..";
 import crypto from "crypto";
+import {
+  Address,
+  ConsensusMode,
+  encodeBase16,
+  PollChoice,
+  Serialization,
+  Timestamp,
+  VMObject,
+} from "../core";
+import { Base16 } from "../src/core/types/Extensions/Base16";
 
 describe("Utils", () => {
   test("Get a new address", () => {
     let key = phantasmaJS.generateNewWif();
     let address = phantasmaJS.getAddressFromWif(key);
-    console.log(address);
   });
 
   test("Get a new address from private key", () => {
@@ -16,5 +25,11 @@ describe("Utils", () => {
     let wifFromPK = phantasmaJS.getWifFromPrivateKey(privateKey);
     let addressFromPK = phantasmaJS.getAddressFromWif(wifFromPK);
     expect(address).toBe(addressFromPK);
+  });
+
+  test("test phantasma-ts.Base16.decode", function (done) {
+    let result = Base16.decode("54657374206d657373616765");
+    expect(result).toBe("Test message");
+    done();
   });
 });

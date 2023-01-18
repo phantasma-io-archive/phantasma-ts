@@ -46,27 +46,27 @@ var Transaction = /** @class */ (function () {
     
         let expirationBytes = [d, c, b, a];*/
         var sb = new vm_1.ScriptBuilder()
-            .emitVarString(this.nexusName)
-            .emitVarString(this.chainName)
-            .emitVarInt(this.script.length / 2)
-            .appendHexEncoded(this.script)
-            .emitTimestamp(this.expiration)
-            .emitVarInt(this.payload.length / 2)
-            .appendHexEncoded(this.payload);
+            .EmitVarString(this.nexusName)
+            .EmitVarString(this.chainName)
+            .EmitVarInt(this.script.length / 2)
+            .AppendHexEncoded(this.script)
+            .EmitTimestamp(this.expiration)
+            .EmitVarInt(this.payload.length / 2)
+            .AppendHexEncoded(this.payload);
         if (withSignature) {
-            sb.emitVarInt(this.signatures.length);
+            sb.EmitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
                 console.log("adding signature ", sig);
                 if (sig.kind == 1) {
-                    sb.appendByte(1); // Signature Type
-                    sb.emitVarInt(sig.signature.length / 2);
-                    sb.appendHexEncoded(sig.signature);
+                    sb.AppendByte(1); // Signature Type
+                    sb.EmitVarInt(sig.signature.length / 2);
+                    sb.AppendHexEncoded(sig.signature);
                 }
                 else if (sig.kind == 2) {
-                    sb.appendByte(2); // ECDSA Signature
-                    sb.appendByte(1); // Curve type secp256k1
-                    sb.emitVarInt(sig.signature.length / 2);
-                    sb.appendHexEncoded(sig.signature);
+                    sb.AppendByte(2); // ECDSA Signature
+                    sb.AppendByte(1); // Curve type secp256k1
+                    sb.EmitVarInt(sig.signature.length / 2);
+                    sb.AppendHexEncoded(sig.signature);
                 }
             });
         }

@@ -1,6 +1,13 @@
 import base58 from "bs58";
 import { ISerializable } from "../interfaces";
-import { PBinaryWriter } from "../types";
+import { Address, PBinaryWriter, Serialization, Timestamp } from "../types";
+import {
+  bigIntToByteArray,
+  numberToByteArray,
+  stringToUint8Array,
+  uint8ArrayToBytes,
+  uint8ArrayToHex,
+} from "../utils";
 import { Opcode } from "./Opcode";
 import { VMObject } from "./VMObject";
 import { VMType } from "./VMType";
@@ -32,53 +39,63 @@ export class ScriptBuilder {
 
   public str: string;
 
-  public nullAddress = "S1111111111111111111111111111111111";
+  public writer: PBinaryWriter;
+
+  public NullAddress = "S1111111111111111111111111111111111";
 
   public constructor() {
     this.str = "";
+    this.writer = new PBinaryWriter();
   }
 
-  public beginScript() {
+  public BeginScript() {
     this.str = "";
+    this.writer = new PBinaryWriter();
   }
 
-  public getScript(): string {
-    return this.str;
+  public GetScript(): string {
+    return uint8ArrayToHex(this.writer.toUint8Array());
   }
 
-  public endScript(): string {
-    this.emit(Opcode.RET);
-    return this.str;
+  public EndScript(): string {
+    this.Emit(Opcode.RET);
+    return uint8ArrayToHex(this.writer.toUint8Array()).toUpperCase();
   }
 
-  public emit(opcode: Opcode, bytes?: number[]): this {
-    this.appendByte(opcode);
+  public Emit(opcode: Opcode, bytes?: number[]): this {
+    this.AppendByte(opcode);
     if (bytes) {
-      this.emitBytes(bytes);
+      this.EmitBytes(bytes);
     }
     return this;
   }
 
-  public emitPush(reg: byte): this {
-    this.emit(Opcode.PUSH);
-    this.appendByte(reg);
+  public EmitThorw(reg: byte): this {
+    this.Emit(Opcode.THROW);
+    this.AppendByte(reg);
     return this;
   }
 
-  public emitPop(reg: byte): this {
-    this.emit(Opcode.POP);
-    this.appendByte(reg);
+  public EmitPush(reg: byte): this {
+    this.Emit(Opcode.PUSH);
+    this.AppendByte(reg);
     return this;
   }
 
-  public emitExtCall(method: string, reg: byte = 0): this {
-    this.emitLoad(reg, method);
-    this.emit(Opcode.EXTCALL);
-    this.appendByte(reg);
+  public EmitPop(reg: byte): this {
+    this.Emit(Opcode.POP);
+    this.AppendByte(reg);
     return this;
   }
 
-  public emitBigInteger(value: string) {
+  public EmitExtCall(method: string, reg: byte = 0): this {
+    this.EmitLoad(reg, method);
+    this.Emit(Opcode.EXTCALL);
+    this.AppendByte(reg);
+    return this;
+  }
+
+  public EmitBigInteger(value: string) {
     let bytes: number[] = [];
 
     if (value == "0") {
@@ -98,15 +115,15 @@ export class ScriptBuilder {
       }
       bytes.push(0); // add sign at the end
     }
-    return this.emitByteArray(bytes);
+    return this.EmitByteArray(bytes);
   }
 
-  public emitAddress(textAddress: string) {
+  public EmitAddress(textAddress: string) {
     const bytes = [...base58.decode(textAddress.substring(1))];
-    return this.emitByteArray(bytes);
+    return this.EmitByteArray(bytes);
   }
 
-  rawString(value: string) {
+  RawString(value: string) {
     var data = [];
     for (var i = 0; i < value.length; i++) {
       data.push(value.charCodeAt(i));
@@ -114,17 +131,19 @@ export class ScriptBuilder {
     return data;
   }
 
-  public emitLoad(reg: number, obj: any): this {
+  public EmitLoad(reg: number, obj: any): this {
+    let structType = Object.getPrototypeOf(obj).constructor.name;
+
     switch (typeof obj) {
       case "string": {
-        let bytes = this.rawString(obj);
-        this.emitLoadBytes(reg, bytes, VMType.String);
+        let bytes = this.RawString(obj);
+        this.EmitLoadBytes(reg, bytes, VMType.String);
         break;
       }
 
       case "boolean": {
         let bytes = [(obj as boolean) ? 1 : 0];
-        this.emitLoadBytes(reg, bytes, VMType.Bool);
+        this.EmitLoadBytes(reg, bytes, VMType.Bool);
         break;
       }
 
@@ -132,19 +151,39 @@ export class ScriptBuilder {
         // obj is BigInteger
         // var bytes = val.ToSignedByteArray();
         // this.emitLoadBytes(reg, bytes, VMType.Number);
-        let bytes = this.rawString(BigInt(obj).toString());
-        this.emitLoadBytes(reg, bytes, VMType.String);
+        //let bytes = this.RawString(BigInt(obj).toString());
+        if (Object.getPrototypeOf(structType).constructor.name == "enum") {
+          this.AppendByte(obj);
+        } else {
+          this.EmitLoadVarInt(reg, obj);
+        }
         break;
       }
 
       case "object":
-        if (Array.isArray(obj)) {
-          this.emitLoadArray(reg, obj);
-        } else if (obj instanceof Date) {
-          this.emitLoadTimestamp(reg, obj);
-        } else if (obj instanceof ISerializable) {
-          this.emitLoadISerializable(reg, obj);
-        } else throw Error("Load type " + typeof obj + " not supported");
+        if (obj instanceof Uint8Array) {
+          this.EmitLoadBytes(reg, Array.from(obj));
+        } else if (obj instanceof VMObject) {
+          this.EmitLoadVMObject(reg, obj);
+        } else if (Array.isArray(obj)) {
+          this.EmitLoadArray(reg, obj);
+        } else if (obj instanceof Date || obj instanceof Timestamp) {
+          this.EmitLoadTimestamp(reg, obj);
+        } else if (obj instanceof Address) {
+          this.EmitLoadAddress(reg, obj);
+        } else if (
+          (typeof obj.UnserializeData === "function" &&
+            typeof obj.SerializeData === "function") ||
+          obj instanceof ISerializable
+        ) {
+          this.EmitLoadISerializable(reg, obj);
+        } else {
+          if (Array.isArray(obj)) {
+            this.EmitLoadArray(reg, obj);
+          } else {
+            throw Error("Load type " + typeof obj + " not supported");
+          }
+        }
         break;
       default:
         throw Error("Load type " + typeof obj + " not supported");
@@ -152,31 +191,30 @@ export class ScriptBuilder {
     return this;
   }
 
-  public emitLoadBytes(
+  public EmitLoadBytes(
     reg: number,
     bytes: byte[],
     type: VMType = VMType.Bytes
   ): this {
     if (bytes.length > 0xffff) throw new Error("tried to load too much data");
+    this.Emit(Opcode.LOAD);
+    this.AppendByte(reg);
+    this.AppendByte(type);
 
-    this.emit(Opcode.LOAD);
-    this.appendByte(reg);
-    this.appendByte(type);
-
-    this.emitVarInt(bytes.length);
-    this.emitBytes(bytes);
+    this.EmitVarInt(bytes.length);
+    this.EmitBytes(bytes);
     return this;
   }
 
-  public emitLoadArray(reg: number, obj: any): this {
-    this.emitLoadBytes(Opcode.CAST, [reg, reg], VMType.None);
+  public EmitLoadArray(reg: number, obj: any): this {
+    this.EmitLoadBytes(Opcode.CAST, [reg, reg], VMType.None);
     for (let i = 0; i < obj.length; i++) {
       let element = obj[i];
       let temp_regVal = reg + 1;
       let temp_regKey = reg + 2;
-      this.emitLoad(temp_regVal, element);
-      this.emitLoad(temp_regKey, i);
-      this.emit(Opcode.PUT, [temp_regVal, reg, temp_regKey]);
+      this.EmitLoad(temp_regVal, element);
+      this.EmitLoad(temp_regKey, i);
+      this.Emit(Opcode.PUT, [temp_regVal, reg, temp_regKey]);
       //this.appendByte(reg);
     }
 
@@ -185,14 +223,27 @@ export class ScriptBuilder {
     return this;
   }
 
-  public emitLoadISerializable(reg: number, obj: ISerializable): this {
+  public EmitLoadISerializable(reg: number, obj: ISerializable): this {
     let writer: PBinaryWriter = new PBinaryWriter();
     obj.SerializeData(writer);
-    this.emitLoadBytes(reg, writer.toArray(), VMType.Bytes);
+    this.EmitLoadBytes(reg, writer.toArray(), VMType.Bytes);
     return this;
   }
 
-  public emitLoadEnum(reg: number, enumVal: number): this {
+  public EmitLoadVMObject(reg: number, obj: VMObject): this {
+    let writer: PBinaryWriter = new PBinaryWriter();
+    let result = obj.SerializeObjectCall(writer);
+    this.Emit(Opcode.LOAD);
+    this.AppendByte(reg);
+    this.AppendByte(obj.Type);
+
+    this.EmitVarInt(Array.from(result).length);
+    this.EmitBytes(Array.from(result));
+    //this.EmitLoadBytes(reg, Array.from(result), obj.Type);
+    return this;
+  }
+
+  public EmitLoadEnum(reg: number, enumVal: number): this {
     // var temp = Convert.ToUInt32(enumVal);
     // var bytes = BitConverter.GetBytes(temp);
 
@@ -204,49 +255,74 @@ export class ScriptBuilder {
       enumVal = (enumVal - byte) / 256;
     }
 
-    this.emitLoadBytes(reg, bytes, VMType.Enum);
+    this.EmitLoadBytes(reg, bytes, VMType.Enum);
     return this;
   }
 
-  public emitLoadTimestamp(reg: number, obj: Date): this {
-    let num = (obj.getTime() + obj.getTimezoneOffset() * 60 * 1000) / 1000;
-
-    let a = (num & 0xff000000) >> 24;
-    let b = (num & 0x00ff0000) >> 16;
-    let c = (num & 0x0000ff00) >> 8;
-    let d = num & 0x000000ff;
-
-    let bytes = [d, c, b, a];
-    this.emitLoadBytes(reg, bytes, VMType.Timestamp);
+  public EmitLoadAddress(reg: number, obj: Address): this {
+    let writer = new PBinaryWriter();
+    let bytes = obj.SerializeData(writer);
+    let byteArray = Array.from(writer.toUint8Array());
+    this.EmitLoadBytes(reg, byteArray, VMType.Bytes);
     return this;
   }
 
-  public emitMove(src_reg: number, dst_reg: number): this {
-    this.emit(Opcode.MOVE);
-    this.appendByte(src_reg);
-    this.appendByte(dst_reg);
+  public EmitLoadTimestamp(reg: number, obj: Date | Timestamp): this {
+    if (obj instanceof Timestamp) {
+      let bytes = Array.from(Serialization.Serialize(obj));
+      this.EmitLoadBytes(reg, bytes, VMType.Timestamp);
+    } else if (obj instanceof Date) {
+      let num = (obj.getTime() + obj.getTimezoneOffset() * 60 * 1000) / 1000;
+
+      let a = (num & 0xff000000) >> 24;
+      let b = (num & 0x00ff0000) >> 16;
+      let c = (num & 0x0000ff00) >> 8;
+      let d = num & 0x000000ff;
+
+      let bytes = [d, c, b, a];
+      this.EmitLoadBytes(reg, bytes, VMType.Timestamp);
+    }
     return this;
   }
 
-  public emitCopy(src_reg: number, dst_reg: number): this {
-    this.emit(Opcode.COPY);
-    this.appendByte(src_reg);
-    this.appendByte(dst_reg);
+  public EmitLoadVarInt(reg: number, val: number): this {
+    let bytes = numberToByteArray(val);
+
+    this.Emit(Opcode.LOAD);
+    this.AppendByte(reg);
+    this.AppendByte(VMType.Number);
+
+    this.AppendByte(bytes.length);
+    this.EmitBytes(Array.from(bytes));
     return this;
   }
 
-  public emitLabel(label: string): this {
-    this.emit(Opcode.NOP);
+  public EmitMove(src_reg: number, dst_reg: number): this {
+    this.Emit(Opcode.MOVE);
+    this.AppendByte(src_reg);
+    this.AppendByte(dst_reg);
+    return this;
+  }
+
+  public EmitCopy(src_reg: number, dst_reg: number): this {
+    this.Emit(Opcode.COPY);
+    this.AppendByte(src_reg);
+    this.AppendByte(dst_reg);
+    return this;
+  }
+
+  public EmitLabel(label: string): this {
+    this.Emit(Opcode.NOP);
     this._labelLocations[label] = this.str.length;
     return this;
   }
 
-  public emitJump(opcode: Opcode, label: string, reg: number = 0): this {
+  public EmitJump(opcode: Opcode, label: string, reg: number = 0): this {
     switch (opcode) {
       case Opcode.JMP:
       case Opcode.JMPIF:
       case Opcode.JMPNOT:
-        this.emit(opcode);
+        this.Emit(opcode);
         break;
 
       default:
@@ -254,31 +330,31 @@ export class ScriptBuilder {
     }
 
     if (opcode != Opcode.JMP) {
-      this.appendByte(reg);
+      this.AppendByte(reg);
     }
 
     var ofs = this.str.length;
-    this.appendUshort(0);
+    this.AppendUshort(0);
     this._jumpLocations[ofs] = label;
     return this;
   }
 
-  public emitCall(label: string, regCount: byte): this {
+  public EmitCall(label: string, regCount: byte): this {
     if (regCount < 1 || regCount > MaxRegisterCount) {
       throw new Error("Invalid number of registers");
     }
 
     var ofs = this.str.length; //(int)stream.Position;
     ofs += 2;
-    this.emit(Opcode.CALL);
-    this.appendByte(regCount);
-    this.appendUshort(0);
+    this.Emit(Opcode.CALL);
+    this.AppendByte(regCount);
+    this.AppendUshort(0);
 
     this._jumpLocations[ofs] = label;
     return this;
   }
 
-  public emitConditionalJump(
+  public EmitConditionalJump(
     opcode: Opcode,
     src_reg: byte,
     label: string
@@ -290,57 +366,57 @@ export class ScriptBuilder {
     var ofs = this.str.length;
     ofs += 2;
 
-    this.emit(opcode);
-    this.appendByte(src_reg);
-    this.appendUshort(0);
+    this.Emit(opcode);
+    this.AppendByte(src_reg);
+    this.AppendUshort(0);
     this._jumpLocations[ofs] = label;
     return this;
   }
 
-  public insertMethodArgs(args: any[]) {
+  public InsertMethodArgs(args: any[]) {
     let temp_reg = 0;
     for (let i = args.length - 1; i >= 0; i--) {
       let arg = args[i];
-      this.emitLoad(temp_reg, arg);
-      this.emitPush(temp_reg);
+      this.EmitLoad(temp_reg, arg);
+      this.EmitPush(temp_reg);
     }
   }
 
-  public callInterop(method: string, args: any[]): this {
-    this.insertMethodArgs(args);
+  public CallInterop(method: string, args: any[]): this {
+    this.InsertMethodArgs(args);
 
     let dest_reg = 0;
-    this.emitLoad(dest_reg, method);
+    this.EmitLoad(dest_reg, method);
 
-    this.emit(Opcode.EXTCALL, [dest_reg]);
+    this.Emit(Opcode.EXTCALL, [dest_reg]);
     return this;
   }
 
-  public callContract(contractName: string, method: string, args: any[]) {
-    this.insertMethodArgs(args);
+  public CallContract(contractName: string, method: string, args: any[]) {
+    this.InsertMethodArgs(args);
 
     let temp_reg = 0;
-    this.emitLoad(temp_reg, method);
-    this.emitPush(temp_reg);
+    this.EmitLoad(temp_reg, method);
+    this.EmitPush(temp_reg);
 
     let src_reg = 0;
     let dest_reg = 1;
-    this.emitLoad(src_reg, contractName);
-    this.emit(Opcode.CTX, [src_reg, dest_reg]);
+    this.EmitLoad(src_reg, contractName);
+    this.Emit(Opcode.CTX, [src_reg, dest_reg]);
 
-    this.emit(Opcode.SWITCH, [dest_reg]);
+    this.Emit(Opcode.SWITCH, [dest_reg]);
     return this;
   }
 
   //#region ScriptBuilderExtensions
 
-  public allowGas(
-    from: string,
-    to: string,
+  public AllowGas(
+    from: string | Address,
+    to: string | Address,
     gasPrice: number,
     gasLimit: number
   ): this {
-    return this.callContract(Contracts.GasContractName, "AllowGas", [
+    return this.CallContract(Contracts.GasContractName, "AllowGas", [
       from,
       to,
       gasPrice,
@@ -348,25 +424,25 @@ export class ScriptBuilder {
     ]);
   }
 
-  public spendGas(address: string): this {
-    return this.callContract(Contracts.GasContractName, "SpendGas", [address]);
+  public SpendGas(address: string | Address): this {
+    return this.CallContract(Contracts.GasContractName, "SpendGas", [address]);
   }
 
-  async callRPC<T>(methodName: string, params: any[]): Promise<T> {
+  async CallRPC<T>(methodName: string, params: any[]): Promise<T> {
     return "bla" as unknown as T;
   }
 
-  async getAddressTransactionCount(
+  async GetAddressTransactionCount(
     address: string,
     chainInput: string
   ): Promise<number> {
     let params = [address, chainInput];
-    return await this.callRPC<number>("getAddressTransactionCount", params);
+    return await this.CallRPC<number>("getAddressTransactionCount", params);
   }
 
   //#endregion
 
-  public emitTimestamp(obj: Date): this {
+  public EmitTimestamp(obj: Date): this {
     let num = (obj.getTime() + obj.getTimezoneOffset() * 60 * 1000) / 1000;
 
     let a = (num & 0xff000000) >> 24;
@@ -375,46 +451,46 @@ export class ScriptBuilder {
     let d = num & 0x000000ff;
 
     let bytes = [d, c, b, a];
-    this.appendBytes(bytes);
+    this.AppendBytes(bytes);
     return this;
   }
 
-  public emitByteArray(bytes: number[]) {
-    this.emitVarInt(bytes.length);
-    this.emitBytes(bytes);
+  public EmitByteArray(bytes: number[]) {
+    this.EmitVarInt(bytes.length);
+    this.EmitBytes(bytes);
     return this;
   }
 
-  public emitVarString(text: string): this {
-    let bytes = this.rawString(text);
-    this.emitVarInt(bytes.length);
-    this.emitBytes(bytes);
+  public EmitVarString(text: string): this {
+    let bytes = this.RawString(text);
+    this.EmitVarInt(bytes.length);
+    this.EmitBytes(bytes);
     return this;
   }
 
-  public emitVarInt(value: number): this {
+  public EmitVarInt(value: number): this {
     if (value < 0) throw "negative value invalid";
 
     if (value < 0xfd) {
-      this.appendByte(value);
+      this.writer.writeByte(value);
     } else if (value <= 0xffff) {
       let B = (value & 0x0000ff00) >> 8;
       let A = value & 0x000000ff;
 
       // TODO check if the endianess is correct, might have to reverse order of appends
-      this.appendByte(0xfd);
-      this.appendByte(A);
-      this.appendByte(B);
+      this.AppendByte(0xfd);
+      this.AppendByte(A);
+      this.AppendByte(B);
     } else if (value <= 0xffffffff) {
       let C = (value & 0x00ff0000) >> 16;
       let B = (value & 0x0000ff00) >> 8;
       let A = value & 0x000000ff;
 
       // TODO check if the endianess is correct, might have to reverse order of appends
-      this.appendByte(0xfe);
-      this.appendByte(A);
-      this.appendByte(B);
-      this.appendByte(C);
+      this.AppendByte(0xfe);
+      this.AppendByte(A);
+      this.AppendByte(B);
+      this.AppendByte(C);
     } else {
       let D = (value & 0xff000000) >> 24;
       let C = (value & 0x00ff0000) >> 16;
@@ -422,16 +498,16 @@ export class ScriptBuilder {
       let A = value & 0x000000ff;
 
       // TODO check if the endianess is correct, might have to reverse order of appends
-      this.appendByte(0xff);
-      this.appendByte(A);
-      this.appendByte(B);
-      this.appendByte(C);
-      this.appendByte(D);
+      this.AppendByte(0xff);
+      this.AppendByte(A);
+      this.AppendByte(B);
+      this.AppendByte(C);
+      this.AppendByte(D);
     }
     return this;
   }
 
-  public emitUInt32(value: number): this {
+  public EmitUInt32(value: number): this {
     if (value < 0) throw "negative value invalid";
 
     let D = (value & 0xff000000) >> 24;
@@ -440,46 +516,49 @@ export class ScriptBuilder {
     let A = value & 0x000000ff;
 
     // TODO check if the endianess is correct, might have to reverse order of appends
-    this.appendByte(0xff);
-    this.appendByte(A);
-    this.appendByte(B);
-    this.appendByte(C);
-    this.appendByte(D);
+    this.AppendByte(0xff);
+    this.AppendByte(A);
+    this.AppendByte(B);
+    this.AppendByte(C);
+    this.AppendByte(D);
 
     return this;
   }
 
-  emitBytes(bytes: byte[]): this {
-    for (let i = 0; i < bytes.length; i++) this.appendByte(bytes[i]);
+  EmitBytes(bytes: byte[]): this {
+    for (let i = 0; i < bytes.length; i++) this.AppendByte(bytes[i]);
 
     // writer.Write(bytes);
     return this;
   }
 
   //Custom Modified
-  byteToHex(byte: number) {
+  ByteToHex(byte: number) {
     let result = ("0" + (byte & 0xff).toString(16)).slice(-2);
     return result;
   }
 
-  appendByte(byte: number) {
-    this.str += this.byteToHex(byte);
+  AppendByte(byte: number) {
+    this.str += this.ByteToHex(byte);
+    this.writer.writeByte(byte);
   }
 
   //Custom Modified
-  appendBytes(bytes: byte[]) {
+  AppendBytes(bytes: byte[]) {
     for (let i = 0; i < bytes.length; i++) {
-      this.appendByte(bytes[i]);
+      this.AppendByte(bytes[i]);
     }
   }
 
-  appendUshort(ushort: number) {
+  AppendUshort(ushort: number) {
     this.str +=
-      this.byteToHex(ushort & 0xff) + this.byteToHex((ushort >> 8) & 0xff);
+      this.ByteToHex(ushort & 0xff) + this.ByteToHex((ushort >> 8) & 0xff);
+    this.writer.writeUnsignedShort(ushort);
   }
 
-  appendHexEncoded(bytes: string): this {
+  AppendHexEncoded(bytes: string): this {
     this.str += bytes;
+    this.writer.writeBytes(Array.from(stringToUint8Array(bytes)));
     return this;
   }
 }

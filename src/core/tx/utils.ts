@@ -35,6 +35,12 @@ export function getAddressFromWif(wif: string): string {
   return "P" + base58.encode(addressHex);
 }
 
+export function getPublicKeyFromPrivateKey(privateKey: string): string {
+  const privateKeyBuffer = Buffer.from(privateKey, "hex");
+  const publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");
+  return publicKey;
+}
+
 export function generateNewSeed(): string {
   let buffer = new Uint8Array(32);
   let privateKey = Buffer.alloc(32);

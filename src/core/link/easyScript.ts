@@ -25,14 +25,14 @@ export class EasyScript {
         let inputArgumentsInteract: Array<any> = _options[2];
 
         return this.sb
-          .callContract("gas", "AllowGas", [])
-          .callContract(
+          .CallContract("gas", "AllowGas", [])
+          .CallContract(
             contractNameInteract,
             methodNameInteract,
             inputArgumentsInteract
           ) //The Meat of the Script
-          .callContract("gas", "SpendGas", [])
-          .endScript();
+          .CallContract("gas", "SpendGas", [])
+          .EndScript();
 
         break;
 
@@ -42,12 +42,12 @@ export class EasyScript {
         let inputArgumentsInvoke: Array<any> = _options[2];
 
         return this.sb
-          .callContract(
+          .CallContract(
             contractNameInvoke,
             methodNameInvoke,
             inputArgumentsInvoke
           ) //The Meat of the Script
-          .endScript();
+          .EndScript();
 
         break;
 
@@ -56,10 +56,10 @@ export class EasyScript {
         let inputArgumentsInterop: Array<any> = _options[1];
 
         return this.sb
-          .callContract("gas", "AllowGas", [])
-          .callInterop(interopNameInterop, inputArgumentsInterop)
-          .callContract("gas", "SpendGas", [])
-          .endScript();
+          .CallContract("gas", "AllowGas", [])
+          .CallInterop(interopNameInterop, inputArgumentsInterop)
+          .CallContract("gas", "SpendGas", [])
+          .EndScript();
 
         break;
     }

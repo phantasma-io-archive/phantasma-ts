@@ -1,11 +1,12 @@
-import { IKeyPair } from "../interfaces";
+import { IKeyPair, ISerializable } from "../interfaces";
+import { PBinaryWriter, PBinaryReader } from "./Extensions";
 export declare enum AddressKind {
     Invalid = 0,
     User = 1,
     System = 2,
     Interop = 3
 }
-export declare class Address {
+export declare class Address implements ISerializable {
     static readonly NullText: string;
     static readonly LengthInBytes: number;
     static readonly MaxPlatformNameLength: number;
@@ -21,6 +22,9 @@ export declare class Address {
     private static _keyToTextCache;
     get Text(): string;
     private constructor();
+    static FromText(text: string): Address;
+    static Parse(text: string): Address;
+    static IsValidAddress(text: string): boolean;
     static FromBytes(bytes: Uint8Array): Address;
     static FromKey(key: IKeyPair): Address;
     static FromHash(str: string): Address;
@@ -30,5 +34,7 @@ export declare class Address {
     equals(other: any): boolean;
     toString(): string;
     ToByteArray(): Uint8Array;
+    SerializeData(writer: PBinaryWriter): void;
+    UnserializeData(reader: PBinaryReader): void;
 }
 //# sourceMappingURL=Address.d.ts.map

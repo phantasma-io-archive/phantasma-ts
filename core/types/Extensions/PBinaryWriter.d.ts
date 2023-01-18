@@ -30,12 +30,13 @@ export declare class PBinaryWriter {
     toUint8Array(): Uint8Array;
     appendByte(value: number): this;
     appendBytes(bytes: byte[]): void;
+    writeEnum(value: number): this;
     writeBytes(bytes: byte[]): this;
     writeVarInt(value: number): this;
     writeTimestamp(obj: Timestamp): this;
     writeDateTime(obj: Date): this;
     rawString(value: string): any[];
-    writeByteArray(bytes: number[]): this;
+    writeByteArray(bytes: number[] | Uint8Array): this;
     writeString(text: string): this;
     emitUInt32(value: number): this;
     writeBigInteger(value: BigInt): this;

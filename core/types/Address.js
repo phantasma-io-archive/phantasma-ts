@@ -20,8 +20,9 @@ var AddressKind;
 })(AddressKind = exports.AddressKind || (exports.AddressKind = {}));
 var Address = /** @class */ (function () {
     function Address(publicKey) {
+        var pkFromArray = Array.from(publicKey);
         if (publicKey.length != Address.LengthInBytes) {
-            throw new Error("publicKey length must be ".concat(Address.LengthInBytes));
+            throw new Error("publicKey length must be ".concat(Address.LengthInBytes, ", it was ").concat(publicKey.length, "}"));
         }
         this._bytes = new Uint8Array(Address.LengthInBytes);
         this._bytes.set(publicKey);
@@ -120,6 +121,29 @@ var Address = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Address.FromText = function (text) {
+        return Address.Parse(text);
+    };
+    Address.Parse = function (text) {
+        if (text == null) {
+            throw new Error("text is null");
+        }
+        var addr;
+        /*this._keyToTextCache.values().forEach((value) => {
+          if (value == text) {
+            return Address.FromHash(this._keyToTextCache(value));
+          }*/
+        return addr;
+    };
+    Address.IsValidAddress = function (text) {
+        try {
+            Address.FromText(text);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    };
     Address.FromBytes = function (bytes) {
         return new Address(bytes);
     };
@@ -153,7 +177,9 @@ var Address = /** @class */ (function () {
     };
     Address.FromWif = function (wif) {
         var privateKey = (0, tx_1.getPrivateKeyFromWif)(wif);
-        return this.FromBytes((0, utils_1.stringToUint8Array)(privateKey));
+        var publicKey = (0, tx_1.getPublicKeyFromPrivateKey)(privateKey);
+        var addressHex = Buffer.from("0100" + publicKey, "hex");
+        return this.FromBytes(addressHex);
     };
     Address.prototype.compareTo = function (other) {
         for (var i = 0; i < Address.LengthInBytes; i++) {
@@ -196,6 +222,13 @@ var Address = /** @class */ (function () {
     };
     Address.prototype.ToByteArray = function () {
         return this._bytes;
+    };
+    Address.prototype.SerializeData = function (writer) {
+        writer.writeByteArray(this._bytes);
+    };
+    Address.prototype.UnserializeData = function (reader) {
+        this._bytes = reader.readByteArray();
+        this._text = null;
     };
     Address.NullText = "NULL";
     Address.LengthInBytes = 34;

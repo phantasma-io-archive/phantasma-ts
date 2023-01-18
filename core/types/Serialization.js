@@ -19,6 +19,17 @@ var Serialization = /** @class */ (function () {
     Serialization.RegisterType = function (type, reader, writer) {
         Serialization._customSerializers[typeof type] = new CustomSerializer(reader, writer);
     };
+    Serialization.SerializeEnum = function (obj) {
+        if (!obj) {
+            return new Uint8Array();
+        }
+        if (obj instanceof Uint8Array) {
+            return obj;
+        }
+        var writer = new Extensions_1.PBinaryWriter();
+        writer.writeEnum(obj);
+        return writer.toUint8Array();
+    };
     Serialization.Serialize = function (obj) {
         if (!obj) {
             return new Uint8Array();
@@ -89,6 +100,9 @@ var Serialization = /** @class */ (function () {
         else if (Object.getPrototypeOf(type) == "enum") {
             writer.writeByte(obj);
             return;
+        }
+        else if (obj instanceof Uint8Array) {
+            writer.writeByteArray(Array.from(obj));
         }
         else {
             // TODO: Add support for other types

@@ -2,9 +2,14 @@ import base58 from "bs58";
 import { encodeBase16, stringToUint8Array, uint8ArrayToString } from "../utils";
 import SHA256 from "crypto-js/sha256";
 import hexEncoding from "crypto-js/enc-hex";
-import { IKeyPair } from "../interfaces";
-import { getPrivateKeyFromWif } from "../tx";
+import { IKeyPair, ISerializable } from "../interfaces";
+import {
+  getPrivateKeyFromWif,
+  getPublicKeyFromPrivateKey,
+  getWifFromPrivateKey,
+} from "../tx";
 import { eddsa } from "elliptic";
+import { PBinaryWriter, PBinaryReader } from "./Extensions";
 
 const curve = new eddsa("ed25519");
 
@@ -15,7 +20,7 @@ export enum AddressKind {
   Interop = 3,
 }
 
-export class Address {
+export class Address implements ISerializable {
   public static readonly NullText: string = "NULL";
   public static readonly LengthInBytes: number = 34;
   public static readonly MaxPlatformNameLength: number = 10;
@@ -111,12 +116,43 @@ export class Address {
   }
 
   private constructor(publicKey: Uint8Array) {
+    let pkFromArray = Array.from(publicKey);
     if (publicKey.length != Address.LengthInBytes) {
-      throw new Error(`publicKey length must be ${Address.LengthInBytes}`);
+      throw new Error(
+        `publicKey length must be ${Address.LengthInBytes}, it was ${publicKey.length}}`
+      );
     }
     this._bytes = new Uint8Array(Address.LengthInBytes);
     this._bytes.set(publicKey);
     this._text = null;
+  }
+
+  public static FromText(text: string): Address {
+    return Address.Parse(text);
+  }
+
+  public static Parse(text: string): Address {
+    if (text == null) {
+      throw new Error("text is null");
+    }
+
+    let addr: Address;
+
+    /*this._keyToTextCache.values().forEach((value) => {
+      if (value == text) {
+        return Address.FromHash(this._keyToTextCache(value));
+      }*/
+
+    return addr;
+  }
+
+  public static IsValidAddress(text: string): boolean {
+    try {
+      Address.FromText(text);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   public static FromBytes(bytes: Uint8Array): Address {
@@ -157,8 +193,9 @@ export class Address {
 
   public static FromWif(wif: string): Address {
     const privateKey = getPrivateKeyFromWif(wif);
-
-    return this.FromBytes(stringToUint8Array(privateKey));
+    const publicKey = getPublicKeyFromPrivateKey(privateKey);
+    var addressHex = Buffer.from("0100" + publicKey, "hex");
+    return this.FromBytes(addressHex);
   }
 
   public compareTo(other: Address): number {
@@ -205,5 +242,14 @@ export class Address {
 
   public ToByteArray(): Uint8Array {
     return this._bytes;
+  }
+
+  SerializeData(writer: PBinaryWriter) {
+    writer.writeByteArray(this._bytes);
+  }
+
+  UnserializeData(reader: PBinaryReader) {
+    this._bytes = reader.readByteArray();
+    this._text = null;
   }
 }

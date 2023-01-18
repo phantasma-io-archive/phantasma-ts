@@ -19,18 +19,19 @@ export enum PollState {
 }
 
 export class PollChoice implements ISerializable {
-  public value: string; // Should be byte[]
+  public value: number[]; // Should be byte[]
 
-  public constructor(value: string) {
-    this.value = value;
+  public constructor(value: string | number[]) {
+    if (value instanceof Array) this.value = value;
+    else this.value = uint8ArrayToBytes(stringToUint8Array(value));
   }
 
   SerializeData(writer: PBinaryWriter) {
-    writer.writeString(this.value);
+    writer.writeByteArray(this.value);
   }
 
   UnserializeData(reader: PBinaryReader) {
-    this.value = reader.readString();
+    this.value = reader.readByteArray();
   }
 
   static Unserialize(reader: PBinaryReader): PollChoice {

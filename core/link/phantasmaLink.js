@@ -102,9 +102,9 @@ var PhantasmaLink = /** @class */ (function () {
         else if (typeof payload === "string") {
             //Turn String Payload -> Bytes -> Hex
             var sb = new vm_1.ScriptBuilder();
-            var bytes = sb.rawString(payload);
-            sb.appendBytes(bytes);
-            payload = sb.endScript();
+            var bytes = sb.RawString(payload);
+            sb.AppendBytes(bytes);
+            payload = sb.EndScript();
         }
         else {
             this.onMessage("Error: Invalid Payload");

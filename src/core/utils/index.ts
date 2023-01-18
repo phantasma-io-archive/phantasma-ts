@@ -65,7 +65,8 @@ export function encodeBase16(str: string) {
   return str
     .split("")
     .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-    .join("");
+    .join("")
+    .toUpperCase();
 }
 
 export function uint8ArrayToString(array: Uint8Array): string {
@@ -106,4 +107,46 @@ export function uint8ArrayToBytes(array: Uint8Array): number[] {
     result.push(array[i]);
   }
   return result;
+}
+
+export function uint8ArrayToHex(arr: Uint8Array): string {
+  let hexString = "";
+  for (let i = 0; i < arr.length; i++) {
+    hexString += arr[i].toString(16).padStart(2, "0");
+  }
+  return hexString;
+}
+
+export function numberToByteArray(num: number, size?: number): Uint8Array {
+  if (size === undefined) {
+    if (num < 0xfd) {
+      size = 1;
+    } else if (num <= 0xfffd) {
+      size = 2;
+    } else if (num <= 0xffffd) {
+      size = 3;
+    } else if (num <= 0xffffffff) {
+      size = 5;
+    } else if (num <= 0xffffffffffffffff) {
+      size = 9;
+    }
+  }
+  var bytes = new Uint8Array(size);
+
+  var i = 0;
+  do {
+    bytes[i++] = num & 0xff;
+    num = num >> 8;
+  } while (num);
+  return bytes;
+}
+
+export function bigIntToByteArray(bigint: bigint): Uint8Array {
+  // Get a big-endian byte representation of the bigint
+  var bytes = bigint.toString(16).padStart(64, "0");
+  var byteArray = new Uint8Array(bytes.length / 2);
+  for (var i = 0; i < bytes.length; i += 2) {
+    byteArray[i / 2] = parseInt(bytes.substring(i, i + 2), 16);
+  }
+  return byteArray;
 }

@@ -10,4 +10,7 @@ export declare function uint8ArrayToNumberArray(array: Uint8Array): number[];
 export declare function stringToUint8Array(str: string): Uint8Array;
 export declare function arrayNumberToUint8Array(arr: number[]): Uint8Array;
 export declare function uint8ArrayToBytes(array: Uint8Array): number[];
+export declare function uint8ArrayToHex(arr: Uint8Array): string;
+export declare function numberToByteArray(num: number, size?: number): Uint8Array;
+export declare function bigIntToByteArray(bigint: bigint): Uint8Array;
 //# sourceMappingURL=index.d.ts.map

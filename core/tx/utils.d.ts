@@ -1,5 +1,6 @@
 export declare function getPrivateKeyFromWif(wif: string): string;
 export declare function getAddressFromWif(wif: string): string;
+export declare function getPublicKeyFromPrivateKey(privateKey: string): string;
 export declare function generateNewSeed(): string;
 export declare function generateNewSeedWords(): string[];
 export declare function generateNewWif(): string;
