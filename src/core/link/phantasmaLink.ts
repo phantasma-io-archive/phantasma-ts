@@ -130,9 +130,9 @@ export class PhantasmaLink {
     } else if (typeof payload === "string") {
       //Turn String Payload -> Bytes -> Hex
       let sb = new ScriptBuilder();
-      let bytes = sb.rawString(payload);
-      sb.appendBytes(bytes);
-      payload = sb.endScript();
+      let bytes = sb.RawString(payload);
+      sb.AppendBytes(bytes);
+      payload = sb.EndScript();
     } else {
       this.onMessage("Error: Invalid Payload");
       if (onErrorCallback) {

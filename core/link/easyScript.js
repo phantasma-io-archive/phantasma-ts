@@ -23,27 +23,27 @@ var EasyScript = /** @class */ (function () {
                 var methodNameInteract = _options[1];
                 var inputArgumentsInteract = _options[2];
                 return this.sb
-                    .callContract("gas", "AllowGas", [])
-                    .callContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
-                    .callContract("gas", "SpendGas", [])
-                    .endScript();
+                    .CallContract("gas", "AllowGas", [])
+                    .CallContract(contractNameInteract, methodNameInteract, inputArgumentsInteract) //The Meat of the Script
+                    .CallContract("gas", "SpendGas", [])
+                    .EndScript();
                 break;
             case "invoke":
                 var contractNameInvoke = _options[0];
                 var methodNameInvoke = _options[1];
                 var inputArgumentsInvoke = _options[2];
                 return this.sb
-                    .callContract(contractNameInvoke, methodNameInvoke, inputArgumentsInvoke) //The Meat of the Script
-                    .endScript();
+                    .CallContract(contractNameInvoke, methodNameInvoke, inputArgumentsInvoke) //The Meat of the Script
+                    .EndScript();
                 break;
             case "interop":
                 var interopNameInterop = _options[0];
                 var inputArgumentsInterop = _options[1];
                 return this.sb
-                    .callContract("gas", "AllowGas", [])
-                    .callInterop(interopNameInterop, inputArgumentsInterop)
-                    .callContract("gas", "SpendGas", [])
-                    .endScript();
+                    .CallContract("gas", "AllowGas", [])
+                    .CallInterop(interopNameInterop, inputArgumentsInterop)
+                    .CallContract("gas", "SpendGas", [])
+                    .EndScript();
                 break;
         }
     };

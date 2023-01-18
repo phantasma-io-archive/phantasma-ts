@@ -84,6 +84,17 @@ var PBinaryWriter = /** @class */ (function () {
             this.appendByte(bytes[i]);
         }
     };
+    PBinaryWriter.prototype.writeEnum = function (value) {
+        //this.writeUnsignedInt(value);
+        var bytes = [0, 0, 0, 0];
+        for (var i = 0; i < bytes.length; i++) {
+            var byte = value & 0xff;
+            bytes[i] = byte;
+            value = (value - byte) / 256;
+        }
+        this.appendBytes(bytes);
+        return this;
+    };
     PBinaryWriter.prototype.writeBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++)
             this.appendByte(bytes[i]);
@@ -156,6 +167,9 @@ var PBinaryWriter = /** @class */ (function () {
         return data;
     };
     PBinaryWriter.prototype.writeByteArray = function (bytes) {
+        if (bytes instanceof Uint8Array) {
+            bytes = Array.from(bytes);
+        }
         this.writeVarInt(bytes.length);
         this.writeBytes(bytes);
         return this;

@@ -22,7 +22,7 @@ var Opcode;
     Opcode[Opcode["LOAD"] = 13] = "LOAD";
     Opcode[Opcode["CAST"] = 14] = "CAST";
     Opcode[Opcode["CAT"] = 15] = "CAT";
-    Opcode[Opcode["SUBSTR"] = 16] = "SUBSTR";
+    Opcode[Opcode["RANGE"] = 16] = "RANGE";
     Opcode[Opcode["LEFT"] = 17] = "LEFT";
     Opcode[Opcode["RIGHT"] = 18] = "RIGHT";
     Opcode[Opcode["SIZE"] = 19] = "SIZE";
@@ -52,11 +52,18 @@ var Opcode;
     Opcode[Opcode["SHR"] = 41] = "SHR";
     Opcode[Opcode["MIN"] = 42] = "MIN";
     Opcode[Opcode["MAX"] = 43] = "MAX";
+    Opcode[Opcode["POW"] = 44] = "POW";
     // context
-    Opcode[Opcode["THIS"] = 44] = "THIS";
     Opcode[Opcode["CTX"] = 45] = "CTX";
     Opcode[Opcode["SWITCH"] = 46] = "SWITCH";
     // array
     Opcode[Opcode["PUT"] = 47] = "PUT";
     Opcode[Opcode["GET"] = 48] = "GET";
+    Opcode[Opcode["CLEAR"] = 49] = "CLEAR";
+    Opcode[Opcode["UNPACK"] = 50] = "UNPACK";
+    Opcode[Opcode["PACK"] = 51] = "PACK";
+    //  debugger
+    Opcode[Opcode["DEBUG"] = 52] = "DEBUG";
+    // add
+    Opcode[Opcode["SUBSTR"] = 53] = "SUBSTR";
 })(Opcode = exports.Opcode || (exports.Opcode = {}));

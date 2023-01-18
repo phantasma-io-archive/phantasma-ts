@@ -89,6 +89,19 @@ export class PBinaryWriter {
     }
   }
 
+  public writeEnum(value: number): this {
+    //this.writeUnsignedInt(value);
+    let bytes = [0, 0, 0, 0];
+
+    for (let i = 0; i < bytes.length; i++) {
+      var byte = value & 0xff;
+      bytes[i] = byte;
+      value = (value - byte) / 256;
+    }
+    this.appendBytes(bytes);
+    return this;
+  }
+
   writeBytes(bytes: byte[]): this {
     for (let i = 0; i < bytes.length; i++) this.appendByte(bytes[i]);
 
@@ -169,7 +182,10 @@ export class PBinaryWriter {
     return data;
   }
 
-  public writeByteArray(bytes: number[]) {
+  public writeByteArray(bytes: number[] | Uint8Array) {
+    if (bytes instanceof Uint8Array) {
+      bytes = Array.from(bytes);
+    }
     this.writeVarInt(bytes.length);
     this.writeBytes(bytes);
     return this;

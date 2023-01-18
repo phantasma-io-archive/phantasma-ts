@@ -44,9 +44,11 @@ export declare class VMObject implements ISerializable {
     static FromArray(array: Array<any>): VMObject;
     static CastTo(srcObj: VMObject, type: VMType): VMObject;
     static FromObject(obj: any): any;
+    static FromEnum(obj: any): VMObject;
     static FromStruct(obj: any): VMObject;
     static FromBytes(bytes: any): VMObject;
     SerializeData(writer: PBinaryWriter): Uint8Array;
+    SerializeObjectCall(writer: PBinaryWriter): Uint8Array;
     UnserializeData(reader: PBinaryReader): void;
 }
 //# sourceMappingURL=VMObject.d.ts.map

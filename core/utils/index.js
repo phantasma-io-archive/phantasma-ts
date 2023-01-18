@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -90,7 +90,8 @@ function encodeBase16(str) {
     return str
         .split("")
         .map(function (c) { return c.charCodeAt(0).toString(16).padStart(2, "0"); })
-        .join("");
+        .join("")
+        .toUpperCase();
 }
 exports.encodeBase16 = encodeBase16;
 function uint8ArrayToString(array) {
@@ -133,3 +134,48 @@ function uint8ArrayToBytes(array) {
     return result;
 }
 exports.uint8ArrayToBytes = uint8ArrayToBytes;
+function uint8ArrayToHex(arr) {
+    var hexString = "";
+    for (var i = 0; i < arr.length; i++) {
+        hexString += arr[i].toString(16).padStart(2, "0");
+    }
+    return hexString;
+}
+exports.uint8ArrayToHex = uint8ArrayToHex;
+function numberToByteArray(num, size) {
+    if (size === undefined) {
+        if (num < 0xfd) {
+            size = 1;
+        }
+        else if (num <= 0xfffd) {
+            size = 2;
+        }
+        else if (num <= 0xffffd) {
+            size = 3;
+        }
+        else if (num <= 0xffffffff) {
+            size = 5;
+        }
+        else if (num <= 0xffffffffffffffff) {
+            size = 9;
+        }
+    }
+    var bytes = new Uint8Array(size);
+    var i = 0;
+    do {
+        bytes[i++] = num & 0xff;
+        num = num >> 8;
+    } while (num);
+    return bytes;
+}
+exports.numberToByteArray = numberToByteArray;
+function bigIntToByteArray(bigint) {
+    // Get a big-endian byte representation of the bigint
+    var bytes = bigint.toString(16).padStart(64, "0");
+    var byteArray = new Uint8Array(bytes.length / 2);
+    for (var i = 0; i < bytes.length; i += 2) {
+        byteArray[i / 2] = parseInt(bytes.substring(i, i + 2), 16);
+    }
+    return byteArray;
+}
+exports.bigIntToByteArray = bigIntToByteArray;

@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyData = exports.signData = exports.getWifFromPrivateKey = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
+exports.verifyData = exports.signData = exports.getWifFromPrivateKey = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getPublicKeyFromPrivateKey = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
 var elliptic_1 = require("elliptic");
 var bs58_1 = __importDefault(require("bs58"));
@@ -81,6 +81,12 @@ function getAddressFromWif(wif) {
     return "P" + bs58_1.default.encode(addressHex);
 }
 exports.getAddressFromWif = getAddressFromWif;
+function getPublicKeyFromPrivateKey(privateKey) {
+    var privateKeyBuffer = Buffer.from(privateKey, "hex");
+    var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");
+    return publicKey;
+}
+exports.getPublicKeyFromPrivateKey = getPublicKeyFromPrivateKey;
 function generateNewSeed() {
     var buffer = new Uint8Array(32);
     var privateKey = Buffer.alloc(32);

@@ -13,6 +13,7 @@ export declare class CustomSerializer {
 export declare class Serialization<T> {
     private static _customSerializers;
     static RegisterType<T>(type: T, reader: CustomReader, writer: CustomWriter): void;
+    static SerializeEnum(obj: any): Uint8Array;
     static Serialize(obj: any): Uint8Array;
     static SerializeObject(writer: PBinaryWriter, obj: any, type: any | null): void;
     static Unserialize<T>(bytesOrBytes: Uint8Array | PBinaryReader, type?: any): T;

@@ -2,7 +2,7 @@ import { Type } from "typescript";
 import { PBinaryReader, PBinaryWriter } from "./Extensions";
 import { Timestamp } from "./Timestamp";
 import { ISerializable } from "../interfaces";
-import { stringToUint8Array } from "../utils";
+import { stringToUint8Array, uint8ArrayToBytes } from "../utils";
 
 export interface CustomReader {
   (reader: PBinaryReader): any;
@@ -33,6 +33,20 @@ export class Serialization<T> {
       reader,
       writer
     );
+  }
+
+  static SerializeEnum(obj: any): Uint8Array {
+    if (!obj) {
+      return new Uint8Array();
+    }
+
+    if (obj instanceof Uint8Array) {
+      return obj;
+    }
+
+    let writer = new PBinaryWriter();
+    writer.writeEnum(obj);
+    return writer.toUint8Array();
   }
 
   static Serialize(obj: any): Uint8Array {
@@ -104,6 +118,8 @@ export class Serialization<T> {
     } else if (Object.getPrototypeOf(type) == "enum") {
       writer.writeByte(obj as unknown as number);
       return;
+    } else if (obj instanceof Uint8Array) {
+      writer.writeByteArray(Array.from(obj));
     } else {
       // TODO: Add support for other types
       // Get the keys of the object

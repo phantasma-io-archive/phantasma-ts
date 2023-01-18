@@ -15,7 +15,7 @@ export declare enum Opcode {
     LOAD = 13,
     CAST = 14,
     CAT = 15,
-    SUBSTR = 16,
+    RANGE = 16,
     LEFT = 17,
     RIGHT = 18,
     SIZE = 19,
@@ -43,10 +43,15 @@ export declare enum Opcode {
     SHR = 41,
     MIN = 42,
     MAX = 43,
-    THIS = 44,
+    POW = 44,
     CTX = 45,
     SWITCH = 46,
     PUT = 47,
-    GET = 48
+    GET = 48,
+    CLEAR = 49,
+    UNPACK = 50,
+    PACK = 51,
+    DEBUG = 52,
+    SUBSTR = 53
 }
 //# sourceMappingURL=Opcode.d.ts.map

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PollPresence = exports.ConsensusPoll = exports.PollVote = exports.PollValue = exports.PollChoice = exports.PollState = exports.ConsensusMode = void 0;
+var utils_1 = require("../utils");
 var ConsensusMode;
 (function (ConsensusMode) {
     ConsensusMode[ConsensusMode["Unanimity"] = 0] = "Unanimity";
@@ -17,13 +18,16 @@ var PollState;
 })(PollState = exports.PollState || (exports.PollState = {}));
 var PollChoice = /** @class */ (function () {
     function PollChoice(value) {
-        this.value = value;
+        if (value instanceof Array)
+            this.value = value;
+        else
+            this.value = (0, utils_1.uint8ArrayToBytes)((0, utils_1.stringToUint8Array)(value));
     }
     PollChoice.prototype.SerializeData = function (writer) {
-        writer.writeString(this.value);
+        writer.writeByteArray(this.value);
     };
     PollChoice.prototype.UnserializeData = function (reader) {
-        this.value = reader.readString();
+        this.value = reader.readByteArray();
     };
     PollChoice.Unserialize = function (reader) {
         var pollChoice = new PollChoice("");
