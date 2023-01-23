@@ -2,16 +2,15 @@ import crypto from "crypto";
 export class Entropy {
   //private static rnd = crypto.randomBytes(24);
   public static GetRandomBytes(targetLength: number): Buffer {
-    const rnd = new Uint8Array(targetLength);
-    return this.ToBuffer(self.crypto.getRandomValues(rnd).buffer);
-  }
+    let rnd = new Uint8Array(targetLength);
+    const privateKey = Buffer.alloc(rnd.byteLength);
 
-  public static ToBuffer(ab): Buffer {
-    const buf = Buffer.alloc(ab.byteLength);
-    const view = new Uint8Array(ab);
-    for (let i = 0; i < buf.length; ++i) {
-      buf[i] = view[i];
+    crypto.getRandomValues(rnd);
+
+    for (let i = 0; i < 32; ++i) {
+      privateKey.writeUInt8(rnd[i], i);
     }
-    return buf;
+    //let pk = this.ToBuffer(rnd);
+    return privateKey;
   }
 }

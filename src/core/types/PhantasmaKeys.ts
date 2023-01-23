@@ -10,6 +10,7 @@ import {
 import { Ed25519Signature } from "./Ed25519Signature";
 import { eddsa } from "elliptic";
 import { Entropy } from "./Entropy";
+import { generateNewWif, getPublicKeyFromPrivateKey } from "../tx";
 const ed25519 = new eddsa("ed25519");
 
 export class PhantasmaKeys implements IKeyPair {
@@ -39,6 +40,9 @@ export class PhantasmaKeys implements IKeyPair {
     this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
     this._privateKey.set(privateKey);
 
+    /*this._publicKey = stringToUint8Array(
+      getPublicKeyFromPrivateKey(uint8ArrayToString(this._privateKey))
+    );*/
     this._publicKey = stringToUint8Array(
       ed25519
         .keyFromSecret(uint8ArrayToString(this._privateKey))
@@ -53,6 +57,7 @@ export class PhantasmaKeys implements IKeyPair {
 
   public static generate(): PhantasmaKeys {
     const privateKey = Entropy.GetRandomBytes(PhantasmaKeys.PrivateKeyLength);
+
     const pair = new PhantasmaKeys(privateKey);
     return pair;
   }

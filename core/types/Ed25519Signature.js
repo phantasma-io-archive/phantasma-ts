@@ -20,7 +20,7 @@ var ed25519 = new elliptic_1.eddsa("ed25519");
 var Ed25519Signature = /** @class */ (function () {
     function Ed25519Signature(bytes) {
         this.Kind = Signature_1.SignatureKind.Ed25519;
-        this.bytes = bytes;
+        this.Bytes = bytes;
     }
     Ed25519Signature.prototype.Verify = function (message, address) {
         return this.VerifyMultiple(message, [address]);
@@ -34,7 +34,7 @@ var Ed25519Signature = /** @class */ (function () {
                     continue;
                 }
                 var pubKey = address.ToByteArray().slice(2);
-                if (ed25519.verify((0, utils_1.uint8ArrayToString)(this.bytes), (0, utils_1.uint8ArrayToString)(message), (0, utils_1.uint8ArrayToString)(pubKey))) {
+                if (ed25519.verify((0, utils_1.uint8ArrayToString)(this.Bytes), (0, utils_1.uint8ArrayToString)(message), (0, utils_1.uint8ArrayToString)(pubKey))) {
                     return true;
                 }
             }
@@ -49,10 +49,10 @@ var Ed25519Signature = /** @class */ (function () {
         return false;
     };
     Ed25519Signature.prototype.SerializeData = function (writer) {
-        writer.writeString((0, utils_1.uint8ArrayToString)(this.bytes));
+        writer.writeString((0, utils_1.uint8ArrayToString)(this.Bytes));
     };
     Ed25519Signature.prototype.UnserializeData = function (reader) {
-        this.bytes = (0, utils_1.stringToUint8Array)(reader.readString());
+        this.Bytes = (0, utils_1.stringToUint8Array)(reader.readString());
     };
     Ed25519Signature.prototype.ToByteArray = function () {
         var stream = new Uint8Array(64);

@@ -1599,6 +1599,8 @@ var vm_1 = require("../vm");
 var utils_1 = require("../utils");
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
+var types_1 = require("../types");
+var utils_2 = require("./utils");
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, expiration, payload) {
@@ -1615,9 +1617,48 @@ var Transaction = /** @class */ (function () {
         return transaction.unserialize(serializedData);
     };
     Transaction.prototype.sign = function (privateKey) {
-        var signature = this.getSign(this.toString(false), privateKey);
-        this.signatures.unshift({ signature: signature, kind: 1 });
+        var _keys = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey));
+        var msg = this.ToByteAray(false);
+        var sig = _keys.Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
+        //const signature = this.getSign(this.toString(false), privateKey);
+        //this.signatures.unshift({ signature, kind: 1 });
     };
+    Transaction.prototype.ToByteAray = function (withSignature) {
+        var writer = new types_1.PBinaryWriter();
+        writer.writeString(this.nexusName);
+        writer.writeString(this.chainName);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.writeDateTime(this.expiration);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        if (withSignature) {
+            writer.writeVarInt(this.signatures.length);
+            this.signatures.forEach(function (sig) {
+                writer.writeSignature(sig);
+                //writer.writeByte(sig.kind);
+                //writer.writeByteArray(stringToUint8Array(sig.signature));
+            });
+        }
+        return writer.toUint8Array();
+    };
+    Transaction.prototype.UnserializeData = function (reader) {
+        this.nexusName = reader.readString();
+        this.chainName = reader.readString();
+        this.script = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        this.expiration = new Date(reader.readTimestamp().value);
+        this.payload = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        var sigCount = reader.readVarInt();
+        for (var i = 0; i < sigCount; i++) {
+            var sig = reader.readSignature();
+            this.signatures.push(sig);
+        }
+    };
+    Transaction.prototype.SerializeData = function (writer) { };
     Transaction.prototype.toString = function (withSignature) {
         /*const utc = Date.UTC(
           this.expiration.getUTCFullYear(),
@@ -1647,16 +1688,16 @@ var Transaction = /** @class */ (function () {
             sb.EmitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
                 console.log("adding signature ", sig);
-                if (sig.kind == 1) {
+                if (sig.Kind == 1) {
                     sb.AppendByte(1); // Signature Type
-                    sb.EmitVarInt(sig.signature.length / 2);
-                    sb.AppendHexEncoded(sig.signature);
+                    sb.EmitVarInt(sig.Bytes.length / 2);
+                    sb.AppendHexEncoded((0, utils_1.uint8ArrayToHex)(sig.Bytes));
                 }
-                else if (sig.kind == 2) {
+                else if (sig.Kind == 2) {
                     sb.AppendByte(2); // ECDSA Signature
                     sb.AppendByte(1); // Curve type secp256k1
-                    sb.EmitVarInt(sig.signature.length / 2);
-                    sb.AppendHexEncoded(sig.signature);
+                    sb.EmitVarInt(sig.Bytes.length / 2);
+                    sb.AppendHexEncoded((0, utils_1.uint8ArrayToHex)(sig.Bytes));
                 }
             });
         }
@@ -1709,9 +1750,9 @@ var Transaction = /** @class */ (function () {
         var payload = dec.read(payloadLength);
         var nTransaction = new Transaction(nexusName, chainName, script, date, payload);
         var signatureCount = dec.readVarInt();
-        for (var i = 0; i < signatureCount; i++) {
-            nTransaction.signatures.push(dec.readSignature());
-        }
+        /*for (let i = 0; i < signatureCount; i++) {
+          nTransaction.signatures.push(dec.readSignature());
+        }*/
         return nTransaction;
     };
     return Transaction;
@@ -1719,7 +1760,7 @@ var Transaction = /** @class */ (function () {
 exports.Transaction = Transaction;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../utils":31,"../vm":38,"buffer":120,"crypto-js/enc-hex":130,"crypto-js/sha256":131,"elliptic":155}],14:[function(require,module,exports){
+},{"../types":30,"../utils":31,"../vm":38,"./utils":15,"buffer":120,"crypto-js/enc-hex":130,"crypto-js/sha256":131,"elliptic":155}],14:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2751,7 +2792,7 @@ var ed25519 = new elliptic_1.eddsa("ed25519");
 var Ed25519Signature = /** @class */ (function () {
     function Ed25519Signature(bytes) {
         this.Kind = Signature_1.SignatureKind.Ed25519;
-        this.bytes = bytes;
+        this.Bytes = bytes;
     }
     Ed25519Signature.prototype.Verify = function (message, address) {
         return this.VerifyMultiple(message, [address]);
@@ -2765,7 +2806,7 @@ var Ed25519Signature = /** @class */ (function () {
                     continue;
                 }
                 var pubKey = address.ToByteArray().slice(2);
-                if (ed25519.verify((0, utils_1.uint8ArrayToString)(this.bytes), (0, utils_1.uint8ArrayToString)(message), (0, utils_1.uint8ArrayToString)(pubKey))) {
+                if (ed25519.verify((0, utils_1.uint8ArrayToString)(this.Bytes), (0, utils_1.uint8ArrayToString)(message), (0, utils_1.uint8ArrayToString)(pubKey))) {
                     return true;
                 }
             }
@@ -2780,10 +2821,10 @@ var Ed25519Signature = /** @class */ (function () {
         return false;
     };
     Ed25519Signature.prototype.SerializeData = function (writer) {
-        writer.writeString((0, utils_1.uint8ArrayToString)(this.bytes));
+        writer.writeString((0, utils_1.uint8ArrayToString)(this.Bytes));
     };
     Ed25519Signature.prototype.UnserializeData = function (reader) {
-        this.bytes = (0, utils_1.stringToUint8Array)(reader.readString());
+        this.Bytes = (0, utils_1.stringToUint8Array)(reader.readString());
     };
     Ed25519Signature.prototype.ToByteArray = function () {
         var stream = new Uint8Array(64);
@@ -2893,6 +2934,7 @@ var csharp_binary_stream_1 = require("csharp-binary-stream");
 var interfaces_1 = require("../../interfaces");
 var utils_1 = require("../../utils");
 var vm_1 = require("../../vm");
+var Ed25519Signature_1 = require("../Ed25519Signature");
 var Timestamp_1 = require("../Timestamp");
 var PBinaryReader = /** @class */ (function () {
     function PBinaryReader(arg1) {
@@ -3010,19 +3052,19 @@ var PBinaryReader = /** @class */ (function () {
     };
     PBinaryReader.prototype.readSignature = function () {
         var kind = this.readByte();
-        var signature = new interfaces_1.ISignature();
+        var signature = new Ed25519Signature_1.Ed25519Signature();
         var curve;
-        signature.kind = kind;
+        signature.Kind = kind;
         switch (kind) {
             case interfaces_1.SignatureKind.None:
                 return null;
             case interfaces_1.SignatureKind.Ed25519:
                 var len = this.readVarInt();
-                signature.signature = this.read(len);
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.read(len));
                 break;
             case interfaces_1.SignatureKind.ECDSA:
                 curve = this.readByte();
-                signature.signature = this.readString();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.readString());
                 break;
             default:
                 throw "read signature: " + kind;
@@ -3102,12 +3144,13 @@ var PBinaryReader = /** @class */ (function () {
 }());
 exports.PBinaryReader = PBinaryReader;
 
-},{"../../interfaces":8,"../../utils":31,"../../vm":38,"../Timestamp":29,"big-integer":56,"csharp-binary-stream":144}],24:[function(require,module,exports){
+},{"../../interfaces":8,"../../utils":31,"../../vm":38,"../Ed25519Signature":20,"../Timestamp":29,"big-integer":56,"csharp-binary-stream":144}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
+var interfaces_1 = require("../../interfaces");
 var PBinaryWriter = /** @class */ (function () {
     function PBinaryWriter(arg1) {
         this.writer = new csharp_binary_stream_1.BinaryWriter(arg1);
@@ -3327,11 +3370,20 @@ var PBinaryWriter = /** @class */ (function () {
         }
         return this.writeByteArray(bytes);
     };
+    PBinaryWriter.prototype.writeSignature = function (signature) {
+        if (!signature) {
+            this.writeByte(interfaces_1.SignatureKind.None);
+            return this;
+        }
+        this.writeByte(signature.Kind);
+        signature.SerializeData(this);
+        return this;
+    };
     return PBinaryWriter;
 }());
 exports.PBinaryWriter = PBinaryWriter;
 
-},{"csharp-binary-stream":144}],25:[function(require,module,exports){
+},{"../../interfaces":8,"csharp-binary-stream":144}],25:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4817,7 +4869,7 @@ var ScriptBuilder = /** @class */ (function () {
         if (value < 0)
             throw "negative value invalid";
         if (value < 0xfd) {
-            this.writer.writeByte(value);
+            this.AppendByte(value);
         }
         else if (value <= 0xffff) {
             var B = (value & 0x0000ff00) >> 8;

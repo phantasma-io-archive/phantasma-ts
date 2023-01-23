@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Encoding } from "csharp-binary-stream";
+import { Signature } from "../../interfaces";
 import { Timestamp } from "../Timestamp";
 type byte = number;
 export declare class PBinaryWriter {
@@ -41,6 +42,7 @@ export declare class PBinaryWriter {
     emitUInt32(value: number): this;
     writeBigInteger(value: BigInt): this;
     writeBigIntegerString(value: string): this;
+    writeSignature(signature: Signature): this;
 }
 export {};
 //# sourceMappingURL=PBinaryWriter.d.ts.map

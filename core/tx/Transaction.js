@@ -9,6 +9,8 @@ var vm_1 = require("../vm");
 var utils_1 = require("../utils");
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
+var types_1 = require("../types");
+var utils_2 = require("./utils");
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, expiration, payload) {
@@ -25,8 +27,67 @@ var Transaction = /** @class */ (function () {
         return transaction.unserialize(serializedData);
     };
     Transaction.prototype.sign = function (privateKey) {
-        var signature = this.getSign(this.toString(false), privateKey);
-        this.signatures.unshift({ signature: signature, kind: 1 });
+        var _keys = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey));
+        var msg = this.ToByteAray(false);
+        var sig = _keys.Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
+        //const signature = this.getSign(this.toString(false), privateKey);
+        //this.signatures.unshift({ signature, kind: 1 });
+    };
+    Transaction.prototype.signWithKeys = function (keys) {
+        var msg = this.ToByteAray(false);
+        var sig = keys.Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
+    };
+    Transaction.prototype.ToByteAray = function (withSignature) {
+        var writer = new types_1.PBinaryWriter();
+        writer.writeString(this.nexusName);
+        writer.writeString(this.chainName);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.writeDateTime(this.expiration);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        if (withSignature) {
+            writer.writeVarInt(this.signatures.length);
+            this.signatures.forEach(function (sig) {
+                writer.writeSignature(sig);
+                //writer.writeByte(sig.kind);
+                //writer.writeByteArray(stringToUint8Array(sig.signature));
+            });
+        }
+        return writer.toUint8Array();
+    };
+    Transaction.prototype.UnserializeData = function (reader) {
+        this.nexusName = reader.readString();
+        this.chainName = reader.readString();
+        this.script = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        this.expiration = new Date(reader.readTimestamp().value);
+        this.payload = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        var sigCount = reader.readVarInt();
+        for (var i = 0; i < sigCount; i++) {
+            var sig = reader.readSignature();
+            this.signatures.push(sig);
+        }
+    };
+    Transaction.prototype.SerializeData = function (writer) {
+        writer.writeString(this.nexusName);
+        writer.writeString(this.chainName);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.writeDateTime(this.expiration);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        writer.writeVarInt(this.signatures.length);
+        this.signatures.forEach(function (sig) {
+            writer.writeSignature(sig);
+        });
     };
     Transaction.prototype.toString = function (withSignature) {
         /*const utc = Date.UTC(
@@ -57,16 +118,16 @@ var Transaction = /** @class */ (function () {
             sb.EmitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
                 console.log("adding signature ", sig);
-                if (sig.kind == 1) {
+                if (sig.Kind == 1) {
                     sb.AppendByte(1); // Signature Type
-                    sb.EmitVarInt(sig.signature.length / 2);
-                    sb.AppendHexEncoded(sig.signature);
+                    sb.EmitVarInt(sig.Bytes.length / 2);
+                    sb.AppendHexEncoded((0, utils_1.uint8ArrayToHex)(sig.Bytes));
                 }
-                else if (sig.kind == 2) {
+                else if (sig.Kind == 2) {
                     sb.AppendByte(2); // ECDSA Signature
                     sb.AppendByte(1); // Curve type secp256k1
-                    sb.EmitVarInt(sig.signature.length / 2);
-                    sb.AppendHexEncoded(sig.signature);
+                    sb.EmitVarInt(sig.Bytes.length / 2);
+                    sb.AppendHexEncoded((0, utils_1.uint8ArrayToHex)(sig.Bytes));
                 }
             });
         }
@@ -119,9 +180,9 @@ var Transaction = /** @class */ (function () {
         var payload = dec.read(payloadLength);
         var nTransaction = new Transaction(nexusName, chainName, script, date, payload);
         var signatureCount = dec.readVarInt();
-        for (var i = 0; i < signatureCount; i++) {
-            nTransaction.signatures.push(dec.readSignature());
-        }
+        /*for (let i = 0; i < signatureCount; i++) {
+          nTransaction.signatures.push(dec.readSignature());
+        }*/
         return nTransaction;
     };
     return Transaction;

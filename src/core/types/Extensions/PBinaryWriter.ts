@@ -1,5 +1,6 @@
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 import { BinaryWriter, Encoding } from "csharp-binary-stream";
+import { ISignature, Signature, SignatureKind } from "../../interfaces";
 import { Timestamp } from "../Timestamp";
 
 type byte = number;
@@ -241,5 +242,15 @@ export class PBinaryWriter {
       bytes.push(0); // add sign at the end
     }
     return this.writeByteArray(bytes);
+  }
+
+  public writeSignature(signature: Signature): this {
+    if (!signature) {
+      this.writeByte(SignatureKind.None);
+      return this;
+    }
+    this.writeByte(signature.Kind);
+    signature.SerializeData(this);
+    return this;
   }
 }

@@ -9,11 +9,11 @@ import { PBinaryWriter, PBinaryReader } from "./Extensions";
 const ed25519 = new eddsa("ed25519");
 
 export class Ed25519Signature implements Signature {
-  public bytes: Uint8Array;
+  public Bytes: Uint8Array;
   public Kind: SignatureKind = SignatureKind.Ed25519;
 
-  constructor(bytes: Uint8Array) {
-    this.bytes = bytes;
+  constructor(bytes?: Uint8Array) {
+    this.Bytes = bytes;
   }
 
   Verify(message: Uint8Array, address: Address): boolean {
@@ -28,7 +28,7 @@ export class Ed25519Signature implements Signature {
       const pubKey = address.ToByteArray().slice(2);
       if (
         ed25519.verify(
-          uint8ArrayToString(this.bytes),
+          uint8ArrayToString(this.Bytes),
           uint8ArrayToString(message),
           uint8ArrayToString(pubKey)
         )
@@ -40,11 +40,11 @@ export class Ed25519Signature implements Signature {
   }
 
   public SerializeData(writer: PBinaryWriter) {
-    writer.writeString(uint8ArrayToString(this.bytes));
+    writer.writeString(uint8ArrayToString(this.Bytes));
   }
 
   public UnserializeData(reader: PBinaryReader) {
-    this.bytes = stringToUint8Array(reader.readString());
+    this.Bytes = stringToUint8Array(reader.readString());
   }
 
   ToByteArray(): Uint8Array {
