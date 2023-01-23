@@ -10,6 +10,7 @@ export declare class ISignature {
     kind: number;
 }
 export declare abstract class Signature implements ISerializable {
+    abstract Bytes: Uint8Array;
     abstract Kind: SignatureKind;
     abstract SerializeData(writer: PBinaryWriter): void;
     abstract UnserializeData(reader: PBinaryReader): void;

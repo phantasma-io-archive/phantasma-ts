@@ -156,8 +156,11 @@ var Address = /** @class */ (function () {
         else if (key.PublicKey.length == 33) {
             bytes.set(key.PublicKey, 1);
         }
+        else if (key.PublicKey.length == 64) {
+            bytes.set(key.PublicKey.slice(0, 32), 1);
+        }
         else {
-            throw new Error("Invalid public key length");
+            throw new Error("Invalid public key length: " + key.PublicKey.length);
         }
         return new Address(bytes);
     };

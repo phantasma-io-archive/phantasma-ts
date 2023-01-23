@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
+var interfaces_1 = require("../../interfaces");
 var PBinaryWriter = /** @class */ (function () {
     function PBinaryWriter(arg1) {
         this.writer = new csharp_binary_stream_1.BinaryWriter(arg1);
@@ -221,6 +222,15 @@ var PBinaryWriter = /** @class */ (function () {
             bytes.push(0); // add sign at the end
         }
         return this.writeByteArray(bytes);
+    };
+    PBinaryWriter.prototype.writeSignature = function (signature) {
+        if (!signature) {
+            this.writeByte(interfaces_1.SignatureKind.None);
+            return this;
+        }
+        this.writeByte(signature.Kind);
+        signature.SerializeData(this);
+        return this;
     };
     return PBinaryWriter;
 }());

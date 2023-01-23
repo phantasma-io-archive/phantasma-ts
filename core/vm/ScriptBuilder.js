@@ -465,7 +465,7 @@ var ScriptBuilder = /** @class */ (function () {
         if (value < 0)
             throw "negative value invalid";
         if (value < 0xfd) {
-            this.writer.writeByte(value);
+            this.AppendByte(value);
         }
         else if (value <= 0xffff) {
             var B = (value & 0x0000ff00) >> 8;

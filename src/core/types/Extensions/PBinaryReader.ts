@@ -1,8 +1,9 @@
 import BigInteger from "big-integer";
 import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
-import { ISignature, SignatureKind } from "../../interfaces";
-import { byteArrayToHex } from "../../utils";
+import { ISignature, SignatureKind, Signature } from "../../interfaces";
+import { byteArrayToHex, stringToUint8Array } from "../../utils";
 import { VMType } from "../../vm";
+import { Ed25519Signature } from "../Ed25519Signature";
 import { Timestamp } from "../Timestamp";
 
 export class PBinaryReader {
@@ -117,22 +118,22 @@ export class PBinaryReader {
     return res.toString();
   }
 
-  public readSignature() {
+  public readSignature(): Signature {
     let kind = this.readByte() as SignatureKind;
-    let signature: ISignature = new ISignature();
+    let signature: Signature = new Ed25519Signature();
     let curve;
-    signature.kind = kind;
+    signature.Kind = kind;
     switch (kind) {
       case SignatureKind.None:
         return null;
 
       case SignatureKind.Ed25519:
         let len = this.readVarInt();
-        signature.signature = this.read(len);
+        signature.Bytes = stringToUint8Array(this.read(len));
         break;
       case SignatureKind.ECDSA:
         curve = this.readByte();
-        signature.signature = this.readString();
+        signature.Bytes = stringToUint8Array(this.readString());
         break;
       default:
         throw "read signature: " + kind;

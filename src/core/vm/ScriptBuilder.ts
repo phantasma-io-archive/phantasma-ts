@@ -472,7 +472,7 @@ export class ScriptBuilder {
     if (value < 0) throw "negative value invalid";
 
     if (value < 0xfd) {
-      this.writer.writeByte(value);
+      this.AppendByte(value);
     } else if (value <= 0xffff) {
       let B = (value & 0x0000ff00) >> 8;
       let A = value & 0x000000ff;

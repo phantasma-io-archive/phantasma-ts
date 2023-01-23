@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { BinaryReader, Encoding } from "csharp-binary-stream";
-import { ISignature } from "../../interfaces";
+import { Signature } from "../../interfaces";
 import { Timestamp } from "../Timestamp";
 export declare class PBinaryReader {
     reader: BinaryReader;
@@ -31,7 +31,7 @@ export declare class PBinaryReader {
     readStringBytes(numBytes: number): string;
     readBigInteger(): BigInt;
     readBigIntAccurate(): string;
-    readSignature(): ISignature;
+    readSignature(): Signature;
     readByteArray(): any;
     readTimestamp(): Timestamp;
     readVarInt(): number;

@@ -4,6 +4,7 @@ import {
   Address,
   ConsensusMode,
   encodeBase16,
+  PhantasmaKeys,
   PollChoice,
   Serialization,
   Timestamp,
@@ -25,6 +26,13 @@ describe("Utils", () => {
     let wifFromPK = phantasmaJS.getWifFromPrivateKey(privateKey);
     let addressFromPK = phantasmaJS.getAddressFromWif(wifFromPK);
     expect(address).toBe(addressFromPK);
+  });
+
+  test("Get a new address from private key", () => {
+    let key = PhantasmaKeys.generate();
+    let address = key.Address;
+
+    expect(address).toBeInstanceOf(Address);
   });
 
   test("test phantasma-ts.Base16.decode", function (done) {

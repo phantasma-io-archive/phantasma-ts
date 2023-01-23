@@ -34,6 +34,7 @@ var csharp_binary_stream_1 = require("csharp-binary-stream");
 var interfaces_1 = require("../../interfaces");
 var utils_1 = require("../../utils");
 var vm_1 = require("../../vm");
+var Ed25519Signature_1 = require("../Ed25519Signature");
 var Timestamp_1 = require("../Timestamp");
 var PBinaryReader = /** @class */ (function () {
     function PBinaryReader(arg1) {
@@ -151,19 +152,19 @@ var PBinaryReader = /** @class */ (function () {
     };
     PBinaryReader.prototype.readSignature = function () {
         var kind = this.readByte();
-        var signature = new interfaces_1.ISignature();
+        var signature = new Ed25519Signature_1.Ed25519Signature();
         var curve;
-        signature.kind = kind;
+        signature.Kind = kind;
         switch (kind) {
             case interfaces_1.SignatureKind.None:
                 return null;
             case interfaces_1.SignatureKind.Ed25519:
                 var len = this.readVarInt();
-                signature.signature = this.read(len);
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.read(len));
                 break;
             case interfaces_1.SignatureKind.ECDSA:
                 curve = this.readByte();
-                signature.signature = this.readString();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.readString());
                 break;
             default:
                 throw "read signature: " + kind;
