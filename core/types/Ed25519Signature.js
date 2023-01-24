@@ -49,7 +49,8 @@ var Ed25519Signature = /** @class */ (function () {
         return false;
     };
     Ed25519Signature.prototype.SerializeData = function (writer) {
-        writer.writeString((0, utils_1.uint8ArrayToString)(this.Bytes));
+        //writer.writeString(uint8ArrayToString(this.Bytes));
+        writer.writeByteArray(this.Bytes);
     };
     Ed25519Signature.prototype.UnserializeData = function (reader) {
         this.Bytes = (0, utils_1.stringToUint8Array)(reader.readString());
@@ -61,10 +62,10 @@ var Ed25519Signature = /** @class */ (function () {
         return new Uint8Array(stream);
     };
     Ed25519Signature.Generate = function (keypair, message) {
-        //const msgHashHex = Buffer.from(message, "hex");
-        var msgHashHex = (0, utils_1.uint8ArrayToString)(message);
-        //const privateKeyBuffer = Buffer.from( keypair.PrivateKey, "hex");
-        var privateKeyBuffer = (0, utils_1.uint8ArrayToString)(keypair.PrivateKey);
+        var msgHashHex = Buffer.from((0, utils_1.uint8ArrayToHex)(message), "hex");
+        //const msgHashHex = uint8ArrayToString(message);
+        var privateKeyBuffer = Buffer.from((0, utils_1.uint8ArrayToHex)(keypair.PrivateKey), "hex");
+        //const privateKeyBuffer = uint8ArrayToString(keypair.PrivateKey);
         var sign = ed25519.sign(msgHashHex, privateKeyBuffer);
         return new Ed25519Signature(sign.toBytes());
     };

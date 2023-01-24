@@ -78,7 +78,7 @@ export class PBinaryReader {
 
   public read(numBytes: number): string {
     var res = byteArrayToHex(this.readBytes(numBytes)).substr(0, numBytes * 2);
-    this.position += numBytes * 2;
+    //this.position += numBytes;
     return res;
   }
 
@@ -118,6 +118,30 @@ export class PBinaryReader {
     return res.toString();
   }
 
+  public readSignatureV2(): Signature {
+    let kind = this.readByte() as SignatureKind;
+    let curve;
+    let signature: Signature = new Ed25519Signature();
+
+    switch (kind) {
+      case SignatureKind.None:
+        return null;
+
+      case SignatureKind.Ed25519:
+        let len = this.readVarInt();
+        signature.Bytes = stringToUint8Array(this.read(len));
+        break;
+      case SignatureKind.ECDSA:
+        curve = this.readByte();
+        signature.Bytes = stringToUint8Array(this.readString());
+        break;
+      default:
+        throw "read signature: " + kind;
+    }
+
+    return signature;
+  }
+
   public readSignature(): Signature {
     let kind = this.readByte() as SignatureKind;
     let signature: Signature = new Ed25519Signature();
@@ -155,6 +179,7 @@ export class PBinaryReader {
     //var len = this.readByte();
     let result = 0;
     let bytes = this.read(4);
+    //[...(bytes.match(/.{1,2}/g) as any)];
     bytes
       .match(/.{1,2}/g)
       .reverse()

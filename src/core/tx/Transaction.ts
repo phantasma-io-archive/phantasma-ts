@@ -6,6 +6,8 @@ import {
   getDifficulty,
   stringToUint8Array,
   uint8ArrayToHex,
+  uint8ArrayToString,
+  uint8ArrayToStringDefault,
 } from "../utils";
 import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
@@ -107,12 +109,13 @@ export class Transaction implements ISerializable {
   public UnserializeData(reader: PBinaryReader) {
     this.nexusName = reader.readString();
     this.chainName = reader.readString();
-    this.script = uint8ArrayToHex(reader.readByteArray());
-    this.expiration = new Date(reader.readTimestamp().value);
-    this.payload = uint8ArrayToHex(reader.readByteArray());
+    this.script = uint8ArrayToStringDefault(reader.readByteArray());
+    let time = reader.readTimestamp();
+    this.expiration = new Date(time.toString());
+    this.payload = uint8ArrayToStringDefault(reader.readByteArray());
     let sigCount = reader.readVarInt();
     for (let i = 0; i < sigCount; i++) {
-      let sig = reader.readSignature();
+      let sig = reader.readSignatureV2();
       this.signatures.push(sig);
     }
   }
@@ -253,5 +256,12 @@ export class Transaction implements ISerializable {
       nTransaction.signatures.push(dec.readSignature());
     }*/
     return nTransaction;
+  }
+
+  public static Unserialize(serialized: Uint8Array) {
+    let reader = new PBinaryReader(serialized);
+    let tx = new Transaction("", "", "", new Date(), "");
+    tx.UnserializeData(reader);
+    return tx;
   }
 }

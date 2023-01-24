@@ -31,6 +31,7 @@ export declare class PBinaryReader {
     readStringBytes(numBytes: number): string;
     readBigInteger(): BigInt;
     readBigIntAccurate(): string;
+    readSignatureV2(): Signature;
     readSignature(): Signature;
     readByteArray(): any;
     readTimestamp(): Timestamp;

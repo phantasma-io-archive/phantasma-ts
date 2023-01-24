@@ -1669,12 +1669,13 @@ var Transaction = /** @class */ (function () {
     Transaction.prototype.UnserializeData = function (reader) {
         this.nexusName = reader.readString();
         this.chainName = reader.readString();
-        this.script = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
-        this.expiration = new Date(reader.readTimestamp().value);
-        this.payload = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        this.script = (0, utils_1.uint8ArrayToStringDefault)(reader.readByteArray());
+        var time = reader.readTimestamp();
+        this.expiration = new Date(time.toString());
+        this.payload = (0, utils_1.uint8ArrayToStringDefault)(reader.readByteArray());
         var sigCount = reader.readVarInt();
         for (var i = 0; i < sigCount; i++) {
-            var sig = reader.readSignature();
+            var sig = reader.readSignatureV2();
             this.signatures.push(sig);
         }
     };
@@ -1784,6 +1785,12 @@ var Transaction = /** @class */ (function () {
           nTransaction.signatures.push(dec.readSignature());
         }*/
         return nTransaction;
+    };
+    Transaction.Unserialize = function (serialized) {
+        var reader = new types_1.PBinaryReader(serialized);
+        var tx = new Transaction("", "", "", new Date(), "");
+        tx.UnserializeData(reader);
+        return tx;
     };
     return Transaction;
 }());
@@ -2803,6 +2810,7 @@ var DomainSettings = /** @class */ (function () {
 exports.DomainSettings = DomainSettings;
 
 },{}],20:[function(require,module,exports){
+(function (Buffer){(function (){
 "use strict";
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -2854,7 +2862,8 @@ var Ed25519Signature = /** @class */ (function () {
         return false;
     };
     Ed25519Signature.prototype.SerializeData = function (writer) {
-        writer.writeString((0, utils_1.uint8ArrayToString)(this.Bytes));
+        //writer.writeString(uint8ArrayToString(this.Bytes));
+        writer.writeByteArray(this.Bytes);
     };
     Ed25519Signature.prototype.UnserializeData = function (reader) {
         this.Bytes = (0, utils_1.stringToUint8Array)(reader.readString());
@@ -2866,10 +2875,10 @@ var Ed25519Signature = /** @class */ (function () {
         return new Uint8Array(stream);
     };
     Ed25519Signature.Generate = function (keypair, message) {
-        //const msgHashHex = Buffer.from(message, "hex");
-        var msgHashHex = (0, utils_1.uint8ArrayToString)(message);
-        //const privateKeyBuffer = Buffer.from( keypair.PrivateKey, "hex");
-        var privateKeyBuffer = (0, utils_1.uint8ArrayToString)(keypair.PrivateKey);
+        var msgHashHex = Buffer.from((0, utils_1.uint8ArrayToHex)(message), "hex");
+        //const msgHashHex = uint8ArrayToString(message);
+        var privateKeyBuffer = Buffer.from((0, utils_1.uint8ArrayToHex)(keypair.PrivateKey), "hex");
+        //const privateKeyBuffer = uint8ArrayToString(keypair.PrivateKey);
         var sign = ed25519.sign(msgHashHex, privateKeyBuffer);
         return new Ed25519Signature(sign.toBytes());
     };
@@ -2877,7 +2886,8 @@ var Ed25519Signature = /** @class */ (function () {
 }());
 exports.Ed25519Signature = Ed25519Signature;
 
-},{"../interfaces/Signature":7,"../utils":31,"./Extensions":25,"elliptic":155}],21:[function(require,module,exports){
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"../interfaces/Signature":7,"../utils":31,"./Extensions":25,"buffer":120,"elliptic":155}],21:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -3052,7 +3062,7 @@ var PBinaryReader = /** @class */ (function () {
     };
     PBinaryReader.prototype.read = function (numBytes) {
         var res = (0, utils_1.byteArrayToHex)(this.readBytes(numBytes)).substr(0, numBytes * 2);
-        this.position += numBytes * 2;
+        //this.position += numBytes;
         return res;
     };
     PBinaryReader.prototype.readString = function () {
@@ -3084,6 +3094,26 @@ var PBinaryReader = /** @class */ (function () {
             res = res.times(256).plus(parseInt(c, 16));
         });
         return res.toString();
+    };
+    PBinaryReader.prototype.readSignatureV2 = function () {
+        var kind = this.readByte();
+        var curve;
+        var signature = new Ed25519Signature_1.Ed25519Signature();
+        switch (kind) {
+            case interfaces_1.SignatureKind.None:
+                return null;
+            case interfaces_1.SignatureKind.Ed25519:
+                var len = this.readVarInt();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.read(len));
+                break;
+            case interfaces_1.SignatureKind.ECDSA:
+                curve = this.readByte();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.readString());
+                break;
+            default:
+                throw "read signature: " + kind;
+        }
+        return signature;
     };
     PBinaryReader.prototype.readSignature = function () {
         var kind = this.readByte();
@@ -3118,6 +3148,7 @@ var PBinaryReader = /** @class */ (function () {
         //var len = this.readByte();
         var result = 0;
         var bytes = this.read(4);
+        //[...(bytes.match(/.{1,2}/g) as any)];
         bytes
             .match(/.{1,2}/g)
             .reverse()
@@ -3890,7 +3921,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -3981,6 +4012,14 @@ function uint8ArrayToString(array) {
     return result;
 }
 exports.uint8ArrayToString = uint8ArrayToString;
+function uint8ArrayToStringDefault(array) {
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+        result += array[i].toString(16);
+    }
+    return result;
+}
+exports.uint8ArrayToStringDefault = uint8ArrayToStringDefault;
 function uint8ArrayToNumberArray(array) {
     var result = [];
     for (var i = 0; i < array.length; i++) {

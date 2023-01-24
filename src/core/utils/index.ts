@@ -77,6 +77,14 @@ export function uint8ArrayToString(array: Uint8Array): string {
   return result;
 }
 
+export function uint8ArrayToStringDefault(array: Uint8Array): string {
+  let result = "";
+  for (let i = 0; i < array.length; i++) {
+    result += array[i].toString(16);
+  }
+  return result;
+}
+
 export function uint8ArrayToNumberArray(array: Uint8Array): number[] {
   let result = [];
   for (let i = 0; i < array.length; i++) {
