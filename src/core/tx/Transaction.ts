@@ -44,8 +44,8 @@ export class Transaction implements ISerializable {
     this.signatures = [];
   }
 
-  public sign(privateKey: string) {
-    let _keys = PhantasmaKeys.fromWIF(getWifFromPrivateKey(privateKey));
+  public sign(wif: string) {
+    let _keys = PhantasmaKeys.fromWIF(wif);
     const msg = this.ToByteAray(false);
     let sig: Signature = _keys.Sign(msg);
     let sigs: Signature[] = [];
@@ -57,6 +57,20 @@ export class Transaction implements ISerializable {
     this.signatures = sigs;
     //const signature = this.getSign(this.toString(false), privateKey);
     //this.signatures.unshift({ signature, kind: 1 });
+  }
+
+  public signWithPrivateKey(privateKey: string) {
+    const msg = this.ToByteAray(false);
+    let sig: Signature = PhantasmaKeys.fromWIF(
+      getWifFromPrivateKey(privateKey)
+    ).Sign(msg);
+    let sigs: Signature[] = [];
+    if (this.signatures != null && this.signatures.length > 0) {
+      sigs = this.signatures;
+    }
+    sigs.push(sig);
+
+    this.signatures = sigs;
   }
 
   public signWithKeys(keys: PhantasmaKeys) {

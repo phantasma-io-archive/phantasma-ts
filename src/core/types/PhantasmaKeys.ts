@@ -1,16 +1,22 @@
 import { IKeyPair } from "../interfaces/IKeyPair";
 import { Address } from "./Address";
 import base58 from "bs58";
+import WIF from "wif";
 import { Signature } from "../interfaces/Signature";
 import {
   stringToUint8Array,
   uint8ArrayToBytes,
+  uint8ArrayToHex,
   uint8ArrayToString,
 } from "../utils";
 import { Ed25519Signature } from "./Ed25519Signature";
 import { eddsa } from "elliptic";
 import { Entropy } from "./Entropy";
-import { generateNewWif, getPublicKeyFromPrivateKey } from "../tx";
+import {
+  generateNewWif,
+  getPublicKeyFromPrivateKey,
+  getWifFromPrivateKey,
+} from "../tx";
 const ed25519 = new eddsa("ed25519");
 
 export class PhantasmaKeys implements IKeyPair {
@@ -67,7 +73,11 @@ export class PhantasmaKeys implements IKeyPair {
       throw new Error("WIF required");
     }
 
-    const data = base58.decode(wif); // checkdecode
+    let data = base58.decode(wif); // checkdecode
+    if (data.length == 38) {
+      data = data.slice(0, 34);
+    }
+
     if (data.length != 34 || data[0] != 0x80 || data[33] != 0x01) {
       throw new Error("Invalid WIF format");
     }
@@ -77,11 +87,9 @@ export class PhantasmaKeys implements IKeyPair {
   }
 
   public toWIF(): string {
-    const data = new Uint8Array(34);
-    data[0] = 0x80;
-    data.set(this._privateKey, 1);
-    data[33] = 0x01;
-    const wif = uint8ArrayToString(data); // .base58CheckEncode();
+    const privateKeyString = uint8ArrayToHex(this._privateKey);
+    const privatekeyBuffer = Buffer.from(privateKeyString, "hex");
+    const wif = WIF.encode(128, privatekeyBuffer, true); //uint8ArrayToHex(data); // .base58CheckEncode();
     return wif;
   }
 

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PhantasmaKeys = void 0;
 var Address_1 = require("./Address");
 var bs58_1 = __importDefault(require("bs58"));
+var wif_1 = __importDefault(require("wif"));
 var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
 var elliptic_1 = require("elliptic");
@@ -56,6 +57,9 @@ var PhantasmaKeys = /** @class */ (function () {
             throw new Error("WIF required");
         }
         var data = bs58_1.default.decode(wif); // checkdecode
+        if (data.length == 38) {
+            data = data.slice(0, 34);
+        }
         if (data.length != 34 || data[0] != 0x80 || data[33] != 0x01) {
             throw new Error("Invalid WIF format");
         }
@@ -63,11 +67,9 @@ var PhantasmaKeys = /** @class */ (function () {
         return new PhantasmaKeys(privateKey);
     };
     PhantasmaKeys.prototype.toWIF = function () {
-        var data = new Uint8Array(34);
-        data[0] = 0x80;
-        data.set(this._privateKey, 1);
-        data[33] = 0x01;
-        var wif = (0, utils_1.uint8ArrayToString)(data); // .base58CheckEncode();
+        var privateKeyString = (0, utils_1.uint8ArrayToHex)(this._privateKey);
+        var privatekeyBuffer = Buffer.from(privateKeyString, "hex");
+        var wif = wif_1.default.encode(128, privatekeyBuffer, true); //uint8ArrayToHex(data); // .base58CheckEncode();
         return wif;
     };
     PhantasmaKeys.xor = function (x, y) {
