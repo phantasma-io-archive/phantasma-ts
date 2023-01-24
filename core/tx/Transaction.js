@@ -26,8 +26,8 @@ var Transaction = /** @class */ (function () {
         var transaction = new Transaction("", "", "", new Date(), "");
         return transaction.unserialize(serializedData);
     };
-    Transaction.prototype.sign = function (privateKey) {
-        var _keys = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey));
+    Transaction.prototype.sign = function (wif) {
+        var _keys = types_1.PhantasmaKeys.fromWIF(wif);
         var msg = this.ToByteAray(false);
         var sig = _keys.Sign(msg);
         var sigs = [];
@@ -38,6 +38,16 @@ var Transaction = /** @class */ (function () {
         this.signatures = sigs;
         //const signature = this.getSign(this.toString(false), privateKey);
         //this.signatures.unshift({ signature, kind: 1 });
+    };
+    Transaction.prototype.signWithPrivateKey = function (privateKey) {
+        var msg = this.ToByteAray(false);
+        var sig = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey)).Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
     };
     Transaction.prototype.signWithKeys = function (keys) {
         var msg = this.ToByteAray(false);

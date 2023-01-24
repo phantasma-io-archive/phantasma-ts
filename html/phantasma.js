@@ -1616,8 +1616,8 @@ var Transaction = /** @class */ (function () {
         var transaction = new Transaction("", "", "", new Date(), "");
         return transaction.unserialize(serializedData);
     };
-    Transaction.prototype.sign = function (privateKey) {
-        var _keys = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey));
+    Transaction.prototype.sign = function (wif) {
+        var _keys = types_1.PhantasmaKeys.fromWIF(wif);
         var msg = this.ToByteAray(false);
         var sig = _keys.Sign(msg);
         var sigs = [];
@@ -1628,6 +1628,26 @@ var Transaction = /** @class */ (function () {
         this.signatures = sigs;
         //const signature = this.getSign(this.toString(false), privateKey);
         //this.signatures.unshift({ signature, kind: 1 });
+    };
+    Transaction.prototype.signWithPrivateKey = function (privateKey) {
+        var msg = this.ToByteAray(false);
+        var sig = types_1.PhantasmaKeys.fromWIF((0, utils_2.getWifFromPrivateKey)(privateKey)).Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
+    };
+    Transaction.prototype.signWithKeys = function (keys) {
+        var msg = this.ToByteAray(false);
+        var sig = keys.Sign(msg);
+        var sigs = [];
+        if (this.signatures != null && this.signatures.length > 0) {
+            sigs = this.signatures;
+        }
+        sigs.push(sig);
+        this.signatures = sigs;
     };
     Transaction.prototype.ToByteAray = function (withSignature) {
         var writer = new types_1.PBinaryWriter();
@@ -1658,7 +1678,17 @@ var Transaction = /** @class */ (function () {
             this.signatures.push(sig);
         }
     };
-    Transaction.prototype.SerializeData = function (writer) { };
+    Transaction.prototype.SerializeData = function (writer) {
+        writer.writeString(this.nexusName);
+        writer.writeString(this.chainName);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.writeDateTime(this.expiration);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        writer.writeVarInt(this.signatures.length);
+        this.signatures.forEach(function (sig) {
+            writer.writeSignature(sig);
+        });
+    };
     Transaction.prototype.toString = function (withSignature) {
         /*const utc = Date.UTC(
           this.expiration.getUTCFullYear(),
@@ -2090,8 +2120,11 @@ var Address = /** @class */ (function () {
         else if (key.PublicKey.length == 33) {
             bytes.set(key.PublicKey, 1);
         }
+        else if (key.PublicKey.length == 64) {
+            bytes.set(key.PublicKey.slice(0, 32), 1);
+        }
         else {
-            throw new Error("Invalid public key length");
+            throw new Error("Invalid public key length: " + key.PublicKey.length);
         }
         return new Address(bytes);
     };
@@ -2847,30 +2880,32 @@ exports.Ed25519Signature = Ed25519Signature;
 },{"../interfaces/Signature":7,"../utils":31,"./Extensions":25,"elliptic":155}],21:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Entropy = void 0;
+var crypto_1 = __importDefault(require("crypto"));
 var Entropy = /** @class */ (function () {
     function Entropy() {
     }
     //private static rnd = crypto.randomBytes(24);
     Entropy.GetRandomBytes = function (targetLength) {
         var rnd = new Uint8Array(targetLength);
-        return this.ToBuffer(self.crypto.getRandomValues(rnd).buffer);
-    };
-    Entropy.ToBuffer = function (ab) {
-        var buf = Buffer.alloc(ab.byteLength);
-        var view = new Uint8Array(ab);
-        for (var i = 0; i < buf.length; ++i) {
-            buf[i] = view[i];
+        var privateKey = Buffer.alloc(rnd.byteLength);
+        crypto_1.default.getRandomValues(rnd);
+        for (var i = 0; i < 32; ++i) {
+            privateKey.writeUInt8(rnd[i], i);
         }
-        return buf;
+        //let pk = this.ToBuffer(rnd);
+        return privateKey;
     };
     return Entropy;
 }());
 exports.Entropy = Entropy;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":120}],22:[function(require,module,exports){
+},{"buffer":120,"crypto":128}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Base16 = void 0;
@@ -3405,6 +3440,7 @@ __exportStar(require("./PBinaryWriter"), exports);
 __exportStar(require("./Base16"), exports);
 
 },{"./Base16":22,"./PBinaryReader":23,"./PBinaryWriter":24}],26:[function(require,module,exports){
+(function (Buffer){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3413,6 +3449,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PhantasmaKeys = void 0;
 var Address_1 = require("./Address");
 var bs58_1 = __importDefault(require("bs58"));
+var wif_1 = __importDefault(require("wif"));
 var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
 var elliptic_1 = require("elliptic");
@@ -3428,6 +3465,9 @@ var PhantasmaKeys = /** @class */ (function () {
         }
         this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
         this._privateKey.set(privateKey);
+        /*this._publicKey = stringToUint8Array(
+          getPublicKeyFromPrivateKey(uint8ArrayToString(this._privateKey))
+        );*/
         this._publicKey = (0, utils_1.stringToUint8Array)(ed25519
             .keyFromSecret((0, utils_1.uint8ArrayToString)(this._privateKey))
             .getPublic("hex"));
@@ -3460,6 +3500,9 @@ var PhantasmaKeys = /** @class */ (function () {
             throw new Error("WIF required");
         }
         var data = bs58_1.default.decode(wif); // checkdecode
+        if (data.length == 38) {
+            data = data.slice(0, 34);
+        }
         if (data.length != 34 || data[0] != 0x80 || data[33] != 0x01) {
             throw new Error("Invalid WIF format");
         }
@@ -3467,11 +3510,9 @@ var PhantasmaKeys = /** @class */ (function () {
         return new PhantasmaKeys(privateKey);
     };
     PhantasmaKeys.prototype.toWIF = function () {
-        var data = new Uint8Array(34);
-        data[0] = 0x80;
-        data.set(this._privateKey, 1);
-        data[33] = 0x01;
-        var wif = (0, utils_1.uint8ArrayToString)(data); // .base58CheckEncode();
+        var privateKeyString = (0, utils_1.uint8ArrayToHex)(this._privateKey);
+        var privatekeyBuffer = Buffer.from(privateKeyString, "hex");
+        var wif = wif_1.default.encode(128, privatekeyBuffer, true); //uint8ArrayToHex(data); // .base58CheckEncode();
         return wif;
     };
     PhantasmaKeys.xor = function (x, y) {
@@ -3492,7 +3533,8 @@ var PhantasmaKeys = /** @class */ (function () {
 }());
 exports.PhantasmaKeys = PhantasmaKeys;
 
-},{"../utils":31,"./Address":16,"./Ed25519Signature":20,"./Entropy":21,"bs58":116,"elliptic":155}],27:[function(require,module,exports){
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"../utils":31,"./Address":16,"./Ed25519Signature":20,"./Entropy":21,"bs58":116,"buffer":120,"elliptic":155,"wif":256}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Serialization = exports.CustomSerializer = void 0;

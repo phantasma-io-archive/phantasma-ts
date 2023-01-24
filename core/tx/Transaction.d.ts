@@ -10,7 +10,8 @@ export declare class Transaction implements ISerializable {
     hash: string;
     static FromBytes(serializedData: string): Transaction;
     constructor(nexusName: string, chainName: string, script: string, expiration: Date, payload: string);
-    sign(privateKey: string): void;
+    sign(wif: string): void;
+    signWithPrivateKey(privateKey: string): void;
     signWithKeys(keys: PhantasmaKeys): void;
     ToByteAray(withSignature: boolean): Uint8Array;
     UnserializeData(reader: PBinaryReader): void;
