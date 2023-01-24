@@ -117,7 +117,7 @@ var PBinaryReader = /** @class */ (function () {
     };
     PBinaryReader.prototype.read = function (numBytes) {
         var res = (0, utils_1.byteArrayToHex)(this.readBytes(numBytes)).substr(0, numBytes * 2);
-        this.position += numBytes * 2;
+        //this.position += numBytes;
         return res;
     };
     PBinaryReader.prototype.readString = function () {
@@ -149,6 +149,26 @@ var PBinaryReader = /** @class */ (function () {
             res = res.times(256).plus(parseInt(c, 16));
         });
         return res.toString();
+    };
+    PBinaryReader.prototype.readSignatureV2 = function () {
+        var kind = this.readByte();
+        var curve;
+        var signature = new Ed25519Signature_1.Ed25519Signature();
+        switch (kind) {
+            case interfaces_1.SignatureKind.None:
+                return null;
+            case interfaces_1.SignatureKind.Ed25519:
+                var len = this.readVarInt();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.read(len));
+                break;
+            case interfaces_1.SignatureKind.ECDSA:
+                curve = this.readByte();
+                signature.Bytes = (0, utils_1.stringToUint8Array)(this.readString());
+                break;
+            default:
+                throw "read signature: " + kind;
+        }
+        return signature;
     };
     PBinaryReader.prototype.readSignature = function () {
         var kind = this.readByte();
@@ -183,6 +203,7 @@ var PBinaryReader = /** @class */ (function () {
         //var len = this.readByte();
         var result = 0;
         var bytes = this.read(4);
+        //[...(bytes.match(/.{1,2}/g) as any)];
         bytes
             .match(/.{1,2}/g)
             .reverse()

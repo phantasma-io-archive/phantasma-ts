@@ -4,7 +4,9 @@ import crypto from "crypto";
 import {
   getAddressFromWif,
   getWifFromPrivateKey,
+  PBinaryReader,
   PhantasmaKeys,
+  stringToUint8Array,
   uint8ArrayToHex,
   uint8ArrayToString,
 } from "../../core";
@@ -75,6 +77,48 @@ describe("test phantasma_ts", function () {
 
     tx.sign(pk);
     tx.SerializeData(writer);*/
+    done();
+  });
+
+  test("Test signature ts and c#", function (done) {
+    let nexusName = "testnet";
+    let chainName = "main";
+    let wif = "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx";
+    let uintArray = Uint8Array.from([0x01, 0x02, 0x03]);
+    let script = uint8ArrayToHex(uintArray);
+    let time = new phantasmaJS.Timestamp(1234567890);
+    let date = new Date(time.toString());
+    let payload = "payload";
+    let keys = phantasmaJS.PhantasmaKeys.fromWIF(wif);
+    let tx = new phantasmaJS.Transaction(
+      nexusName,
+      chainName,
+      script,
+      date,
+      payload
+    );
+
+    console.log(script);
+    tx.signWithKeys(keys);
+
+    let fromCsharp =
+      "07746573746E6574046D61696E03010203D2029649077061796C6F61640101404C033859A20A4FC2E469B3741FB05ACEDFEC24BFE92E07633680488665D79F916773FF40D0E81C4468E1C1487E6E1E6EEFDA5C5D7C53C15C4FB349C2349A1802";
+    let fromCsharpBytes = Buffer.Buffer.from(fromCsharp, "hex");
+    let bytes = stringToUint8Array(fromCsharp);
+    let fromCsharpTx = phantasmaJS.Transaction.Unserialize(fromCsharpBytes);
+
+    console.log(tx.ToByteAray(true));
+    expect(fromCsharpTx.chainName).toBe(tx.chainName);
+    expect(fromCsharpTx.nexusName).toBe(tx.nexusName);
+    expect(fromCsharpTx.script).toBe(tx.script);
+    //expect(fromCsharpTx.payload).toBe(tx.payload);
+    expect(fromCsharpTx.expiration).toStrictEqual(tx.expiration);
+    expect(fromCsharpTx.signatures.length).toBe(tx.signatures.length);
+    expect(fromCsharpTx.signatures[0].Kind).toBe(tx.signatures[0].Kind);
+    expect(fromCsharpTx.signatures[0].ToByteArray()).toStrictEqual(
+      tx.signatures[0].ToByteArray()
+    );
+
     done();
   });
 });

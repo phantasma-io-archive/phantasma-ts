@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -102,6 +102,14 @@ function uint8ArrayToString(array) {
     return result;
 }
 exports.uint8ArrayToString = uint8ArrayToString;
+function uint8ArrayToStringDefault(array) {
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+        result += array[i].toString(16);
+    }
+    return result;
+}
+exports.uint8ArrayToStringDefault = uint8ArrayToStringDefault;
 function uint8ArrayToNumberArray(array) {
     var result = [];
     for (var i = 0; i < array.length; i++) {

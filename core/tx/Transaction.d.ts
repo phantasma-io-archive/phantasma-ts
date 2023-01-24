@@ -21,5 +21,6 @@ export declare class Transaction implements ISerializable {
     mineTransaction(difficulty: number): void;
     private getSign;
     unserialize(serializedData: string): Transaction;
+    static Unserialize(serialized: Uint8Array): Transaction;
 }
 //# sourceMappingURL=Transaction.d.ts.map

@@ -79,12 +79,13 @@ var Transaction = /** @class */ (function () {
     Transaction.prototype.UnserializeData = function (reader) {
         this.nexusName = reader.readString();
         this.chainName = reader.readString();
-        this.script = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
-        this.expiration = new Date(reader.readTimestamp().value);
-        this.payload = (0, utils_1.uint8ArrayToHex)(reader.readByteArray());
+        this.script = (0, utils_1.uint8ArrayToStringDefault)(reader.readByteArray());
+        var time = reader.readTimestamp();
+        this.expiration = new Date(time.toString());
+        this.payload = (0, utils_1.uint8ArrayToStringDefault)(reader.readByteArray());
         var sigCount = reader.readVarInt();
         for (var i = 0; i < sigCount; i++) {
-            var sig = reader.readSignature();
+            var sig = reader.readSignatureV2();
             this.signatures.push(sig);
         }
     };
@@ -194,6 +195,12 @@ var Transaction = /** @class */ (function () {
           nTransaction.signatures.push(dec.readSignature());
         }*/
         return nTransaction;
+    };
+    Transaction.Unserialize = function (serialized) {
+        var reader = new types_1.PBinaryReader(serialized);
+        var tx = new Transaction("", "", "", new Date(), "");
+        tx.UnserializeData(reader);
+        return tx;
     };
     return Transaction;
 }());
