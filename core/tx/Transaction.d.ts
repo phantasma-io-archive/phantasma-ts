@@ -9,7 +9,8 @@ export declare class Transaction implements ISerializable {
     signatures: Array<Signature>;
     hash: string;
     static FromBytes(serializedData: string): Transaction;
-    constructor(nexusName: string, chainName: string, script: string, expiration: Date, payload: string);
+    constructor(nexusName: string, chainName: string, script: string, // Should be HexString
+    expiration: Date, payload: string);
     sign(wif: string): void;
     signWithPrivateKey(privateKey: string): void;
     signWithKeys(keys: PhantasmaKeys): void;

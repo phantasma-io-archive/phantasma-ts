@@ -1603,7 +1603,9 @@ var types_1 = require("../types");
 var utils_2 = require("./utils");
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
-    function Transaction(nexusName, chainName, script, expiration, payload) {
+    function Transaction(nexusName, chainName, script, // Should be HexString
+    expiration, payload // Should be HexString
+    ) {
         this.nexusName = nexusName;
         this.chainName = chainName;
         this.script = script;
@@ -1653,9 +1655,9 @@ var Transaction = /** @class */ (function () {
         var writer = new types_1.PBinaryWriter();
         writer.writeString(this.nexusName);
         writer.writeString(this.chainName);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.AppendHexEncoded(this.script);
         writer.writeDateTime(this.expiration);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        writer.AppendHexEncoded(this.payload);
         if (withSignature) {
             writer.writeVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
@@ -2092,6 +2094,10 @@ var Address = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Address.FromPublickKey = function (publicKey) {
+        publicKey = publicKey.slice(0, 34);
+        return new Address(publicKey);
+    };
     Address.FromText = function (text) {
         return Address.Parse(text);
     };
@@ -2931,12 +2937,18 @@ var Base16 = /** @class */ (function () {
             .join("")
             .toUpperCase();
     };
+    Base16.encodeUint8Array = function (arr) {
+        return Array.from(arr)
+            .map(function (c) { return c.toString(16).padStart(2, "0"); })
+            .join("")
+            .toUpperCase();
+    };
     Base16.decode = function (str) {
         var _a, _b;
         if (!str || str.length % 2 !== 0)
             return "";
-        return (_b = (_a = str
-            .match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map(function (c) { return String.fromCharCode(parseInt(c, 16)); }).join("")) !== null && _b !== void 0 ? _b : "";
+        return ((_b = (_a = str
+            .match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map(function (c) { return String.fromCharCode(parseInt(c, 16)); }).join("")) !== null && _b !== void 0 ? _b : "");
     };
     return Base16;
 }());
@@ -3216,6 +3228,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
+var __1 = require("../..");
 var interfaces_1 = require("../../interfaces");
 var PBinaryWriter = /** @class */ (function () {
     function PBinaryWriter(arg1) {
@@ -3290,12 +3303,14 @@ var PBinaryWriter = /** @class */ (function () {
         return this.writer.toUint8Array();
     };
     PBinaryWriter.prototype.appendByte = function (value) {
-        this.writer.writeByte(value);
+        this.writeByte(value);
         return this;
     };
     PBinaryWriter.prototype.appendBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++) {
-            this.appendByte(bytes[i]);
+            if (!Number.isNaN(bytes[i])) {
+                this.appendByte(bytes[i]);
+            }
         }
     };
     PBinaryWriter.prototype.writeEnum = function (value) {
@@ -3445,11 +3460,22 @@ var PBinaryWriter = /** @class */ (function () {
         signature.SerializeData(this);
         return this;
     };
+    PBinaryWriter.prototype.AppendHexEncoded = function (bytes) {
+        var localEncoded = (0, __1.hexStringToBytes)(bytes);
+        this.writeVarInt(localEncoded.length);
+        for (var i = 0; i < localEncoded.length; i++) {
+            if (!Number.isNaN(localEncoded[i])) {
+                this.appendByte(localEncoded[i]);
+            }
+        }
+        //this.writeBytes(localEncoded);
+        return this;
+    };
     return PBinaryWriter;
 }());
 exports.PBinaryWriter = PBinaryWriter;
 
-},{"../../interfaces":8,"csharp-binary-stream":144}],25:[function(require,module,exports){
+},{"../..":1,"../../interfaces":8,"csharp-binary-stream":144}],25:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3485,6 +3511,7 @@ var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
 var elliptic_1 = require("elliptic");
 var Entropy_1 = require("./Entropy");
+var tx_1 = require("../tx");
 var ed25519 = new elliptic_1.eddsa("ed25519");
 var PhantasmaKeys = /** @class */ (function () {
     function PhantasmaKeys(privateKey) {
@@ -3496,12 +3523,11 @@ var PhantasmaKeys = /** @class */ (function () {
         }
         this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
         this._privateKey.set(privateKey);
-        /*this._publicKey = stringToUint8Array(
-          getPublicKeyFromPrivateKey(uint8ArrayToString(this._privateKey))
-        );*/
-        this._publicKey = (0, utils_1.stringToUint8Array)(ed25519
-            .keyFromSecret((0, utils_1.uint8ArrayToString)(this._privateKey))
-            .getPublic("hex"));
+        var wif = (0, tx_1.getWifFromPrivateKey)((0, utils_1.uint8ArrayToHex)(privateKey));
+        var privateKeyString = (0, utils_1.uint8ArrayToHex)(this._privateKey);
+        var privateKeyBuffer = Buffer.from(privateKeyString, "hex");
+        var publicKey = ed25519.keyFromSecret(privateKeyBuffer).getPublic();
+        this._publicKey = publicKey;
         this.Address = Address_1.Address.FromKey(this);
     }
     Object.defineProperty(PhantasmaKeys.prototype, "PrivateKey", {
@@ -3565,7 +3591,7 @@ var PhantasmaKeys = /** @class */ (function () {
 exports.PhantasmaKeys = PhantasmaKeys;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../utils":31,"./Address":16,"./Ed25519Signature":20,"./Entropy":21,"bs58":116,"buffer":120,"elliptic":155,"wif":256}],27:[function(require,module,exports){
+},{"../tx":14,"../utils":31,"./Address":16,"./Ed25519Signature":20,"./Entropy":21,"bs58":116,"buffer":120,"elliptic":155,"wif":256}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Serialization = exports.CustomSerializer = void 0;
@@ -3921,7 +3947,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.hexStringToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -4036,6 +4062,14 @@ function stringToUint8Array(str) {
     return result;
 }
 exports.stringToUint8Array = stringToUint8Array;
+function hexStringToUint8Array(str) {
+    var result = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) {
+        result[i] = str.charCodeAt(i).toString(16).charCodeAt(0);
+    }
+    return result;
+}
+exports.hexStringToUint8Array = hexStringToUint8Array;
 function arrayNumberToUint8Array(arr) {
     var result = new Uint8Array(arr.length);
     for (var i = 0; i < arr.length; i++) {
@@ -4070,6 +4104,9 @@ function numberToByteArray(num, size) {
         }
         else if (num <= 0xffffd) {
             size = 3;
+        }
+        else if (num <= 0xfffffffd) {
+            size = 4;
         }
         else if (num <= 0xffffffff) {
             size = 5;
@@ -4586,6 +4623,7 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
+        return this;
     };
     ScriptBuilder.prototype.GetScript = function () {
         return (0, utils_1.uint8ArrayToHex)(this.writer.toUint8Array());
@@ -4775,7 +4813,7 @@ var ScriptBuilder = /** @class */ (function () {
     };
     ScriptBuilder.prototype.EmitLoadAddress = function (reg, obj) {
         var writer = new types_1.PBinaryWriter();
-        var bytes = obj.SerializeData(writer);
+        obj.SerializeData(writer);
         var byteArray = Array.from(writer.toUint8Array());
         this.EmitLoadBytes(reg, byteArray, VMType_1.VMType.Bytes);
         return this;

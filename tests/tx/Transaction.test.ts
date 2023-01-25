@@ -2,13 +2,19 @@ import { phantasmaJS } from "../..";
 import Buffer from "Buffer";
 import crypto from "crypto";
 import {
+  Address,
+  Base16,
+  encodeBase16,
   getAddressFromWif,
   getWifFromPrivateKey,
   PBinaryReader,
   PhantasmaKeys,
+  ScriptBuilder,
   stringToUint8Array,
+  Timestamp,
   uint8ArrayToHex,
   uint8ArrayToString,
+  uint8ArrayToStringDefault,
 } from "../../core";
 
 describe("test phantasma_ts", function () {
@@ -98,7 +104,6 @@ describe("test phantasma_ts", function () {
       payload
     );
 
-    console.log(script);
     tx.signWithKeys(keys);
 
     let fromCsharp =
@@ -107,7 +112,6 @@ describe("test phantasma_ts", function () {
     let bytes = stringToUint8Array(fromCsharp);
     let fromCsharpTx = phantasmaJS.Transaction.Unserialize(fromCsharpBytes);
 
-    console.log(tx.ToByteAray(true));
     expect(fromCsharpTx.chainName).toBe(tx.chainName);
     expect(fromCsharpTx.nexusName).toBe(tx.nexusName);
     expect(fromCsharpTx.script).toBe(tx.script);
@@ -119,6 +123,54 @@ describe("test phantasma_ts", function () {
       tx.signatures[0].ToByteArray()
     );
 
+    done();
+  });
+
+  test("Transaction Serialized to bytes", function (done) {
+    let nexusName = "testnet";
+    let chainName = "main";
+    let subject = "system.nexus.protocol.version";
+    let wif = "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx";
+    let mode = 1;
+    let choice = new phantasmaJS.PollChoice("myChoice");
+    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choices = [choice, choice2];
+    let choicesSerialized = phantasmaJS.Serialization.Serialize(choices);
+    let time = new phantasmaJS.Timestamp(1234567890);
+    let date = new Date(time.toString());
+    let startTime = time;
+    let endTime = new Timestamp(time.value + 86400);
+    let payload = Base16.encode("Consensus"); // hex string
+
+    let keys = phantasmaJS.PhantasmaKeys.fromWIF(wif);
+    let sb = new ScriptBuilder();
+
+    let gasLimit = 10000;
+    let gasPrice = 210000;
+
+    let script = sb
+      .AllowGas(keys.Address, Address.Null, gasLimit, gasPrice)
+      .CallContract("consensus", "SingleVote", [keys.Address.Text, subject, 0])
+      .SpendGas(keys.Address)
+      .EndScript();
+
+    expect(script).toBe(
+      "0D00030350340303000D000302102703000D000223220000000000000000000000000000000000000000000000000000000000000000000003000D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D000408416C6C6F7747617303000D0004036761732D00012E010D0003010003000D00041D73797374656D2E6E657875732E70726F746F636F6C2E76657273696F6E03000D00042F50324B464579466576705166536157384734566A536D6857555A585234517247395951523148624D7054554370434C03000D00040A53696E676C65566F746503000D000409636F6E73656E7375732D00012E010D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D0004085370656E6447617303000D0004036761732D00012E010B"
+    );
+
+    let tx = new phantasmaJS.Transaction(
+      nexusName,
+      chainName,
+      script,
+      date,
+      payload
+    );
+
+    tx.signWithKeys(keys);
+
+    expect(uint8ArrayToHex(tx.ToByteAray(true)).toUpperCase()).toBe(
+      "07746573746E6574046D61696EFD42010D00030350340303000D000302102703000D000223220000000000000000000000000000000000000000000000000000000000000000000003000D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D000408416C6C6F7747617303000D0004036761732D00012E010D0003010003000D00041D73797374656D2E6E657875732E70726F746F636F6C2E76657273696F6E03000D00042F50324B464579466576705166536157384734566A536D6857555A585234517247395951523148624D7054554370434C03000D00040A53696E676C65566F746503000D000409636F6E73656E7375732D00012E010D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D0004085370656E6447617303000D0004036761732D00012E010BD202964909436F6E73656E737573010140F1C0410D49A5EDF0945B0EE9FAFDF6CA1FC315118D545E07824BEF1BA1F00881C29419648FD0B8200A356D21FAF45C60F4B77279D931CE4D732F5896E93BFE0D"
+    );
     done();
   });
 });

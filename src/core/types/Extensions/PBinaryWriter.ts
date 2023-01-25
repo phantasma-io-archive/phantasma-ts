@@ -1,5 +1,11 @@
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 import { BinaryWriter, Encoding } from "csharp-binary-stream";
+import {
+  hexStringToBytes,
+  hexStringToUint8Array,
+  hexToByteArray,
+  stringToUint8Array,
+} from "../..";
 import { ISignature, Signature, SignatureKind } from "../../interfaces";
 import { Timestamp } from "../Timestamp";
 
@@ -80,13 +86,15 @@ export class PBinaryWriter {
   }
 
   public appendByte(value: number): this {
-    this.writer.writeByte(value);
+    this.writeByte(value);
     return this;
   }
 
   public appendBytes(bytes: byte[]) {
     for (let i = 0; i < bytes.length; i++) {
-      this.appendByte(bytes[i]);
+      if (!Number.isNaN(bytes[i])) {
+        this.appendByte(bytes[i]);
+      }
     }
   }
 
@@ -175,7 +183,7 @@ export class PBinaryWriter {
     return this;
   }
 
-  rawString(value: string) {
+  rawString(value: string): number[] {
     var data = [];
     for (var i = 0; i < value.length; i++) {
       data.push(value.charCodeAt(i));
@@ -251,6 +259,19 @@ export class PBinaryWriter {
     }
     this.writeByte(signature.Kind);
     signature.SerializeData(this);
+    return this;
+  }
+
+  public AppendHexEncoded(bytes: string): this {
+    let localEncoded = hexStringToBytes(bytes);
+    this.writeVarInt(localEncoded.length);
+    /*for (let i = 0; i < localEncoded.length; i++) {
+      if (!Number.isNaN(localEncoded[i])) {
+        this.appendByte(localEncoded[i]);
+      }
+    }*/
+
+    this.appendBytes(localEncoded);
     return this;
   }
 }

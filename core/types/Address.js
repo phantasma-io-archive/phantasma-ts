@@ -121,6 +121,10 @@ var Address = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Address.FromPublickKey = function (publicKey) {
+        publicKey = publicKey.slice(0, 34);
+        return new Address(publicKey);
+    };
     Address.FromText = function (text) {
         return Address.Parse(text);
     };

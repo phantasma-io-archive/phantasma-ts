@@ -101,6 +101,14 @@ export function stringToUint8Array(str: string): Uint8Array {
   return result;
 }
 
+export function hexStringToUint8Array(str: string): Uint8Array {
+  let result = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    result[i] = str.charCodeAt(i).toString(16).charCodeAt(0);
+  }
+  return result;
+}
+
 export function arrayNumberToUint8Array(arr: number[]): Uint8Array {
   let result = new Uint8Array(arr.length);
   for (let i = 0; i < arr.length; i++) {
@@ -133,6 +141,8 @@ export function numberToByteArray(num: number, size?: number): Uint8Array {
       size = 2;
     } else if (num <= 0xffffd) {
       size = 3;
+    } else if (num <= 0xfffffffd) {
+      size = 4;
     } else if (num <= 0xffffffff) {
       size = 5;
     } else if (num <= 0xffffffffffffffff) {

@@ -127,6 +127,11 @@ export class Address implements ISerializable {
     this._text = null;
   }
 
+  public static FromPublickKey(publicKey: Uint8Array): Address {
+    publicKey = publicKey.slice(0, 34);
+    return new Address(publicKey);
+  }
+
   public static FromText(text: string): Address {
     return Address.Parse(text);
   }

@@ -11,6 +11,7 @@ var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
 var elliptic_1 = require("elliptic");
 var Entropy_1 = require("./Entropy");
+var tx_1 = require("../tx");
 var ed25519 = new elliptic_1.eddsa("ed25519");
 var PhantasmaKeys = /** @class */ (function () {
     function PhantasmaKeys(privateKey) {
@@ -22,12 +23,11 @@ var PhantasmaKeys = /** @class */ (function () {
         }
         this._privateKey = new Uint8Array(PhantasmaKeys.PrivateKeyLength);
         this._privateKey.set(privateKey);
-        /*this._publicKey = stringToUint8Array(
-          getPublicKeyFromPrivateKey(uint8ArrayToString(this._privateKey))
-        );*/
-        this._publicKey = (0, utils_1.stringToUint8Array)(ed25519
-            .keyFromSecret((0, utils_1.uint8ArrayToString)(this._privateKey))
-            .getPublic("hex"));
+        var wif = (0, tx_1.getWifFromPrivateKey)((0, utils_1.uint8ArrayToHex)(privateKey));
+        var privateKeyString = (0, utils_1.uint8ArrayToHex)(this._privateKey);
+        var privateKeyBuffer = Buffer.from(privateKeyString, "hex");
+        var publicKey = ed25519.keyFromSecret(privateKeyBuffer).getPublic();
+        this._publicKey = publicKey;
         this.Address = Address_1.Address.FromKey(this);
     }
     Object.defineProperty(PhantasmaKeys.prototype, "PrivateKey", {

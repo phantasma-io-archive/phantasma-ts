@@ -132,7 +132,5 @@ describe("VM index file", () => {
     let choice2 = new phantasmaJS.PollChoice("myChoice");
     let choices: PollChoice[] = [choice, choice2];
     let choicesSerialized = Serialization.Serialize(choices);
-
-    console.log("choicesSerialized", choicesSerialized);
   });
 });

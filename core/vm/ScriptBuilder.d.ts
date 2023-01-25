@@ -31,7 +31,7 @@ export declare class ScriptBuilder {
     writer: PBinaryWriter;
     NullAddress: string;
     constructor();
-    BeginScript(): void;
+    BeginScript(): this;
     GetScript(): string;
     EndScript(): string;
     Emit(opcode: Opcode, bytes?: number[]): this;
