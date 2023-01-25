@@ -8,6 +8,8 @@ import {
   uint8ArrayToHex,
   uint8ArrayToString,
   uint8ArrayToStringDefault,
+  hexStringToUint8Array,
+  hexToByteArray,
 } from "../utils";
 import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
@@ -17,10 +19,10 @@ import { getWifFromPrivateKey } from "./utils";
 const curve = new eddsa("ed25519");
 
 export class Transaction implements ISerializable {
-  script: string;
+  script: string; // Should be HexString
   nexusName: string;
   chainName: string;
-  payload: string;
+  payload: string; // Should be HexString
   expiration: Date;
   signatures: Array<Signature>;
   hash: string;
@@ -33,9 +35,9 @@ export class Transaction implements ISerializable {
   constructor(
     nexusName: string,
     chainName: string,
-    script: string,
+    script: string, // Should be HexString
     expiration: Date,
-    payload: string
+    payload: string // Should be HexString
   ) {
     this.nexusName = nexusName;
     this.chainName = chainName;
@@ -91,9 +93,9 @@ export class Transaction implements ISerializable {
     let writer = new PBinaryWriter();
     writer.writeString(this.nexusName);
     writer.writeString(this.chainName);
-    writer.writeByteArray(stringToUint8Array(this.script));
+    writer.AppendHexEncoded(this.script);
     writer.writeDateTime(this.expiration);
-    writer.writeByteArray(stringToUint8Array(this.payload));
+    writer.AppendHexEncoded(this.payload);
     if (withSignature) {
       writer.writeVarInt(this.signatures.length);
       this.signatures.forEach((sig) => {

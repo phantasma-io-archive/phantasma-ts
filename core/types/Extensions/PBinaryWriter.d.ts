@@ -36,13 +36,14 @@ export declare class PBinaryWriter {
     writeVarInt(value: number): this;
     writeTimestamp(obj: Timestamp): this;
     writeDateTime(obj: Date): this;
-    rawString(value: string): any[];
+    rawString(value: string): number[];
     writeByteArray(bytes: number[] | Uint8Array): this;
     writeString(text: string): this;
     emitUInt32(value: number): this;
     writeBigInteger(value: BigInt): this;
     writeBigIntegerString(value: string): this;
     writeSignature(signature: Signature): this;
+    AppendHexEncoded(bytes: string): this;
 }
 export {};
 //# sourceMappingURL=PBinaryWriter.d.ts.map

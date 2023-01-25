@@ -51,6 +51,7 @@ export class ScriptBuilder {
   public BeginScript() {
     this.str = "";
     this.writer = new PBinaryWriter();
+    return this;
   }
 
   public GetScript(): string {
@@ -261,7 +262,7 @@ export class ScriptBuilder {
 
   public EmitLoadAddress(reg: number, obj: Address): this {
     let writer = new PBinaryWriter();
-    let bytes = obj.SerializeData(writer);
+    obj.SerializeData(writer);
     let byteArray = Array.from(writer.toUint8Array());
     this.EmitLoadBytes(reg, byteArray, VMType.Bytes);
     return this;

@@ -13,7 +13,9 @@ var types_1 = require("../types");
 var utils_2 = require("./utils");
 var curve = new elliptic_1.eddsa("ed25519");
 var Transaction = /** @class */ (function () {
-    function Transaction(nexusName, chainName, script, expiration, payload) {
+    function Transaction(nexusName, chainName, script, // Should be HexString
+    expiration, payload // Should be HexString
+    ) {
         this.nexusName = nexusName;
         this.chainName = chainName;
         this.script = script;
@@ -63,9 +65,9 @@ var Transaction = /** @class */ (function () {
         var writer = new types_1.PBinaryWriter();
         writer.writeString(this.nexusName);
         writer.writeString(this.chainName);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.AppendHexEncoded(this.script);
         writer.writeDateTime(this.expiration);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        writer.AppendHexEncoded(this.payload);
         if (withSignature) {
             writer.writeVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {

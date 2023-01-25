@@ -101,6 +101,7 @@ var ScriptBuilder = /** @class */ (function () {
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
+        return this;
     };
     ScriptBuilder.prototype.GetScript = function () {
         return (0, utils_1.uint8ArrayToHex)(this.writer.toUint8Array());
@@ -290,7 +291,7 @@ var ScriptBuilder = /** @class */ (function () {
     };
     ScriptBuilder.prototype.EmitLoadAddress = function (reg, obj) {
         var writer = new types_1.PBinaryWriter();
-        var bytes = obj.SerializeData(writer);
+        obj.SerializeData(writer);
         var byteArray = Array.from(writer.toUint8Array());
         this.EmitLoadBytes(reg, byteArray, VMType_1.VMType.Bytes);
         return this;

@@ -22,6 +22,7 @@ export declare class Address implements ISerializable {
     private static _keyToTextCache;
     get Text(): string;
     private constructor();
+    static FromPublickKey(publicKey: Uint8Array): Address;
     static FromText(text: string): Address;
     static Parse(text: string): Address;
     static IsValidAddress(text: string): boolean;

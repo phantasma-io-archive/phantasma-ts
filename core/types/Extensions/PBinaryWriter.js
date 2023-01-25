@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
+var __1 = require("../..");
 var interfaces_1 = require("../../interfaces");
 var PBinaryWriter = /** @class */ (function () {
     function PBinaryWriter(arg1) {
@@ -77,12 +78,14 @@ var PBinaryWriter = /** @class */ (function () {
         return this.writer.toUint8Array();
     };
     PBinaryWriter.prototype.appendByte = function (value) {
-        this.writer.writeByte(value);
+        this.writeByte(value);
         return this;
     };
     PBinaryWriter.prototype.appendBytes = function (bytes) {
         for (var i = 0; i < bytes.length; i++) {
-            this.appendByte(bytes[i]);
+            if (!Number.isNaN(bytes[i])) {
+                this.appendByte(bytes[i]);
+            }
         }
     };
     PBinaryWriter.prototype.writeEnum = function (value) {
@@ -230,6 +233,17 @@ var PBinaryWriter = /** @class */ (function () {
         }
         this.writeByte(signature.Kind);
         signature.SerializeData(this);
+        return this;
+    };
+    PBinaryWriter.prototype.AppendHexEncoded = function (bytes) {
+        var localEncoded = (0, __1.hexStringToBytes)(bytes);
+        this.writeVarInt(localEncoded.length);
+        /*for (let i = 0; i < localEncoded.length; i++) {
+          if (!Number.isNaN(localEncoded[i])) {
+            this.appendByte(localEncoded[i]);
+          }
+        }*/
+        this.appendBytes(localEncoded);
         return this;
     };
     return PBinaryWriter;

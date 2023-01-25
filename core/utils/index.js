@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.hexStringToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -126,6 +126,14 @@ function stringToUint8Array(str) {
     return result;
 }
 exports.stringToUint8Array = stringToUint8Array;
+function hexStringToUint8Array(str) {
+    var result = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) {
+        result[i] = str.charCodeAt(i).toString(16).charCodeAt(0);
+    }
+    return result;
+}
+exports.hexStringToUint8Array = hexStringToUint8Array;
 function arrayNumberToUint8Array(arr) {
     var result = new Uint8Array(arr.length);
     for (var i = 0; i < arr.length; i++) {
@@ -160,6 +168,9 @@ function numberToByteArray(num, size) {
         }
         else if (num <= 0xffffd) {
             size = 3;
+        }
+        else if (num <= 0xfffffffd) {
+            size = 4;
         }
         else if (num <= 0xffffffff) {
             size = 5;

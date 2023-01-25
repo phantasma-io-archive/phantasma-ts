@@ -9,6 +9,7 @@ export declare function uint8ArrayToString(array: Uint8Array): string;
 export declare function uint8ArrayToStringDefault(array: Uint8Array): string;
 export declare function uint8ArrayToNumberArray(array: Uint8Array): number[];
 export declare function stringToUint8Array(str: string): Uint8Array;
+export declare function hexStringToUint8Array(str: string): Uint8Array;
 export declare function arrayNumberToUint8Array(arr: number[]): Uint8Array;
 export declare function uint8ArrayToBytes(array: Uint8Array): number[];
 export declare function uint8ArrayToHex(arr: Uint8Array): string;
