@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PollPresence = exports.ConsensusPoll = exports.PollVote = exports.PollValue = exports.PollChoice = exports.PollState = exports.ConsensusMode = void 0;
 var utils_1 = require("../utils");
+var Extensions_1 = require("./Extensions");
 var Timestamp_1 = require("./Timestamp");
 var ConsensusMode;
 (function (ConsensusMode) {
@@ -20,15 +21,15 @@ var PollState;
 var PollChoice = /** @class */ (function () {
     function PollChoice(value) {
         if (value instanceof Array)
-            this.value = value;
+            this.value = Extensions_1.Base16.decode((0, utils_1.byteArrayToHex)(value));
         else
-            this.value = (0, utils_1.uint8ArrayToBytes)((0, utils_1.stringToUint8Array)(value));
+            this.value = value;
     }
     PollChoice.prototype.SerializeData = function (writer) {
-        writer.writeByteArray(this.value);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.value));
     };
     PollChoice.prototype.UnserializeData = function (reader) {
-        this.value = reader.readByteArray();
+        this.value = Extensions_1.Base16.decode(reader.readByteArray());
     };
     PollChoice.Unserialize = function (reader) {
         var pollChoice = new PollChoice("");
@@ -47,7 +48,7 @@ var PollValue = /** @class */ (function () {
         writer.writeBigInteger(this.votes);
     };
     PollValue.prototype.UnserializeData = function (reader) {
-        this.value = (0, utils_1.uint8ArrayToString)(reader.readByteArray());
+        this.value = Extensions_1.Base16.decode(reader.readByteArray());
         this.ranking = reader.readBigInteger();
         this.votes = reader.readBigInteger();
     };
