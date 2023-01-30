@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./PBinaryReader"), exports);
 __exportStar(require("./PBinaryWriter"), exports);
 __exportStar(require("./Base16"), exports);
+__exportStar(require("./Describer"), exports);

@@ -211,9 +211,14 @@ export class PBinaryReader {
     return len;
   }
 
+  public readVarString(): string {
+    var len = this.readVarInt();
+    if (len == 0) return "";
+    return this.readStringBytes(len);
+  }
+
   public readVmObject() {
     const type = this.readByte();
-    console.log("type", type);
     switch (type) {
       case VMType.String:
         return this.readString();
@@ -226,9 +231,7 @@ export class PBinaryReader {
         let res = {};
         for (let i = 0; i < numFields; ++i) {
           const key: any = this.readVmObject();
-          console.log("  key", key);
           const value = this.readVmObject();
-          console.log("  value", value);
           res[key] = value;
         }
         return res;

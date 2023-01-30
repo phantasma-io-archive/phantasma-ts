@@ -1,6 +1,10 @@
 import { Encoding } from "csharp-binary-stream";
 import { ISerializable } from "../interfaces";
-import { stringToUint8Array, uint8ArrayToBytes } from "../utils";
+import {
+  stringToUint8Array,
+  uint8ArrayToBytes,
+  uint8ArrayToString,
+} from "../utils";
 import { PBinaryReader, PBinaryWriter } from "./Extensions";
 import { Timestamp } from "./Timestamp";
 
@@ -47,13 +51,13 @@ export class PollValue implements ISerializable {
   public votes: BigInt;
 
   SerializeData(writer: PBinaryWriter) {
-    writer.writeString(this.value);
+    writer.writeByteArray(stringToUint8Array(this.value));
     writer.writeBigInteger(this.ranking);
     writer.writeBigInteger(this.votes);
   }
 
   UnserializeData(reader: PBinaryReader) {
-    this.value = reader.readString();
+    this.value = uint8ArrayToString(reader.readByteArray());
     this.ranking = reader.readBigInteger();
     this.votes = reader.readBigInteger();
   }
@@ -97,6 +101,19 @@ export class ConsensusPoll implements ISerializable {
   public choicesPerUser: BigInt;
   public totalVotes: BigInt;
 
+  constructor() {
+    this.subject = "";
+    this.organization = "";
+    this.mode = ConsensusMode.Unanimity;
+    this.state = PollState.Inactive;
+    this.entries = [];
+    this.round = BigInt(0);
+    this.startTime = Timestamp.null;
+    this.endTime = Timestamp.null;
+    this.choicesPerUser = BigInt(0);
+    this.totalVotes = BigInt(0);
+  }
+
   SerializeData(writer: PBinaryWriter) {
     writer.writeString(this.subject);
     writer.writeString(this.organization);
@@ -119,8 +136,9 @@ export class ConsensusPoll implements ISerializable {
     this.organization = reader.readString();
     this.mode = reader.readByte() as ConsensusMode;
     this.state = reader.readByte() as PollState;
+
     this.entries = [];
-    const entriesLength = reader.readByte();
+    const entriesLength = reader.readUnsignedInt();
     for (let i = 0; i < entriesLength; i++) {
       this.entries.push(PollValue.Unserialize(reader));
     }

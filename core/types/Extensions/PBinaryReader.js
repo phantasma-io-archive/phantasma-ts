@@ -231,9 +231,14 @@ var PBinaryReader = /** @class */ (function () {
         }
         return len;
     };
+    PBinaryReader.prototype.readVarString = function () {
+        var len = this.readVarInt();
+        if (len == 0)
+            return "";
+        return this.readStringBytes(len);
+    };
     PBinaryReader.prototype.readVmObject = function () {
         var type = this.readByte();
-        console.log("type", type);
         switch (type) {
             case vm_1.VMType.String:
                 return this.readString();
@@ -246,9 +251,7 @@ var PBinaryReader = /** @class */ (function () {
                 var res = {};
                 for (var i = 0; i < numFields; ++i) {
                     var key = this.readVmObject();
-                    console.log("  key", key);
                     var value = this.readVmObject();
-                    console.log("  value", value);
                     res[key] = value;
                 }
                 return res;

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Base16 = void 0;
+var utils_1 = require("../../utils");
 var Base16 = /** @class */ (function () {
     function Base16() {
     }
@@ -10,8 +11,7 @@ var Base16 = /** @class */ (function () {
         return str
             .split("")
             .map(function (c) { return c.charCodeAt(0).toString(16).padStart(2, "0"); })
-            .join("")
-            .toUpperCase();
+            .join("");
     };
     Base16.encodeUint8Array = function (arr) {
         return Array.from(arr)
@@ -25,6 +25,11 @@ var Base16 = /** @class */ (function () {
             return "";
         return ((_b = (_a = str
             .match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map(function (c) { return String.fromCharCode(parseInt(c, 16)); }).join("")) !== null && _b !== void 0 ? _b : "");
+    };
+    Base16.decodeUint8Array = function (str) {
+        if (!str || str.length % 2 !== 0)
+            return new Uint8Array(0);
+        return new Uint8Array((0, utils_1.stringToUint8Array)(this.decode(str)));
     };
     return Base16;
 }());

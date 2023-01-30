@@ -46,6 +46,7 @@ export declare class ConsensusPoll implements ISerializable {
     endTime: Timestamp;
     choicesPerUser: BigInt;
     totalVotes: BigInt;
+    constructor();
     SerializeData(writer: PBinaryWriter): void;
     UnserializeData(reader: PBinaryReader): void;
     static Unserialize(reader: PBinaryReader): ConsensusPoll;

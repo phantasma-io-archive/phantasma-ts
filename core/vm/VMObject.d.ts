@@ -32,7 +32,7 @@ export declare class VMObject implements ISerializable {
     ToArray(arrayElementType: any): any[];
     ToObjectType(type: any): any;
     ToObject(): any;
-    ToStruct(structType: any): any;
+    ToStruct<T>(structType: any): T;
     static GetVMType(type: any): any;
     static IsVMType(type: any): boolean;
     SetValue(value: any): VMObject;

@@ -17,6 +17,6 @@ export declare class Serialization<T> {
     static Serialize(obj: any): Uint8Array;
     static SerializeObject(writer: PBinaryWriter, obj: any, type: any | null): void;
     static Unserialize<T>(bytesOrBytes: Uint8Array | PBinaryReader, type?: any): T;
-    static UnserializeObject<T>(reader: PBinaryReader, type: any): T;
+    static UnserializeObject<T extends any>(reader: PBinaryReader, type: any): T;
 }
 //# sourceMappingURL=Serialization.d.ts.map

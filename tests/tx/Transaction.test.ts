@@ -115,7 +115,7 @@ describe("test phantasma_ts", function () {
     expect(fromCsharpTx.chainName).toBe(tx.chainName);
     expect(fromCsharpTx.nexusName).toBe(tx.nexusName);
     expect(fromCsharpTx.script).toBe(tx.script);
-    //expect(fromCsharpTx.payload).toBe(tx.payload);
+    expect(fromCsharpTx.payload).toBe(Base16.encode(tx.payload));
     expect(fromCsharpTx.expiration).toStrictEqual(tx.expiration);
     expect(fromCsharpTx.signatures.length).toBe(tx.signatures.length);
     expect(fromCsharpTx.signatures[0].Kind).toBe(tx.signatures[0].Kind);
