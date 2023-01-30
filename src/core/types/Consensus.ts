@@ -1,11 +1,13 @@
 import { Encoding } from "csharp-binary-stream";
 import { ISerializable } from "../interfaces";
 import {
+  byteArrayToHex,
   stringToUint8Array,
   uint8ArrayToBytes,
+  uint8ArrayToHex,
   uint8ArrayToString,
 } from "../utils";
-import { PBinaryReader, PBinaryWriter } from "./Extensions";
+import { Base16, PBinaryReader, PBinaryWriter } from "./Extensions";
 import { Timestamp } from "./Timestamp";
 
 export enum ConsensusMode {
@@ -23,19 +25,20 @@ export enum PollState {
 }
 
 export class PollChoice implements ISerializable {
-  public value: number[]; // Should be byte[]
+  public value: string; // Should be byte[]
 
   public constructor(value: string | number[]) {
-    if (value instanceof Array) this.value = value;
-    else this.value = uint8ArrayToBytes(stringToUint8Array(value));
+    if (value instanceof Array)
+      this.value = Base16.decode(byteArrayToHex(value));
+    else this.value = value;
   }
 
   SerializeData(writer: PBinaryWriter) {
-    writer.writeByteArray(this.value);
+    writer.writeByteArray(stringToUint8Array(this.value));
   }
 
   UnserializeData(reader: PBinaryReader) {
-    this.value = reader.readByteArray();
+    this.value = Base16.decode(reader.readByteArray());
   }
 
   static Unserialize(reader: PBinaryReader): PollChoice {
@@ -57,7 +60,7 @@ export class PollValue implements ISerializable {
   }
 
   UnserializeData(reader: PBinaryReader) {
-    this.value = uint8ArrayToString(reader.readByteArray());
+    this.value = Base16.decode(reader.readByteArray());
     this.ranking = reader.readBigInteger();
     this.votes = reader.readBigInteger();
   }

@@ -14,7 +14,7 @@ export declare enum PollState {
     Failure = 3
 }
 export declare class PollChoice implements ISerializable {
-    value: number[];
+    value: string;
     constructor(value: string | number[]);
     SerializeData(writer: PBinaryWriter): void;
     UnserializeData(reader: PBinaryReader): void;

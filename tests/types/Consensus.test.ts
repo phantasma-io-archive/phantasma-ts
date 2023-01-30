@@ -3,6 +3,7 @@ import {
   ConsensusPoll,
   hexStringToUint8Array,
   PBinaryReader,
+  PollValue,
   Serialization,
   stringToUint8Array,
   uint8ArrayToString,
@@ -40,6 +41,19 @@ describe("Consensus Tests", () => {
     const readerVM = new PBinaryReader(arrayBytes);
     vm.UnserializeData(readerVM);
     let con = vm.ToStruct<ConsensusPoll>(ConsensusPoll);
+    con.entries.forEach((entry) => {
+      console.log(entry);
+      let entryValue = entry as unknown as string;
+      let pollValueBytes = Base16.decodeUint8Array(entryValue);
+      let pollValue = new PollValue();
+      let reader = new PBinaryReader(pollValueBytes);
+      pollValue.UnserializeData(reader);
+      console.log(pollValue);
+
+      //pollValue.UnserializeData(reader);
+
+      //console.log(reader.read());
+    });
     expect(con.subject).toBe("system.nexus.protocol.version");
     expect(con.organization).toBe("validators");
     expect(con.mode).toBe(1);
