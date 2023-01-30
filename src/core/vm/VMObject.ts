@@ -1,10 +1,23 @@
 import BigInteger from "big-integer";
 import { VMType } from "./VMType";
 import { Timestamp } from "../types/Timestamp";
-import { Address, PBinaryReader, PBinaryWriter, Serialization } from "../types";
+import {
+  Address,
+  Base16,
+  Describer,
+  PBinaryReader,
+  PBinaryWriter,
+  Serialization,
+} from "../types";
 import { ISerializable } from "../interfaces";
-import { uint8ArrayToBytes } from "../utils";
+import {
+  uint8ArrayToBytes,
+  uint8ArrayToHex,
+  uint8ArrayToString,
+  uint8ArrayToStringDefault,
+} from "../utils";
 import { Type } from "typescript";
+import bigInt from "big-integer";
 
 export class VMObject implements ISerializable {
   public Type: VMType;
@@ -53,7 +66,7 @@ export class VMObject implements ISerializable {
   public AsByteArray(): Uint8Array {
     switch (this.Type) {
       case VMType.Bytes:
-        return new Uint8Array(this.Data as ArrayBuffer);
+        return this.Data as Uint8Array;
       case VMType.Bool:
         return new Uint8Array([(this.Data as unknown as boolean) ? 1 : 0]);
       case VMType.String:
@@ -86,7 +99,7 @@ export class VMObject implements ISerializable {
       case VMType.Number:
         return (this.Data as BigInteger).toString();
       case VMType.Bytes:
-        return new TextDecoder().decode(this.Data as Uint8Array);
+        return uint8ArrayToStringDefault(this.Data as Uint8Array);
       case VMType.Enum:
         return (this.Data as unknown as number).toString();
       case VMType.Object:
@@ -188,7 +201,7 @@ export class VMObject implements ISerializable {
 
     switch (this.Type) {
       case VMType.String: {
-        let number: BigInt = BigInt(this.Data as unknown as string);
+        let number: Number = Number(this.Data);
         if (number.toString() === (this.Data as unknown as string)) {
           return number as unknown as number;
         } else {
@@ -219,7 +232,7 @@ export class VMObject implements ISerializable {
           throw new Error(`Invalid cast: expected number, got ${this.Type}`);
         }
 
-        return this.Data as unknown as number;
+        return Number(this.Data);
       }
     }
   }
@@ -472,13 +485,21 @@ export class VMObject implements ISerializable {
         return this.Data;
       case VMType.Enum:
         return this.Data;
+      case VMType.Struct:
+        let objs = this.GetChildren();
+
+        let result = [];
+        for (let obj of objs) {
+          result.push(obj[1].ToObject());
+        }
+        return result;
 
       default:
         throw new Error(`Cannot cast ${this.Type} to object`);
     }
   }
 
-  public ToStruct(structType: any): any {
+  public ToStruct<T>(structType: any): T {
     if (this.Type !== VMType.Struct) {
       throw new Error("not a valid source struct");
     }
@@ -486,18 +507,39 @@ export class VMObject implements ISerializable {
       throw new Error("not a valid destination struct");
     }
 
-    let localType = Object.apply(typeof structType);
-    const dict = this.GetChildren();
-    const result = new structType();
-    const fields = Object.keys(result);
-    const myLocalFields: keyof typeof structType = new structType();
+    //let localType = Object.apply(typeof structType);
+    let localType; //: typeof type;
 
-    for (const field of fields) {
+    if (structType.name != undefined) {
+      let className = structType.name;
+      localType = Object.apply(className);
+    } else {
+      localType = new structType();
+    }
+    const dict = this.GetChildren();
+    const dictKeys = this.GetChildren().keys();
+    const result = new structType();
+    const fields = Object.keys(typeof localType);
+    let fields2 = Describer.describe(structType, false);
+
+    //console.log("fields", keyof typeof structType);
+    fields2 = fields2.map((x) => x.replace("this.", ""));
+    for (let field of fields2) {
+      field.replace("this.", "");
       const key = VMObject.FromObject(field);
-      const dictKey = dict.keys().next().value;
+      //const key = field;
+      const dictKey = dictKeys.next().value;
       let val;
-      if (dictKey?.toString() == key.toString()) {
-        val = dict.get(dictKey).ToObjectType(structType[field]);
+      if (dictKey?.Data.toString() == key.Data.toString()) {
+        let localValue = dict.get(dictKey);
+
+        if (localValue.GetChildren() != undefined) {
+          result[field] = localValue.ToArray(typeof localType[field]);
+          continue;
+        } else {
+          val = localValue.ToObject();
+        }
+        //val = Serialization.Unserialize(dict.get(dictKey));
       } else {
         if (!VMObject.isStructOrClass(structType[field])) {
           console.log(`field not present in source struct: ${field}`);
@@ -559,6 +601,11 @@ export class VMObject implements ISerializable {
     if (VMObject.isEnum(type)) {
       return VMType.Enum;
     }
+
+    if (Array.isArray(type)) {
+      return VMType.Struct;
+    }
+
     if (VMObject.isClass(type) || VMObject.isValueType(type)) {
       return VMType.Object;
     }
@@ -1043,15 +1090,19 @@ export class VMObject implements ISerializable {
         break;
 
       case VMType.Number:
-        this.Data = Serialization.Unserialize<BigInt>(reader, BigInt);
+        this.Data = reader.readBigInteger();
         break;
 
       case VMType.Timestamp:
-        this.Data = Serialization.Unserialize<Timestamp>(reader, Timestamp);
+        this.Data = reader.readTimestamp();
+        /*this.Data = Serialization.UnserializeObject<Timestamp>(
+          reader,
+          Timestamp
+        );*/
         break;
 
       case VMType.String:
-        this.Data = Serialization.Unserialize<String>(reader, String);
+        this.Data = reader.readVarString() as String;
         break;
 
       case VMType.Struct:

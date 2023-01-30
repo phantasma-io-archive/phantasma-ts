@@ -62,7 +62,7 @@ var VMObject = /** @class */ (function () {
     VMObject.prototype.AsByteArray = function () {
         switch (this.Type) {
             case VMType_1.VMType.Bytes:
-                return new Uint8Array(this.Data);
+                return this.Data;
             case VMType_1.VMType.Bool:
                 return new Uint8Array([this.Data ? 1 : 0]);
             case VMType_1.VMType.String:
@@ -95,7 +95,7 @@ var VMObject = /** @class */ (function () {
             case VMType_1.VMType.Number:
                 return this.Data.toString();
             case VMType_1.VMType.Bytes:
-                return new TextDecoder().decode(this.Data);
+                return (0, utils_1.uint8ArrayToStringDefault)(this.Data);
             case VMType_1.VMType.Enum:
                 return this.Data.toString();
             case VMType_1.VMType.Object:
@@ -187,7 +187,7 @@ var VMObject = /** @class */ (function () {
         }
         switch (this.Type) {
             case VMType_1.VMType.String: {
-                var number = BigInt(this.Data);
+                var number = Number(this.Data);
                 if (number.toString() === this.Data) {
                     return number;
                 }
@@ -212,7 +212,7 @@ var VMObject = /** @class */ (function () {
                 if (this.Type !== VMType_1.VMType.Number) {
                     throw new Error("Invalid cast: expected number, got ".concat(this.Type));
                 }
-                return this.Data;
+                return Number(this.Data);
             }
         }
     };
@@ -439,6 +439,7 @@ var VMObject = /** @class */ (function () {
         }
     };
     VMObject.prototype.ToObject = function () {
+        var e_5, _a;
         if (this.Type === VMType_1.VMType.None) {
             throw new Error("not a valid object");
         }
@@ -457,31 +458,69 @@ var VMObject = /** @class */ (function () {
                 return this.Data;
             case VMType_1.VMType.Enum:
                 return this.Data;
+            case VMType_1.VMType.Struct:
+                var objs = this.GetChildren();
+                var result = [];
+                try {
+                    for (var objs_1 = __values(objs), objs_1_1 = objs_1.next(); !objs_1_1.done; objs_1_1 = objs_1.next()) {
+                        var obj = objs_1_1.value;
+                        result.push(obj[1].ToObject());
+                    }
+                }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                finally {
+                    try {
+                        if (objs_1_1 && !objs_1_1.done && (_a = objs_1.return)) _a.call(objs_1);
+                    }
+                    finally { if (e_5) throw e_5.error; }
+                }
+                return result;
             default:
                 throw new Error("Cannot cast ".concat(this.Type, " to object"));
         }
     };
     VMObject.prototype.ToStruct = function (structType) {
-        var e_5, _a;
+        var e_6, _a;
         if (this.Type !== VMType_1.VMType.Struct) {
             throw new Error("not a valid source struct");
         }
         if (!VMObject.isStructOrClass(structType)) {
             throw new Error("not a valid destination struct");
         }
-        var localType = Object.apply(typeof structType);
+        //let localType = Object.apply(typeof structType);
+        var localType; //: typeof type;
+        if (structType.name != undefined) {
+            var className = structType.name;
+            localType = Object.apply(className);
+        }
+        else {
+            localType = new structType();
+        }
         var dict = this.GetChildren();
+        var dictKeys = this.GetChildren().keys();
         var result = new structType();
-        var fields = Object.keys(result);
-        var myLocalFields = new structType();
+        var fields = Object.keys(typeof localType);
+        var fields2 = types_1.Describer.describe(structType, false);
+        //console.log("fields", keyof typeof structType);
+        fields2 = fields2.map(function (x) { return x.replace("this.", ""); });
         try {
-            for (var fields_1 = __values(fields), fields_1_1 = fields_1.next(); !fields_1_1.done; fields_1_1 = fields_1.next()) {
-                var field = fields_1_1.value;
+            for (var fields2_1 = __values(fields2), fields2_1_1 = fields2_1.next(); !fields2_1_1.done; fields2_1_1 = fields2_1.next()) {
+                var field = fields2_1_1.value;
+                field.replace("this.", "");
                 var key = VMObject.FromObject(field);
-                var dictKey = dict.keys().next().value;
+                //const key = field;
+                var dictKey = dictKeys.next().value;
                 var val = void 0;
-                if ((dictKey === null || dictKey === void 0 ? void 0 : dictKey.toString()) == key.toString()) {
-                    val = dict.get(dictKey).ToObjectType(structType[field]);
+                if ((dictKey === null || dictKey === void 0 ? void 0 : dictKey.Data.toString()) == key.Data.toString()) {
+                    var localValue = dict.get(dictKey);
+                    if (localValue.GetChildren() != undefined) {
+                        result[field] = localValue.ToArray(typeof localType[field]);
+                        continue;
+                    }
+                    else {
+                        val = localValue.ToObject();
+                    }
+                    //val = Serialization.Unserialize(dict.get(dictKey));
                 }
                 else {
                     if (!VMObject.isStructOrClass(structType[field])) {
@@ -505,12 +544,12 @@ var VMObject = /** @class */ (function () {
                 result[field] = val;
             }
         }
-        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        catch (e_6_1) { e_6 = { error: e_6_1 }; }
         finally {
             try {
-                if (fields_1_1 && !fields_1_1.done && (_a = fields_1.return)) _a.call(fields_1);
+                if (fields2_1_1 && !fields2_1_1.done && (_a = fields2_1.return)) _a.call(fields2_1);
             }
-            finally { if (e_5) throw e_5.error; }
+            finally { if (e_6) throw e_6.error; }
         }
         return result;
     };
@@ -542,6 +581,9 @@ var VMObject = /** @class */ (function () {
         }
         if (VMObject.isEnum(type)) {
             return VMType_1.VMType.Enum;
+        }
+        if (Array.isArray(type)) {
+            return VMType_1.VMType.Struct;
         }
         if (VMObject.isClass(type) || VMObject.isValueType(type)) {
             return VMType_1.VMType.Object;
@@ -833,7 +875,7 @@ var VMObject = /** @class */ (function () {
         return result;
     };
     VMObject.prototype.SerializeData = function (writer) {
-        var e_6, _a;
+        var e_7, _a;
         writer.writeByte(this.Type);
         if (this.Type == VMType_1.VMType.None) {
             return;
@@ -850,12 +892,12 @@ var VMObject = /** @class */ (function () {
                         child[1].SerializeData(writer);
                     }
                 }
-                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                catch (e_7_1) { e_7 = { error: e_7_1 }; }
                 finally {
                     try {
                         if (children_5_1 && !children_5_1.done && (_a = children_5.return)) _a.call(children_5);
                     }
-                    finally { if (e_6) throw e_6.error; }
+                    finally { if (e_7) throw e_7.error; }
                 }
                 /*children.forEach((key, value) => {
                   key.SerializeData(writer);
@@ -892,7 +934,7 @@ var VMObject = /** @class */ (function () {
         return writer.toUint8Array();
     };
     VMObject.prototype.SerializeObjectCall = function (writer) {
-        var e_7, _a;
+        var e_8, _a;
         if (this.Type == VMType_1.VMType.None) {
             return;
         }
@@ -908,12 +950,12 @@ var VMObject = /** @class */ (function () {
                         child[1].SerializeData(writer);
                     }
                 }
-                catch (e_7_1) { e_7 = { error: e_7_1 }; }
+                catch (e_8_1) { e_8 = { error: e_8_1 }; }
                 finally {
                     try {
                         if (children_6_1 && !children_6_1.done && (_a = children_6.return)) _a.call(children_6);
                     }
-                    finally { if (e_7) throw e_7.error; }
+                    finally { if (e_8) throw e_8.error; }
                 }
                 /*children.forEach((key, value) => {
                   key.SerializeData(writer);
@@ -997,13 +1039,17 @@ var VMObject = /** @class */ (function () {
                 this.Data = types_1.Serialization.Unserialize(reader, Uint8Array);
                 break;
             case VMType_1.VMType.Number:
-                this.Data = types_1.Serialization.Unserialize(reader, BigInt);
+                this.Data = reader.readBigInteger();
                 break;
             case VMType_1.VMType.Timestamp:
-                this.Data = types_1.Serialization.Unserialize(reader, Timestamp_1.Timestamp);
+                this.Data = reader.readTimestamp();
+                /*this.Data = Serialization.UnserializeObject<Timestamp>(
+                  reader,
+                  Timestamp
+                );*/
                 break;
             case VMType_1.VMType.String:
-                this.Data = types_1.Serialization.Unserialize(reader, String);
+                this.Data = reader.readVarString();
                 break;
             case VMType_1.VMType.Struct:
                 var childCount = reader.readVarInt();

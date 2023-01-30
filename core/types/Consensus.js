@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PollPresence = exports.ConsensusPoll = exports.PollVote = exports.PollValue = exports.PollChoice = exports.PollState = exports.ConsensusMode = void 0;
 var utils_1 = require("../utils");
+var Timestamp_1 = require("./Timestamp");
 var ConsensusMode;
 (function (ConsensusMode) {
     ConsensusMode[ConsensusMode["Unanimity"] = 0] = "Unanimity";
@@ -41,12 +42,12 @@ var PollValue = /** @class */ (function () {
     function PollValue() {
     }
     PollValue.prototype.SerializeData = function (writer) {
-        writer.writeString(this.value);
+        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.value));
         writer.writeBigInteger(this.ranking);
         writer.writeBigInteger(this.votes);
     };
     PollValue.prototype.UnserializeData = function (reader) {
-        this.value = reader.readString();
+        this.value = (0, utils_1.uint8ArrayToString)(reader.readByteArray());
         this.ranking = reader.readBigInteger();
         this.votes = reader.readBigInteger();
     };
@@ -79,6 +80,16 @@ var PollVote = /** @class */ (function () {
 exports.PollVote = PollVote;
 var ConsensusPoll = /** @class */ (function () {
     function ConsensusPoll() {
+        this.subject = "";
+        this.organization = "";
+        this.mode = ConsensusMode.Unanimity;
+        this.state = PollState.Inactive;
+        this.entries = [];
+        this.round = BigInt(0);
+        this.startTime = Timestamp_1.Timestamp.null;
+        this.endTime = Timestamp_1.Timestamp.null;
+        this.choicesPerUser = BigInt(0);
+        this.totalVotes = BigInt(0);
     }
     ConsensusPoll.prototype.SerializeData = function (writer) {
         writer.writeString(this.subject);
@@ -101,7 +112,7 @@ var ConsensusPoll = /** @class */ (function () {
         this.mode = reader.readByte();
         this.state = reader.readByte();
         this.entries = [];
-        var entriesLength = reader.readByte();
+        var entriesLength = reader.readUnsignedInt();
         for (var i = 0; i < entriesLength; i++) {
             this.entries.push(PollValue.Unserialize(reader));
         }

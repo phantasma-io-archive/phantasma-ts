@@ -151,7 +151,7 @@ var Serialization = /** @class */ (function () {
             return reader.readBigInteger();
         }
         else if (localType instanceof String || typeof localType == "string") {
-            return reader.readString();
+            return reader.readVarString();
         }
         else if (localType instanceof Timestamp_1.Timestamp) {
             return new Timestamp_1.Timestamp(reader.readVarInt());

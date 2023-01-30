@@ -1,3 +1,5 @@
+import { hexStringToUint8Array, stringToUint8Array } from "../../utils";
+
 export class Base16 {
   static encode(str: string) {
     if (!str) return "";
@@ -5,8 +7,7 @@ export class Base16 {
     return str
       .split("")
       .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
-      .join("")
-      .toUpperCase();
+      .join("");
   }
 
   static encodeUint8Array(arr: Uint8Array) {
@@ -25,5 +26,11 @@ export class Base16 {
         ?.map((c) => String.fromCharCode(parseInt(c, 16)))
         .join("") ?? ""
     );
+  }
+
+  static decodeUint8Array(str: string): Uint8Array {
+    if (!str || str.length % 2 !== 0) return new Uint8Array(0);
+
+    return new Uint8Array(stringToUint8Array(this.decode(str)));
   }
 }

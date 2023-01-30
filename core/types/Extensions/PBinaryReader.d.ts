@@ -36,6 +36,7 @@ export declare class PBinaryReader {
     readByteArray(): any;
     readTimestamp(): Timestamp;
     readVarInt(): number;
+    readVarString(): string;
     readVmObject(): {};
 }
 //# sourceMappingURL=PBinaryReader.d.ts.map

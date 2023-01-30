@@ -146,7 +146,7 @@ export class Serialization<T> {
     return Serialization.UnserializeObject<T>(stream, type) as T;
   }
 
-  static UnserializeObject<T>(reader: PBinaryReader, type: any): T {
+  static UnserializeObject<T extends any>(reader: PBinaryReader, type: any): T {
     if (Serialization._customSerializers.has(typeof type)) {
       var serializer = Serialization._customSerializers[typeof type];
       return serializer.Read(reader);
@@ -172,7 +172,7 @@ export class Serialization<T> {
     } else if (localType instanceof BigInt || typeof localType == "bigint") {
       return reader.readBigInteger() as unknown as T;
     } else if (localType instanceof String || typeof localType == "string") {
-      return reader.readString() as unknown as T;
+      return reader.readVarString() as unknown as T;
     } else if (localType instanceof Timestamp) {
       return new Timestamp(reader.readVarInt()) as unknown as T;
     } else if (
