@@ -1,4 +1,4 @@
-import { PhantasmaKeys } from "../../core";
+import { Address, PhantasmaKeys } from "../../core";
 
 describe("test Addresses", function () {
   test("test address", function (done) {
@@ -9,6 +9,17 @@ describe("test Addresses", function () {
     expect(address.Text).toBe(
       "P2KFEyFevpQfSaW8G4VjSmhWUZXR4QrG9YQR1HbMpTUCpCL"
     );
+
+    done();
+  });
+
+  test("test address from text", function (done) {
+    let addr = Address.FromText(
+      "P2KFEyFevpQfSaW8G4VjSmhWUZXR4QrG9YQR1HbMpTUCpCL"
+    );
+    let address = addr.Text;
+
+    expect(address).toBe("P2KFEyFevpQfSaW8G4VjSmhWUZXR4QrG9YQR1HbMpTUCpCL");
 
     done();
   });

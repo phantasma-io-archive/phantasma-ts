@@ -2103,9 +2103,36 @@ var Address = /** @class */ (function () {
     };
     Address.Parse = function (text) {
         if (text == null) {
-            throw new Error("text is null");
+            return Address.Null;
+        }
+        if (text == Address.NullText) {
+            return Address.Null;
         }
         var addr;
+        var originalText = text;
+        var prefix = text[0];
+        text = text.slice(1);
+        var bytes = bs58_1.default.decode(text);
+        addr = new Address(bytes);
+        switch (prefix) {
+            case "P":
+                if (addr.Kind != AddressKind.User) {
+                    throw new Error("Invalid address prefix. Expected 'P', got '".concat(prefix, "'"));
+                }
+                break;
+            case "S":
+                if (addr.Kind != AddressKind.System) {
+                    throw new Error("Invalid address prefix. Expected 'S', got '".concat(prefix, "'"));
+                }
+                break;
+            case "X":
+                if (addr.Kind < AddressKind.Interop) {
+                    throw new Error("Invalid address prefix. Expected 'X', got '".concat(prefix, "'"));
+                }
+                break;
+            default:
+                throw new Error("Invalid address prefix. Expected 'P', 'S' or 'X', got '".concat(prefix, "'"));
+        }
         /*this._keyToTextCache.values().forEach((value) => {
           if (value == text) {
             return Address.FromHash(this._keyToTextCache(value));

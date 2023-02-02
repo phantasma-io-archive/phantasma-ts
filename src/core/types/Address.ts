@@ -138,10 +138,50 @@ export class Address implements ISerializable {
 
   public static Parse(text: string): Address {
     if (text == null) {
-      throw new Error("text is null");
+      return Address.Null;
+    }
+
+    if (text == Address.NullText) {
+      return Address.Null;
     }
 
     let addr: Address;
+
+    let originalText = text;
+    let prefix = text[0];
+
+    text = text.slice(1);
+    var bytes = base58.decode(text);
+
+    addr = new Address(bytes);
+
+    switch (prefix) {
+      case "P":
+        if (addr.Kind != AddressKind.User) {
+          throw new Error(
+            `Invalid address prefix. Expected 'P', got '${prefix}'`
+          );
+        }
+        break;
+      case "S":
+        if (addr.Kind != AddressKind.System) {
+          throw new Error(
+            `Invalid address prefix. Expected 'S', got '${prefix}'`
+          );
+        }
+        break;
+      case "X":
+        if (addr.Kind < AddressKind.Interop) {
+          throw new Error(
+            `Invalid address prefix. Expected 'X', got '${prefix}'`
+          );
+        }
+        break;
+      default:
+        throw new Error(
+          `Invalid address prefix. Expected 'P', 'S' or 'X', got '${prefix}'`
+        );
+    }
 
     /*this._keyToTextCache.values().forEach((value) => {
       if (value == text) {
