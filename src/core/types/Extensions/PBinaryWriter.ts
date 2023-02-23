@@ -1,4 +1,5 @@
 //import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
+import bigInt from "big-integer";
 import { BinaryWriter, Encoding } from "csharp-binary-stream";
 import {
   hexStringToBytes,

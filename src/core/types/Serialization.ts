@@ -1,5 +1,5 @@
 import { Type } from "typescript";
-import { PBinaryReader, PBinaryWriter } from "./Extensions";
+import { Base16, PBinaryReader, PBinaryWriter } from "./Extensions";
 import { Timestamp } from "./Timestamp";
 import { ISerializable } from "../interfaces";
 import { stringToUint8Array, uint8ArrayToBytes } from "../utils";
@@ -90,6 +90,7 @@ export class Serialization<T> {
       writer.writeByte(obj ? 1 : 0);
       return;
     } else if (obj instanceof Number || typeof obj == "number") {
+      writer.writeByte(stringToUint8Array(obj.toString()).length);
       writer.writeVarInt(obj as number);
       return;
     } else if (obj instanceof BigInt || typeof obj == "bigint") {

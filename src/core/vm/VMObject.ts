@@ -542,8 +542,7 @@ export class VMObject implements ISerializable {
         //val = Serialization.Unserialize(dict.get(dictKey));
       } else {
         if (!VMObject.isStructOrClass(structType[field])) {
-          console.log(`field not present in source struct: ${field}`);
-
+          //console.log(`field not present in source struct: ${field}`);
           //throw new Error(`field not present in source struct: ${field}`);
         }
         //val = null;
@@ -787,6 +786,10 @@ export class VMObject implements ISerializable {
     }
   }
 
+  public SetType(type: VMType) {
+    this.Type = type;
+  }
+
   public static FromArray(array: Array<any>): VMObject {
     const result = new VMObject();
     for (let i = 0; i < array.length; i++) {
@@ -942,7 +945,10 @@ export class VMObject implements ISerializable {
         writer.writeVarInt(children.size);
         for (const child of children) {
           child[0].SerializeData(writer);
+          //console.log(Base16.encodeUint8Array(writer.toUint8Array()));
+
           child[1].SerializeData(writer);
+          ///console.log(Base16.encodeUint8Array(writer.toUint8Array()));
         }
 
         /*children.forEach((key, value) => {
@@ -977,7 +983,7 @@ export class VMObject implements ISerializable {
       }
       default:
         let localBytes = Serialization.Serialize(this.Data);
-        writer.writeByteArray(uint8ArrayToBytes(localBytes));
+        writer.writeByteArray(localBytes);
         break;
     }
 

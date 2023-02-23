@@ -175,6 +175,24 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    PhantasmaLink.prototype.fetchWallet = function (callback, onErrorCallback) {
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        var getAccountRequest = "getAccount/" + this.platform;
+        that.sendLinkRequest(getAccountRequest, function (result) {
+            if (result.success) {
+                that.account = result;
+                callback();
+            }
+            else {
+                onErrorCallback("Could not obtain account info... Make sure you have an account currently open in " +
+                    that.wallet +
+                    "...");
+                //that.disconnect("Unable to optain Account Info");
+            }
+            //that.onLogin(result.success);
+            //that.onLogin = null;
+        });
+    };
     PhantasmaLink.prototype.getNexus = function (callback, onErrorCallback) {
         this.onError = onErrorCallback; //Sets Error Callback Function
         var that = this; //Allows the use of 'this' inside sendLinkRequest Object

@@ -524,7 +524,7 @@ var VMObject = /** @class */ (function () {
                 }
                 else {
                     if (!VMObject.isStructOrClass(structType[field])) {
-                        console.log("field not present in source struct: ".concat(field));
+                        //console.log(`field not present in source struct: ${field}`);
                         //throw new Error(`field not present in source struct: ${field}`);
                     }
                     //val = null;
@@ -747,6 +747,9 @@ var VMObject = /** @class */ (function () {
             this.Data = other.Data;
         }
     };
+    VMObject.prototype.SetType = function (type) {
+        this.Type = type;
+    };
     VMObject.FromArray = function (array) {
         var result = new VMObject();
         for (var i = 0; i < array.length; i++) {
@@ -889,7 +892,9 @@ var VMObject = /** @class */ (function () {
                     for (var children_5 = __values(children), children_5_1 = children_5.next(); !children_5_1.done; children_5_1 = children_5.next()) {
                         var child = children_5_1.value;
                         child[0].SerializeData(writer);
+                        //console.log(Base16.encodeUint8Array(writer.toUint8Array()));
                         child[1].SerializeData(writer);
+                        ///console.log(Base16.encodeUint8Array(writer.toUint8Array()));
                     }
                 }
                 catch (e_7_1) { e_7 = { error: e_7_1 }; }
@@ -928,7 +933,7 @@ var VMObject = /** @class */ (function () {
             }
             default:
                 var localBytes = types_1.Serialization.Serialize(this.Data);
-                writer.writeByteArray((0, utils_1.uint8ArrayToBytes)(localBytes));
+                writer.writeByteArray(localBytes);
                 break;
         }
         return writer.toUint8Array();

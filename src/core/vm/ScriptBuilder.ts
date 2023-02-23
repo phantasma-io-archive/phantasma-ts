@@ -125,6 +125,9 @@ export class ScriptBuilder {
   }
 
   RawString(value: string) {
+    //let bytes = stringToUint8Array(value);
+    //console.log(Array.from(bytes))
+    //return Array.from(bytes);
     var data = [];
     for (var i = 0; i < value.length; i++) {
       data.push(value.charCodeAt(i));
@@ -208,7 +211,16 @@ export class ScriptBuilder {
   }
 
   public EmitLoadArray(reg: number, obj: any): this {
+    for (let i = obj.length - 1; i >= 0; i--) {
+      let element = obj[i];
+      this.EmitLoad(reg, element);
+      this.EmitPush(reg);
+      reg++;
+    }
+
+    return;
     this.EmitLoadBytes(Opcode.CAST, [reg, reg], VMType.None);
+    //this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
     for (let i = 0; i < obj.length; i++) {
       let element = obj[i];
       let temp_regVal = reg + 1;
@@ -220,7 +232,6 @@ export class ScriptBuilder {
     }
 
     //this.emitLoadBytes(reg, obj as number[]);
-
     return this;
   }
 
@@ -234,12 +245,42 @@ export class ScriptBuilder {
   public EmitLoadVMObject(reg: number, obj: VMObject): this {
     let writer: PBinaryWriter = new PBinaryWriter();
     let result = obj.SerializeObjectCall(writer);
+
     this.Emit(Opcode.LOAD);
     this.AppendByte(reg);
     this.AppendByte(obj.Type);
 
-    this.EmitVarInt(Array.from(result).length);
-    this.EmitBytes(Array.from(result));
+    if (result == undefined) {
+      //console.log("enter");
+      if (
+        typeof obj.Data == typeof Map<VMObject, VMObject> ||
+        obj.Data instanceof Map
+      ) {
+        let resultData = obj.Data as Map<VMObject, VMObject>;
+        this.EmitVarInt(resultData.size);
+        for (let entry of resultData) {
+          //console.log(entry[0]);
+          let key = entry[0];
+          let value = entry[1];
+          this.EmitLoadVMObject(reg + 1, key);
+          this.EmitLoadVMObject(reg + 2, value);
+          this.Emit(Opcode.PUT, [reg + 1, reg, reg + 2]);
+        }
+      } else if (obj.Data instanceof VMObject) {
+        let writerNew: PBinaryWriter = new PBinaryWriter();
+        let bytes = obj.Data.SerializeData(writerNew);
+        //console.log(bytes.length);
+        this.EmitVarInt(bytes.length);
+        this.AppendBytes(Array.from(bytes));
+      }
+    } else {
+      //console.log("reg", reg);
+
+      var bytes = Array.from(result);
+      //console.log(bytes.length);
+      this.EmitVarInt(bytes.length);
+      this.AppendBytes(bytes);
+    }
     //this.EmitLoadBytes(reg, Array.from(result), obj.Type);
     return this;
   }

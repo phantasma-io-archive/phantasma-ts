@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Serialization = exports.CustomSerializer = void 0;
 var Extensions_1 = require("./Extensions");
 var Timestamp_1 = require("./Timestamp");
+var utils_1 = require("../utils");
 //function CustomWriter(writer: PBinaryWriter, obj: any): void;
 //function CustomReader(reader: PBinaryReader): any;
 var CustomSerializer = /** @class */ (function () {
@@ -67,6 +68,7 @@ var Serialization = /** @class */ (function () {
             return;
         }
         else if (obj instanceof Number || typeof obj == "number") {
+            writer.writeByte((0, utils_1.stringToUint8Array)(obj.toString()).length);
             writer.writeVarInt(obj);
             return;
         }
