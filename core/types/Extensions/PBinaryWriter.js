@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
-//import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
 var __1 = require("../..");
 var interfaces_1 = require("../../interfaces");

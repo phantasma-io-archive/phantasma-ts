@@ -620,6 +620,24 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    PhantasmaLink.prototype.fetchWallet = function (callback, onErrorCallback) {
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        var getAccountRequest = "getAccount/" + this.platform;
+        that.sendLinkRequest(getAccountRequest, function (result) {
+            if (result.success) {
+                that.account = result;
+                callback();
+            }
+            else {
+                onErrorCallback("Could not obtain account info... Make sure you have an account currently open in " +
+                    that.wallet +
+                    "...");
+                //that.disconnect("Unable to optain Account Info");
+            }
+            //that.onLogin(result.success);
+            //that.onLogin = null;
+        });
+    };
     PhantasmaLink.prototype.getNexus = function (callback, onErrorCallback) {
         this.onError = onErrorCallback; //Sets Error Callback Function
         var that = this; //Allows the use of 'this' inside sendLinkRequest Object
@@ -3300,7 +3318,6 @@ exports.PBinaryReader = PBinaryReader;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinaryWriter = void 0;
-//import { BinaryWriter, BinaryReader, Encoding } from "csharp-binary-stream";
 var csharp_binary_stream_1 = require("csharp-binary-stream");
 var __1 = require("../..");
 var interfaces_1 = require("../../interfaces");
@@ -3672,6 +3689,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Serialization = exports.CustomSerializer = void 0;
 var Extensions_1 = require("./Extensions");
 var Timestamp_1 = require("./Timestamp");
+var utils_1 = require("../utils");
 //function CustomWriter(writer: PBinaryWriter, obj: any): void;
 //function CustomReader(reader: PBinaryReader): any;
 var CustomSerializer = /** @class */ (function () {
@@ -3736,6 +3754,7 @@ var Serialization = /** @class */ (function () {
             return;
         }
         else if (obj instanceof Number || typeof obj == "number") {
+            writer.writeByte((0, utils_1.stringToUint8Array)(obj.toString()).length);
             writer.writeVarInt(obj);
             return;
         }
@@ -3859,7 +3878,7 @@ var Serialization = /** @class */ (function () {
 }());
 exports.Serialization = Serialization;
 
-},{"./Extensions":26,"./Timestamp":30}],29:[function(require,module,exports){
+},{"../utils":32,"./Extensions":26,"./Timestamp":30}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Stack = void 0;
@@ -4657,6 +4676,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -4765,6 +4795,9 @@ var ScriptBuilder = /** @class */ (function () {
         return this.EmitByteArray(bytes);
     };
     ScriptBuilder.prototype.RawString = function (value) {
+        //let bytes = stringToUint8Array(value);
+        //console.log(Array.from(bytes))
+        //return Array.from(bytes);
         var data = [];
         for (var i = 0; i < value.length; i++) {
             data.push(value.charCodeAt(i));
@@ -4844,7 +4877,15 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     ScriptBuilder.prototype.EmitLoadArray = function (reg, obj) {
+        for (var i = obj.length - 1; i >= 0; i--) {
+            var element = obj[i];
+            this.EmitLoad(reg, element);
+            this.EmitPush(reg);
+            reg++;
+        }
+        return;
         this.EmitLoadBytes(Opcode_1.Opcode.CAST, [reg, reg], VMType_1.VMType.None);
+        //this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
         for (var i = 0; i < obj.length; i++) {
             var element = obj[i];
             var temp_regVal = reg + 1;
@@ -4864,13 +4905,52 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     ScriptBuilder.prototype.EmitLoadVMObject = function (reg, obj) {
+        var e_1, _a;
         var writer = new types_1.PBinaryWriter();
         var result = obj.SerializeObjectCall(writer);
         this.Emit(Opcode_1.Opcode.LOAD);
         this.AppendByte(reg);
         this.AppendByte(obj.Type);
-        this.EmitVarInt(Array.from(result).length);
-        this.EmitBytes(Array.from(result));
+        if (result == undefined) {
+            //console.log("enter");
+            if (typeof obj.Data == typeof Map ||
+                obj.Data instanceof Map) {
+                var resultData = obj.Data;
+                this.EmitVarInt(resultData.size);
+                try {
+                    for (var resultData_1 = __values(resultData), resultData_1_1 = resultData_1.next(); !resultData_1_1.done; resultData_1_1 = resultData_1.next()) {
+                        var entry = resultData_1_1.value;
+                        //console.log(entry[0]);
+                        var key = entry[0];
+                        var value = entry[1];
+                        this.EmitLoadVMObject(reg + 1, key);
+                        this.EmitLoadVMObject(reg + 2, value);
+                        this.Emit(Opcode_1.Opcode.PUT, [reg + 1, reg, reg + 2]);
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (resultData_1_1 && !resultData_1_1.done && (_a = resultData_1.return)) _a.call(resultData_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+            }
+            else if (obj.Data instanceof VMObject_1.VMObject) {
+                var writerNew = new types_1.PBinaryWriter();
+                var bytes_1 = obj.Data.SerializeData(writerNew);
+                //console.log(bytes.length);
+                this.EmitVarInt(bytes_1.length);
+                this.AppendBytes(Array.from(bytes_1));
+            }
+        }
+        else {
+            //console.log("reg", reg);
+            var bytes = Array.from(result);
+            //console.log(bytes.length);
+            this.EmitVarInt(bytes.length);
+            this.AppendBytes(bytes);
+        }
         //this.EmitLoadBytes(reg, Array.from(result), obj.Type);
         return this;
     };
@@ -5674,7 +5754,7 @@ var VMObject = /** @class */ (function () {
                 }
                 else {
                     if (!VMObject.isStructOrClass(structType[field])) {
-                        console.log("field not present in source struct: ".concat(field));
+                        //console.log(`field not present in source struct: ${field}`);
                         //throw new Error(`field not present in source struct: ${field}`);
                     }
                     //val = null;
@@ -5897,6 +5977,9 @@ var VMObject = /** @class */ (function () {
             this.Data = other.Data;
         }
     };
+    VMObject.prototype.SetType = function (type) {
+        this.Type = type;
+    };
     VMObject.FromArray = function (array) {
         var result = new VMObject();
         for (var i = 0; i < array.length; i++) {
@@ -6039,7 +6122,9 @@ var VMObject = /** @class */ (function () {
                     for (var children_5 = __values(children), children_5_1 = children_5.next(); !children_5_1.done; children_5_1 = children_5.next()) {
                         var child = children_5_1.value;
                         child[0].SerializeData(writer);
+                        //console.log(Base16.encodeUint8Array(writer.toUint8Array()));
                         child[1].SerializeData(writer);
+                        ///console.log(Base16.encodeUint8Array(writer.toUint8Array()));
                     }
                 }
                 catch (e_7_1) { e_7 = { error: e_7_1 }; }
@@ -6078,7 +6163,7 @@ var VMObject = /** @class */ (function () {
             }
             default:
                 var localBytes = types_1.Serialization.Serialize(this.Data);
-                writer.writeByteArray((0, utils_1.uint8ArrayToBytes)(localBytes));
+                writer.writeByteArray(localBytes);
                 break;
         }
         return writer.toUint8Array();

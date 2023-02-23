@@ -51,7 +51,7 @@ export class PhantasmaLink {
   }
 
   //Message Logging
-  onMessage = (msg) => {
+  onMessage = (msg: any) => {
     if (this.messageLogging == true) {
       console.log(msg);
     }
@@ -59,8 +59,8 @@ export class PhantasmaLink {
 
   //Connect To Wallet
   login(
-    onLoginCallback,
-    onErrorCallback,
+    onLoginCallback: any,
+    onErrorCallback: any,
     version = 2,
     platform = "phantasma",
     providerHint = "poltergeist"
@@ -75,7 +75,7 @@ export class PhantasmaLink {
   }
 
   //Script Invoking With Wallet Connection
-  invokeScript(script, callback) {
+  invokeScript(script: any, callback: any) {
     this.onMessage("Relaying transaction to wallet...");
     if (!this.socket) {
       callback("not logged in");
@@ -108,7 +108,7 @@ export class PhantasmaLink {
 
   //Wallet Transaction Signing +
   signTx(
-    script,
+    script: any,
     payload: string | null,
     callback: (arg0: any) => void,
     onErrorCallback: () => void,
@@ -191,7 +191,7 @@ export class PhantasmaLink {
     });
   }
 
-  getPeer(callback, onErrorCallback) {
+  getPeer(callback: any, onErrorCallback: any) {
     this.onError = onErrorCallback; //Sets Error Callback Function
     let that = this; //Allows the use of 'this' inside sendLinkRequest Object
 
@@ -207,6 +207,27 @@ export class PhantasmaLink {
           onErrorCallback();
         }
       }
+    });
+  }
+
+  fetchWallet(callback: any, onErrorCallback: any) {
+    let that = this; //Allows the use of 'this' inside sendLinkRequest Object
+    let getAccountRequest = "getAccount/" + this.platform;
+    that.sendLinkRequest(getAccountRequest, function (result) {
+      if (result.success) {
+        that.account = result;
+        callback();
+      } else {
+        onErrorCallback(
+          "Could not obtain account info... Make sure you have an account currently open in " +
+            that.wallet +
+            "..."
+        );
+        //that.disconnect("Unable to optain Account Info");
+      }
+
+      //that.onLogin(result.success);
+      //that.onLogin = null;
     });
   }
 

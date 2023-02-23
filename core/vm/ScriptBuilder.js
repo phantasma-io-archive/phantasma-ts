@@ -60,6 +60,17 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -168,6 +179,9 @@ var ScriptBuilder = /** @class */ (function () {
         return this.EmitByteArray(bytes);
     };
     ScriptBuilder.prototype.RawString = function (value) {
+        //let bytes = stringToUint8Array(value);
+        //console.log(Array.from(bytes))
+        //return Array.from(bytes);
         var data = [];
         for (var i = 0; i < value.length; i++) {
             data.push(value.charCodeAt(i));
@@ -247,7 +261,15 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     ScriptBuilder.prototype.EmitLoadArray = function (reg, obj) {
+        for (var i = obj.length - 1; i >= 0; i--) {
+            var element = obj[i];
+            this.EmitLoad(reg, element);
+            this.EmitPush(reg);
+            reg++;
+        }
+        return;
         this.EmitLoadBytes(Opcode_1.Opcode.CAST, [reg, reg], VMType_1.VMType.None);
+        //this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
         for (var i = 0; i < obj.length; i++) {
             var element = obj[i];
             var temp_regVal = reg + 1;
@@ -267,13 +289,52 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     ScriptBuilder.prototype.EmitLoadVMObject = function (reg, obj) {
+        var e_1, _a;
         var writer = new types_1.PBinaryWriter();
         var result = obj.SerializeObjectCall(writer);
         this.Emit(Opcode_1.Opcode.LOAD);
         this.AppendByte(reg);
         this.AppendByte(obj.Type);
-        this.EmitVarInt(Array.from(result).length);
-        this.EmitBytes(Array.from(result));
+        if (result == undefined) {
+            //console.log("enter");
+            if (typeof obj.Data == typeof Map ||
+                obj.Data instanceof Map) {
+                var resultData = obj.Data;
+                this.EmitVarInt(resultData.size);
+                try {
+                    for (var resultData_1 = __values(resultData), resultData_1_1 = resultData_1.next(); !resultData_1_1.done; resultData_1_1 = resultData_1.next()) {
+                        var entry = resultData_1_1.value;
+                        //console.log(entry[0]);
+                        var key = entry[0];
+                        var value = entry[1];
+                        this.EmitLoadVMObject(reg + 1, key);
+                        this.EmitLoadVMObject(reg + 2, value);
+                        this.Emit(Opcode_1.Opcode.PUT, [reg + 1, reg, reg + 2]);
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (resultData_1_1 && !resultData_1_1.done && (_a = resultData_1.return)) _a.call(resultData_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+            }
+            else if (obj.Data instanceof VMObject_1.VMObject) {
+                var writerNew = new types_1.PBinaryWriter();
+                var bytes_1 = obj.Data.SerializeData(writerNew);
+                //console.log(bytes.length);
+                this.EmitVarInt(bytes_1.length);
+                this.AppendBytes(Array.from(bytes_1));
+            }
+        }
+        else {
+            //console.log("reg", reg);
+            var bytes = Array.from(result);
+            //console.log(bytes.length);
+            this.EmitVarInt(bytes.length);
+            this.AppendBytes(bytes);
+        }
         //this.EmitLoadBytes(reg, Array.from(result), obj.Type);
         return this;
     };

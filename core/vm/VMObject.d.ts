@@ -41,6 +41,7 @@ export declare class VMObject implements ISerializable {
     CastViaReflection(srcObj: any, level: number, dontConvertSerializables?: boolean): any;
     SetKey(key: VMObject, obj: VMObject): void;
     Copy(other: VMObject): void;
+    SetType(type: VMType): void;
     static FromArray(array: Array<any>): VMObject;
     static CastTo(srcObj: VMObject, type: VMType): VMObject;
     static FromObject(obj: any): any;
