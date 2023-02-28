@@ -253,8 +253,8 @@ export class ScriptBuilder {
     if (result == undefined) {
       //console.log("enter");
       if (
-        typeof obj.Data == typeof Map<VMObject, VMObject> ||
-        obj.Data instanceof Map
+        obj.Data instanceof Map ||
+        obj.Data instanceof Map<VMObject, VMObject>
       ) {
         let resultData = obj.Data as Map<VMObject, VMObject>;
         this.EmitVarInt(resultData.size);

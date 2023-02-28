@@ -1055,6 +1055,21 @@ var PhantasmaAPI = /** @class */ (function () {
             });
         });
     };
+    //Returns the address that owns a given name.
+    PhantasmaAPI.prototype.getAddressesBySymbol = function (symbol, extended) {
+        if (extended === void 0) { extended = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [symbol, extended];
+                        return [4 /*yield*/, this.JSONRPC("getAddressesBySymbol", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
     //Returns the height of a chain.
     PhantasmaAPI.prototype.getBlockHeight = function (chainInput) {
         return __awaiter(this, void 0, void 0, function () {
@@ -1125,6 +1140,20 @@ var PhantasmaAPI = /** @class */ (function () {
             });
         });
     };
+    //Returns information about a block by height and chain.
+    PhantasmaAPI.prototype.getLatestBlock = function (chainInput) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [chainInput];
+                        return [4 /*yield*/, this.JSONRPC("getLatestBlock", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
     //Returns a serialized string, in hex format, containing information about a block by height and chain.
     PhantasmaAPI.prototype.getRawBlockByHeight = function (chainInput, height) {
         return __awaiter(this, void 0, void 0, function () {
@@ -1134,6 +1163,20 @@ var PhantasmaAPI = /** @class */ (function () {
                     case 0:
                         params = [chainInput, height];
                         return [4 /*yield*/, this.JSONRPC("getRawBlockByHeight", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    //Returns a serialized string, in hex format, containing information about a block by height and chain.
+    PhantasmaAPI.prototype.getRawLatestBlock = function (chainInput) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [chainInput];
+                        return [4 /*yield*/, this.JSONRPC("getRawLatestBlock", params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -1260,6 +1303,35 @@ var PhantasmaAPI = /** @class */ (function () {
                     case 0:
                         params = [];
                         return [4 /*yield*/, this.JSONRPC("getNexus", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    //Returns the contract info deployed in Phantasma.
+    PhantasmaAPI.prototype.getContract = function (chainAddressOrName, contractName) {
+        if (chainAddressOrName === void 0) { chainAddressOrName = "main"; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [chainAddressOrName, contractName];
+                        return [4 /*yield*/, this.JSONRPC("getContract", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    PhantasmaAPI.prototype.getContractByAddress = function (chainAddressOrName, contractAddress) {
+        if (chainAddressOrName === void 0) { chainAddressOrName = "main"; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [chainAddressOrName, contractAddress];
+                        return [4 /*yield*/, this.JSONRPC("getContractByAddress", params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -1595,6 +1667,19 @@ var PhantasmaAPI = /** @class */ (function () {
                     case 0:
                         params = [symbol, nftId, true];
                         return [4 /*yield*/, this.JSONRPC("getNFT", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    PhantasmaAPI.prototype.getNFTs = function (symbol, nftIDs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [symbol, nftIDs.join(","), true];
+                        return [4 /*yield*/, this.JSONRPC("getNFTs", params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -4913,8 +4998,8 @@ var ScriptBuilder = /** @class */ (function () {
         this.AppendByte(obj.Type);
         if (result == undefined) {
             //console.log("enter");
-            if (typeof obj.Data == typeof Map ||
-                obj.Data instanceof Map) {
+            if (obj.Data instanceof Map ||
+                obj.Data instanceof (Map)) {
                 var resultData = obj.Data;
                 this.EmitVarInt(resultData.size);
                 try {
