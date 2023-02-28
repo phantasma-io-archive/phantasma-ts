@@ -297,8 +297,8 @@ var ScriptBuilder = /** @class */ (function () {
         this.AppendByte(obj.Type);
         if (result == undefined) {
             //console.log("enter");
-            if (typeof obj.Data == typeof Map ||
-                obj.Data instanceof Map) {
+            if (obj.Data instanceof Map ||
+                obj.Data instanceof (Map)) {
                 var resultData = obj.Data;
                 this.EmitVarInt(resultData.size);
                 try {

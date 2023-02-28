@@ -97,6 +97,15 @@ export interface Chain {
   dapps: Array<string>; //Dapps deployed in the chain
 }
 
+export interface Contract {
+  name: string;
+  address: string;
+  owner: string;
+  script: string;
+  methods?: Array<ABIMethod>;
+  events?: Array<ABIEvent>;
+}
+
 export interface Event {
   address: string;
   contract: string;
@@ -260,6 +269,13 @@ export interface ABIMethod {
   name: string; //Name of method
   returnType: string;
   parameters: Array<ABIParameter>; //Type of parameters
+}
+
+export interface ABIEvent {
+  value: number; //Name of method
+  name: string; //Name of Event
+  returnType: string;
+  description: string; //Description
 }
 
 export interface ABIContract {
@@ -464,6 +480,15 @@ export class PhantasmaAPI {
     return (await this.JSONRPC("lookUpName", params)) as string;
   }
 
+  //Returns the address that owns a given name.
+  async getAddressesBySymbol(
+    symbol: string,
+    extended: boolean = false
+  ): Promise<Account[]> {
+    let params: Array<any> = [symbol, extended];
+    return (await this.JSONRPC("getAddressesBySymbol", params)) as Account[];
+  }
+
   //Returns the height of a chain.
   async getBlockHeight(chainInput: string): Promise<number> {
     let params: Array<any> = [chainInput];
@@ -497,6 +522,12 @@ export class PhantasmaAPI {
     return (await this.JSONRPC("getBlockByHeight", params)) as Block;
   }
 
+  //Returns information about a block by height and chain.
+  async getLatestBlock(chainInput: string): Promise<Block> {
+    let params: Array<any> = [chainInput];
+    return (await this.JSONRPC("getLatestBlock", params)) as Block;
+  }
+
   //Returns a serialized string, in hex format, containing information about a block by height and chain.
   async getRawBlockByHeight(
     chainInput: string,
@@ -504,6 +535,12 @@ export class PhantasmaAPI {
   ): Promise<string> {
     let params: Array<any> = [chainInput, height];
     return (await this.JSONRPC("getRawBlockByHeight", params)) as string;
+  }
+
+  //Returns a serialized string, in hex format, containing information about a block by height and chain.
+  async getRawLatestBlock(chainInput: string): Promise<string> {
+    let params: Array<any> = [chainInput];
+    return (await this.JSONRPC("getRawLatestBlock", params)) as string;
   }
 
   //Returns the information about a transaction requested by a block hash and transaction index.
@@ -577,6 +614,23 @@ export class PhantasmaAPI {
   async getNexus(): Promise<Nexus> {
     let params: Array<any> = [];
     return (await this.JSONRPC("getNexus", params)) as Nexus;
+  }
+
+  //Returns the contract info deployed in Phantasma.
+  async getContract(
+    chainAddressOrName: string = "main",
+    contractName: string
+  ): Promise<Contract> {
+    let params: Array<any> = [chainAddressOrName, contractName];
+    return (await this.JSONRPC("getContract", params)) as Contract;
+  }
+
+  async getContractByAddress(
+    chainAddressOrName: string = "main",
+    contractAddress: string
+  ): Promise<Contract> {
+    let params: Array<any> = [chainAddressOrName, contractAddress];
+    return (await this.JSONRPC("getContractByAddress", params)) as Contract;
   }
 
   //Returns info about an organization.
@@ -749,5 +803,10 @@ export class PhantasmaAPI {
   async getNFT(symbol: string, nftId: string): Promise<NFT> {
     let params: Array<any> = [symbol, nftId, true];
     return (await this.JSONRPC("getNFT", params)) as NFT;
+  }
+
+  async getNFTs(symbol: string, nftIDs: string[]): Promise<NFT[]> {
+    let params: Array<any> = [symbol, nftIDs.join(","), true];
+    return (await this.JSONRPC("getNFTs", params)) as NFT[];
   }
 }

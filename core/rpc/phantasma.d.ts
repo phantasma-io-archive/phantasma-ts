@@ -80,6 +80,14 @@ export interface Chain {
     contracts: Array<string>;
     dapps: Array<string>;
 }
+export interface Contract {
+    name: string;
+    address: string;
+    owner: string;
+    script: string;
+    methods?: Array<ABIMethod>;
+    events?: Array<ABIEvent>;
+}
 export interface Event {
     address: string;
     contract: string;
@@ -226,6 +234,12 @@ export interface ABIMethod {
     returnType: string;
     parameters: Array<ABIParameter>;
 }
+export interface ABIEvent {
+    value: number;
+    name: string;
+    returnType: string;
+    description: string;
+}
 export interface ABIContract {
     name: string;
     methods: Array<ABIMethod>;
@@ -305,12 +319,15 @@ export declare class PhantasmaAPI {
     convertDecimals(amount: number, decimals: number): number;
     getAccount(account: string): Promise<Account>;
     lookUpName(name: string): Promise<string>;
+    getAddressesBySymbol(symbol: string, extended?: boolean): Promise<Account[]>;
     getBlockHeight(chainInput: string): Promise<number>;
     getBlockTransactionCountByHash(blockHash: string): Promise<number>;
     getBlockByHash(blockHash: string): Promise<Block>;
     getRawBlockByHash(blockHash: string): Promise<string>;
     getBlockByHeight(chainInput: string, height: number): Promise<Block>;
+    getLatestBlock(chainInput: string): Promise<Block>;
     getRawBlockByHeight(chainInput: string, height: number): Promise<string>;
+    getRawLatestBlock(chainInput: string): Promise<string>;
     getTransactionByBlockHashAndIndex(blockHash: string, index: number): Promise<TransactionData>;
     getAddressTransactions(account: string, page: number, pageSize: number): Promise<Paginated<AccountTransactions>>;
     getAddressTransactionCount(account: string, chainInput: string): Promise<number>;
@@ -320,6 +337,8 @@ export declare class PhantasmaAPI {
     cancelTransaction(hashText: string): Promise<string>;
     getChains(): Promise<Chain>;
     getNexus(): Promise<Nexus>;
+    getContract(chainAddressOrName: string, contractName: string): Promise<Contract>;
+    getContractByAddress(chainAddressOrName: string, contractAddress: string): Promise<Contract>;
     getOrganization(ID: string): Promise<Organization>;
     getOrganizationByName(name: string): Promise<Organization>;
     getOrganizations(extended?: boolean): Promise<Organization[]>;
@@ -344,5 +363,6 @@ export declare class PhantasmaAPI {
     getSwapsForAddressOld(account: string): Promise<Swap[]>;
     getSwapsForAddress(account: string, platform: string): Promise<Swap[]>;
     getNFT(symbol: string, nftId: string): Promise<NFT>;
+    getNFTs(symbol: string, nftIDs: string[]): Promise<NFT[]>;
 }
 //# sourceMappingURL=phantasma.d.ts.map
