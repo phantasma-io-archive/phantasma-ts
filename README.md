@@ -42,7 +42,7 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and Easy
 
 2. [PhantasmaLink](#phantasmalink) - Allows you to interact with Phantasma based wallets
     - [Functions](#functions)
-    - [Exsamples](#Exsample-Code)
+    - [Examples](#Example-Code)
 
 3. [EasyConnect](#easyconnect) - Easy plug and play solution for creating DApps
     - [Core Functions](#Core-Functions)
@@ -81,6 +81,14 @@ phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
 
 ```javascript
 phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
+```
+
+### Decoding a invokeScript result
+```javascript
+const decoder = new phantasmaJS.Decoder('0303FB0200');	// here this value its something you obtained for example as the result of a invokeScript
+const value = decoder.readVmObject();
+
+console.log(value); // will print 
 ```
 
 ### Building a Script with Script Builder
@@ -621,7 +629,7 @@ link.disconnect(message); //Disconnects From Socket (You can add a reason with t
 ```
 
 
-### Exsample Code
+### Example Code
 Here is some example code to initate a wallet connection.
 ```javascript
 let link = new PhantasmaLink("Dapp"); //"Dapp" is just whatever name you want to give your application 
