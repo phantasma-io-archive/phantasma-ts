@@ -83,14 +83,6 @@ phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
 phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
 ```
 
-### Decoding a invokeScript result
-```javascript
-const decoder = new phantasmaJS.Decoder('0303FB0200');	// here this value its something you obtained for example as the result of a invokeScript
-const value = decoder.readVmObject();
-
-console.log(value); // will print 
-```
-
 ### Building a Script with Script Builder
 
 Building a script is the most important part of interacting with the Phantasma blockchain. Without a propper script, the Phantasma blockchain will not know what you are trying to do. 
@@ -127,6 +119,24 @@ let sb = new phantasmaJS.ScriptBuilder();
     .endScript();
 
 ```
+
+#### InvokeRawScript and decoding the result
+```javascript
+
+let sb = new phantasmaJS.ScriptBuilder();
+sb.CallContract("stake", "GetMasterCount", []);
+let script = sb.EndScript();
+let targetNet = 'main';
+
+// NOTE - we assume RPC was instantiated previously already, check other samples to see how
+let response = await RPC.invokeRawScript(targetNet, script);
+
+const decoder = new phantasmaJS.Decoder(response.result);	
+const value = decoder.readVmObject();
+console.log(value); // print the decoded value to the console
+	
+```
+
 #### Interop Functions:
 Here are some Interop functions that are used to interact with the core functionality of the Phantasma blockchain. Use these inside your script to add extra functionality.
 ```javascript
