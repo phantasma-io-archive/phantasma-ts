@@ -217,4 +217,54 @@ describe("test phantasma_ts", function () {
 
     done();
   });
+
+  test("New MultiSig With addressTests", function (done) {
+    let keys = PhantasmaKeys.fromWIF(
+      "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx"
+    );
+    let nexusName = "testnet";
+    let chainName = "main";
+    let subject = "teste";
+    let listOfUsers: Array<string> = [
+      "P2KFEyFevpQfSaW8G4VjSmhWUZXR4QrG9YQR1HbMpTUCpCL",
+      "P2KFEyFevpQfSaW8G4VjSmhWUZXR4QrG9YQR1HbMpTUCpCL",
+    ];
+
+    const listUserAddr = listOfUsers.map((user) => Address.FromText(user));
+
+    let time = new Timestamp(1234567890);
+    let date = new Date(time.toString());
+    let payload = Base16.encode(subject); // hex string
+    var transaction = new Transaction(nexusName, chainName, "", date, payload);
+
+    let gasLimit = 100000;
+    let gasPrice = 210000;
+    //let txBytes = transaction.SerializeData();
+    let sb = new ScriptBuilder();
+
+    expect(Base16.encodeUint8Array(transaction.ToByteAray(false))).toBe(
+      "07746573746E6574046D61696E00D2029649057465737465"
+    );
+
+    expect(Base16.encodeUint8Array(Serialization.Serialize(transaction))).toBe(
+      "07746573746E6574046D61696E00D202964905746573746500"
+    );
+
+    let script = sb
+      .AllowGas(keys.Address, Address.Null, gasLimit, gasPrice)
+      .CallContract("consensus", "CreateTransaction", [
+        keys.Address.Text,
+        subject,
+        Serialization.Serialize(transaction),
+        listUserAddr,
+      ])
+      .SpendGas(keys.Address)
+      .EndScript();
+
+    expect(script).toBe(
+      "0D00030350340303000D000303A0860103000D000223220000000000000000000000000000000000000000000000000000000000000000000003000D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D000408416C6C6F7747617303000D0004036761732D00012E010E0000000D010223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB48950D020301002F0100020D010223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB48950D020301012F01000203000D00021907746573746E6574046D61696E00D20296490574657374650003000D000405746573746503000D00042F50324B464579466576705166536157384734566A536D6857555A585234517247395951523148624D7054554370434C03000D0004114372656174655472616E73616374696F6E03000D000409636F6E73656E7375732D00012E010D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D0004085370656E6447617303000D0004036761732D00012E010B"
+    );
+
+    done();
+  });
 });

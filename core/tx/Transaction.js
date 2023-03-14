@@ -94,9 +94,9 @@ var Transaction = /** @class */ (function () {
     Transaction.prototype.SerializeData = function (writer) {
         writer.writeString(this.nexusName);
         writer.writeString(this.chainName);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.script));
+        writer.writeByteArray(types_1.Base16.decodeUint8Array(this.script));
         writer.writeDateTime(this.expiration);
-        writer.writeByteArray((0, utils_1.stringToUint8Array)(this.payload));
+        writer.writeByteArray(types_1.Base16.decodeUint8Array(this.payload));
         writer.writeVarInt(this.signatures.length);
         this.signatures.forEach(function (sig) {
             writer.writeSignature(sig);
