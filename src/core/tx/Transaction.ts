@@ -14,7 +14,7 @@ import {
 import hexEncoding from "crypto-js/enc-hex";
 import SHA256 from "crypto-js/sha256";
 import { ISerializable, ISignature, Signature } from "../interfaces";
-import { PBinaryReader, PBinaryWriter, PhantasmaKeys } from "../types";
+import { Base16, PBinaryReader, PBinaryWriter, PhantasmaKeys } from "../types";
 import { getWifFromPrivateKey } from "./utils";
 const curve = new eddsa("ed25519");
 
@@ -125,9 +125,9 @@ export class Transaction implements ISerializable {
   public SerializeData(writer: PBinaryWriter) {
     writer.writeString(this.nexusName);
     writer.writeString(this.chainName);
-    writer.writeByteArray(stringToUint8Array(this.script));
+    writer.writeByteArray(Base16.decodeUint8Array(this.script));
     writer.writeDateTime(this.expiration);
-    writer.writeByteArray(stringToUint8Array(this.payload));
+    writer.writeByteArray(Base16.decodeUint8Array(this.payload));
     writer.writeVarInt(this.signatures.length);
     this.signatures.forEach((sig) => {
       writer.writeSignature(sig);
