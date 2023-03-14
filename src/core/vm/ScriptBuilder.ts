@@ -211,27 +211,21 @@ export class ScriptBuilder {
   }
 
   public EmitLoadArray(reg: number, obj: any): this {
-    for (let i = obj.length - 1; i >= 0; i--) {
-      let element = obj[i];
-      this.EmitLoad(reg, element);
-      this.EmitPush(reg);
-      reg++;
-    }
+    this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
 
-    return;
-    this.EmitLoadBytes(Opcode.CAST, [reg, reg], VMType.None);
-    //this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
     for (let i = 0; i < obj.length; i++) {
       let element = obj[i];
       let temp_regVal = reg + 1;
       let temp_regKey = reg + 2;
+
       this.EmitLoad(temp_regVal, element);
       this.EmitLoad(temp_regKey, i);
       this.Emit(Opcode.PUT, [temp_regVal, reg, temp_regKey]);
-      //this.appendByte(reg);
+      //this.EmitLoad(reg, element);
+      //this.EmitPush(reg);
+      //reg++;
     }
 
-    //this.emitLoadBytes(reg, obj as number[]);
     return this;
   }
 

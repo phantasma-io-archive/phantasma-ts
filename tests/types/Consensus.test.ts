@@ -42,13 +42,13 @@ describe("Consensus Tests", () => {
     vm.UnserializeData(readerVM);
     let con = vm.ToStruct<ConsensusPoll>(ConsensusPoll);
     con.entries.forEach((entry) => {
-      console.log(entry);
+      //console.log(entry);
       let entryValue = entry as unknown as string;
       let pollValueBytes = Base16.decodeUint8Array(entryValue);
       let pollValue = new PollValue();
       let reader = new PBinaryReader(pollValueBytes);
       pollValue.UnserializeData(reader);
-      console.log(pollValue);
+      //console.log(pollValue);
 
       //pollValue.UnserializeData(reader);
 
