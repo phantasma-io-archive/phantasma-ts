@@ -4962,15 +4962,7 @@ var ScriptBuilder = /** @class */ (function () {
         return this;
     };
     ScriptBuilder.prototype.EmitLoadArray = function (reg, obj) {
-        for (var i = obj.length - 1; i >= 0; i--) {
-            var element = obj[i];
-            this.EmitLoad(reg, element);
-            this.EmitPush(reg);
-            reg++;
-        }
-        return;
-        this.EmitLoadBytes(Opcode_1.Opcode.CAST, [reg, reg], VMType_1.VMType.None);
-        //this.Emit(Opcode.CAST, [reg, reg, VMType.None]);
+        this.Emit(Opcode_1.Opcode.CAST, [reg, reg, VMType_1.VMType.None]);
         for (var i = 0; i < obj.length; i++) {
             var element = obj[i];
             var temp_regVal = reg + 1;
@@ -4978,9 +4970,10 @@ var ScriptBuilder = /** @class */ (function () {
             this.EmitLoad(temp_regVal, element);
             this.EmitLoad(temp_regKey, i);
             this.Emit(Opcode_1.Opcode.PUT, [temp_regVal, reg, temp_regKey]);
-            //this.appendByte(reg);
+            //this.EmitLoad(reg, element);
+            //this.EmitPush(reg);
+            //reg++;
         }
-        //this.emitLoadBytes(reg, obj as number[]);
         return this;
     };
     ScriptBuilder.prototype.EmitLoadISerializable = function (reg, obj) {
