@@ -106,7 +106,7 @@ export class PhantasmaLink {
     });
   }
 
-  //Wallet Transaction Signing +
+  //Wallet Transaction Signing + Sending
   signTx(
     script: any,
     payload: string | null,
@@ -180,6 +180,44 @@ export class PhantasmaLink {
         that.onMessage(
           "Transaction successful, hash: " + result.hash.substr(0, 15) + "..."
         );
+        if (callback) {
+          callback(result);
+        }
+      } else {
+        if (onErrorCallback) {
+          onErrorCallback();
+        }
+      }
+    });
+  }
+
+  // Wallet Transaction Signing
+  signTxSignature(tx, callback, onErrorCallback, signature = "Ed25519") {
+    if (!this.socket) {
+      this.onMessage("not logged in");
+      return;
+    }
+    if (tx == null) {
+      this.onMessage("invalid data, sorry :(");
+      return;
+    }
+
+    if (tx.length >= 1024) {
+      this.onMessage("data too big, sorry :(");
+      if (onErrorCallback) {
+        onErrorCallback();
+      }
+      return;
+    }
+
+    let signDataStr =
+      "signTxSignature/" + tx + "/" + signature + "/" + this.platform;
+
+    var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+
+    this.sendLinkRequest(signDataStr, function (result) {
+      if (result.success) {
+        that.onMessage("Data successfully signed");
         if (callback) {
           callback(result);
         }
