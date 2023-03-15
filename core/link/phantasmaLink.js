@@ -83,7 +83,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
-    //Wallet Transaction Signing +
+    //Wallet Transaction Signing + Sending
     PhantasmaLink.prototype.signTx = function (script, payload, callback, onErrorCallback, pow, signature) {
         if (pow === void 0) { pow = ProofOfWork.None; }
         if (signature === void 0) { signature = "Ed25519"; }
@@ -146,6 +146,40 @@ var PhantasmaLink = /** @class */ (function () {
                     return;
                 }
                 that.onMessage("Transaction successful, hash: " + result.hash.substr(0, 15) + "...");
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback();
+                }
+            }
+        });
+    };
+    // Wallet Transaction Signing
+    PhantasmaLink.prototype.signTxSignature = function (tx, callback, onErrorCallback, signature) {
+        if (signature === void 0) { signature = "Ed25519"; }
+        if (!this.socket) {
+            this.onMessage("not logged in");
+            return;
+        }
+        if (tx == null) {
+            this.onMessage("invalid data, sorry :(");
+            return;
+        }
+        if (tx.length >= 1024) {
+            this.onMessage("data too big, sorry :(");
+            if (onErrorCallback) {
+                onErrorCallback();
+            }
+            return;
+        }
+        var signDataStr = "signTxSignature/" + tx + "/" + signature + "/" + this.platform;
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        this.sendLinkRequest(signDataStr, function (result) {
+            if (result.success) {
+                that.onMessage("Data successfully signed");
                 if (callback) {
                     callback(result);
                 }

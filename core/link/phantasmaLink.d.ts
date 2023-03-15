@@ -28,6 +28,7 @@ export declare class PhantasmaLink {
     login(onLoginCallback: any, onErrorCallback: any, version?: number, platform?: string, providerHint?: string): void;
     invokeScript(script: any, callback: any): void;
     signTx(script: any, payload: string | null, callback: (arg0: any) => void, onErrorCallback: () => void, pow?: ProofOfWork, signature?: string): void;
+    signTxSignature(tx: any, callback: any, onErrorCallback: any, signature?: string): void;
     getPeer(callback: any, onErrorCallback: any): void;
     fetchWallet(callback: any, onErrorCallback: any): void;
     getNexus(callback: any, onErrorCallback: any): void;
