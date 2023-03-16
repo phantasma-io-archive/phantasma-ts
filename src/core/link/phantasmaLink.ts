@@ -229,6 +229,43 @@ export class PhantasmaLink {
     });
   }
 
+  multiSig(subject, callback, onErrorCallback, signature = "Ed25519") {
+    if (!this.socket) {
+      this.onMessage("not logged in");
+      return;
+    }
+    if (subject == null) {
+      this.onMessage("invalid data, sorry :(");
+      return;
+    }
+
+    if (subject.length >= 1024) {
+      this.onMessage("data too big, sorry :(");
+      if (onErrorCallback) {
+        onErrorCallback();
+      }
+      return;
+    }
+
+    let signDataStr =
+      "multiSig/" + subject + "/" + signature + "/" + this.platform;
+
+    var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+
+    this.sendLinkRequest(signDataStr, function (result) {
+      if (result.success) {
+        that.onMessage("Data successfully signed");
+        if (callback) {
+          callback(result);
+        }
+      } else {
+        if (onErrorCallback) {
+          onErrorCallback();
+        }
+      }
+    });
+  }
+
   getPeer(callback: any, onErrorCallback: any) {
     this.onError = onErrorCallback; //Sets Error Callback Function
     let that = this; //Allows the use of 'this' inside sendLinkRequest Object
