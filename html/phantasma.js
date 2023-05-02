@@ -690,10 +690,10 @@ var PhantasmaLink = /** @class */ (function () {
     PhantasmaLink.prototype.fetchWallet = function (callback, onErrorCallback) {
         var that = this; //Allows the use of 'this' inside sendLinkRequest Object
         var getAccountRequest = "getAccount/" + this.platform;
-        that.sendLinkRequest(getAccountRequest, function (result) {
+        this.sendLinkRequest(getAccountRequest, function (result) {
             if (result.success) {
                 that.account = result;
-                callback();
+                callback(result);
             }
             else {
                 onErrorCallback("Could not obtain account info... Make sure you have an account currently open in " +
@@ -873,6 +873,9 @@ var PhantasmaLink = /** @class */ (function () {
         else {
             this.messageLogging = true;
         }
+    };
+    PhantasmaLink.prototype.resume = function (token) {
+        this.retry();
     };
     //Retry Util
     PhantasmaLink.prototype.retry = function () {

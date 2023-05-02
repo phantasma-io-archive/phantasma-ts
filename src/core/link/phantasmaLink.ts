@@ -288,10 +288,10 @@ export class PhantasmaLink {
   fetchWallet(callback: any, onErrorCallback: any) {
     let that = this; //Allows the use of 'this' inside sendLinkRequest Object
     let getAccountRequest = "getAccount/" + this.platform;
-    that.sendLinkRequest(getAccountRequest, function (result) {
+    this.sendLinkRequest(getAccountRequest, function (result) {
       if (result.success) {
         that.account = result;
-        callback();
+        callback(result);
       } else {
         onErrorCallback(
           "Could not obtain account info... Make sure you have an account currently open in " +
@@ -496,6 +496,10 @@ export class PhantasmaLink {
     } else {
       this.messageLogging = true;
     }
+  }
+
+  resume(token) {
+    this.retry();
   }
 
   //Retry Util
