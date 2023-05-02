@@ -36,6 +36,7 @@ export declare class PhantasmaLink {
     signData(data: any, callback: any, onErrorCallback: any, signature?: string): void;
     createSocket(): void;
     toggleMessageLogging(): void;
+    resume(token: any): void;
     retry(): void;
     set dappID(dapp: any);
     get dappID(): any;
