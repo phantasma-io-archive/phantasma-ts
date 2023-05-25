@@ -42,7 +42,6 @@ The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and Easy
      - [RPC](#Using-RPC)
 
 2. [PhantasmaLink](#phantasmalink) - Allows you to interact with Phantasma based wallets
-
    - [Functions](#functions)
    - [Exsamples](#Exsample-Code)
 
@@ -125,6 +124,22 @@ let sb = new phantasmaJS.ScriptBuilder();
     .CallContract('account', 'LookUpName', ['accountName'])
     .EndScript();
 
+```
+#### InvokeRawScript and decoding the result
+```javascript
+
+let sb = new phantasmaJS.ScriptBuilder();
+sb.CallContract("stake", "GetMasterCount", []);
+let script = sb.EndScript();
+let targetNet = 'main';
+
+// NOTE - we assume RPC was instantiated previously already, check other samples to see how
+let response = await RPC.invokeRawScript(targetNet, script);
+
+const decoder = new phantasmaJS.Decoder(response.result);	
+const value = decoder.readVmObject();
+console.log(value); // print the decoded value to the console
+	
 ```
 
 #### Interop Functions:
@@ -664,8 +679,8 @@ link.retry(); //Used internally to retry socket connection, you probably won't u
 link.disconnect(message); //Disconnects From Socket (You can add a reason with the Message Argument)
 ```
 
-### Exsample Code
 
+### Example Code
 Here is some example code to initate a wallet connection.
 
 ```javascript
