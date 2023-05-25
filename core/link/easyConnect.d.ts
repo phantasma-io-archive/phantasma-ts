@@ -12,7 +12,7 @@ export declare class EasyConnect {
     setConfig(_provider: string): void;
     connect(onSuccess?: any, onFail?: any): void;
     disconnect(_message?: string): void;
-    query(_type?: string, _arguments?: Array<string>, _callback?: any): Promise<any>;
+    query(_type?: string, _arguments?: Array<string>, _callback?: any): Promise<string | import("..").Balance[] | import("./phantasmaLink").IAccount>;
     action(_type?: string, _arguments?: Array<any>, onSuccess?: any, onFail?: any): Promise<void>;
     signTransaction(script: string, payload?: any, onSuccess?: any, onFail?: any): void;
     signData(data: any, onSuccess?: any, onFail?: any): void;

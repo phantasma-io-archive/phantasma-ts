@@ -40,6 +40,7 @@ var PhantasmaLink = /** @class */ (function () {
         this.host = "localhost:7090";
         this.dapp = dappID;
         this.onLogin = function (succ) { }; //Does Nothing for Now
+        this.onError = function (message) { }; //Does Nothing for Now
     }
     //Connect To Wallet
     PhantasmaLink.prototype.login = function (onLoginCallback, onErrorCallback, version, platform, providerHint) {
@@ -273,7 +274,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback();
+                    onErrorCallback("Error: " + result.error);
                 }
             }
         });
@@ -292,7 +293,7 @@ var PhantasmaLink = /** @class */ (function () {
         if (data.length >= 1024) {
             this.onMessage("data too big, sorry :(");
             if (onErrorCallback) {
-                onErrorCallback();
+                onErrorCallback("data too big, sorry :(");
             }
             return;
         }
@@ -307,13 +308,14 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback();
+                    onErrorCallback("error");
                 }
             }
         });
     };
     //Wallet Socket Connection Creation
-    PhantasmaLink.prototype.createSocket = function () {
+    PhantasmaLink.prototype.createSocket = function (isResume) {
+        if (isResume === void 0) { isResume = false; }
         var path = "ws://" + this.host + "/phantasma";
         this.onMessage("Phantasma Link connecting...");
         if (this.socket) {
@@ -335,31 +337,36 @@ var PhantasmaLink = /** @class */ (function () {
         //Once Socket Opened
         this.socket.onopen = function (e) {
             that.onMessage("Connection established, authorizing dapp in wallet...");
-            that.sendLinkRequest(authorizeRequest, function (result) {
-                //Set Global Variables With Successful Account Query
-                if (result.success) {
-                    that.token = result.token;
-                    that.wallet = result.wallet;
-                    that.onMessage("Authorized, obtaining account info...");
-                    that.sendLinkRequest(getAccountRequest, function (result) {
-                        if (result.success) {
-                            that.account = result;
-                        }
-                        else {
-                            that.onError("Could not obtain account info... Make sure you have an account currently open in " +
-                                that.wallet +
-                                "...");
-                            that.disconnect("Unable to optain Account Info");
-                        }
-                        that.onLogin(result.success);
-                        that.onLogin = null;
-                    });
-                }
-                else {
-                    that.onError("Authorization failed...");
-                    that.disconnect("Auth Failure");
-                }
-            });
+            if (isResume) {
+                that.fetchWallet(undefined, undefined);
+            }
+            else {
+                that.sendLinkRequest(authorizeRequest, function (result) {
+                    //Set Global Variables With Successful Account Query
+                    if (result.success) {
+                        that.token = result.token;
+                        that.wallet = result.wallet;
+                        that.onMessage("Authorized, obtaining account info...");
+                        that.sendLinkRequest(getAccountRequest, function (result) {
+                            if (result.success) {
+                                that.account = result;
+                            }
+                            else {
+                                that.onError("Could not obtain account info... Make sure you have an account currently open in " +
+                                    that.wallet +
+                                    "...");
+                                that.disconnect("Unable to optain Account Info");
+                            }
+                            that.onLogin(result.success);
+                            that.onLogin = null;
+                        });
+                    }
+                    else {
+                        that.onError("Authorization failed...");
+                        that.disconnect("Auth Failure");
+                    }
+                });
+            }
         };
         //Retrieves Message From Socket and Processes It
         this.socket.onmessage = function (event) {
@@ -430,6 +437,7 @@ var PhantasmaLink = /** @class */ (function () {
         }
     };
     PhantasmaLink.prototype.resume = function (token) {
+        this.token = token;
         this.retry();
     };
     //Retry Util
@@ -461,7 +469,8 @@ var PhantasmaLink = /** @class */ (function () {
     //Disconnect The Wallet Connection Socket
     PhantasmaLink.prototype.disconnect = function (triggered) {
         this.onMessage("Disconnecting Phantasma Link: " + triggered);
-        this.socket.close();
+        if (this.socket)
+            this.socket.close();
     };
     return PhantasmaLink;
 }());
