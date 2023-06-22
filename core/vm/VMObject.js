@@ -874,7 +874,8 @@ var VMObject = /** @class */ (function () {
     // Serialization
     VMObject.FromBytes = function (bytes) {
         var result = new VMObject();
-        result.UnserializeData(bytes);
+        var reader = new types_1.PBinaryReader(bytes);
+        result.UnserializeData(reader);
         return result;
     };
     VMObject.prototype.SerializeData = function (writer) {

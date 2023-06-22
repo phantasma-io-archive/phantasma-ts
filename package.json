@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "export": "tsc && browserify index.js -s phantasma > html/phantasma.js",
-    "test": "tsc && jest -- tx/Transaction.test.ts",
+    "test": "tsc && jest",
     "tests": "tsc && jest",
     "coverage": "jest --coverage"
   },
