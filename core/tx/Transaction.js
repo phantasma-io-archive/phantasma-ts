@@ -4,14 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Transaction = void 0;
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
+var eddsa = elliptic_1.default.eddsa;
 var vm_1 = require("../vm");
 var utils_1 = require("../utils");
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var types_1 = require("../types");
 var utils_2 = require("./utils");
-var curve = new elliptic_1.eddsa("ed25519");
+var curve = new eddsa("ed25519");
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, // Should be HexString
     expiration, payload // Should be HexString

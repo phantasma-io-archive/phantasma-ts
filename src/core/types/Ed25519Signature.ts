@@ -1,7 +1,8 @@
 import { IKeyPair } from "../interfaces/IKeyPair";
 import { Signature, SignatureKind } from "../interfaces/Signature";
 import { Address } from "./Address";
-import { eddsa } from "elliptic";
+import pkg from 'elliptic';
+
 import {
   stringToUint8Array,
   uint8ArrayToHex,
@@ -9,7 +10,7 @@ import {
 } from "../utils";
 import { BinaryReader, BinaryWriter, Encoding } from "csharp-binary-stream";
 import { PBinaryWriter, PBinaryReader } from "./Extensions";
-
+const { eddsa } = pkg;
 const ed25519 = new eddsa("ed25519");
 
 export class Ed25519Signature implements Signature {

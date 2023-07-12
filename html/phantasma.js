@@ -1776,14 +1776,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Transaction = void 0;
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
+var eddsa = elliptic_1.default.eddsa;
 var vm_1 = require("../vm");
 var utils_1 = require("../utils");
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var types_1 = require("../types");
 var utils_2 = require("./utils");
-var curve = new elliptic_1.eddsa("ed25519");
+var curve = new eddsa("ed25519");
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, // Should be HexString
     expiration, payload // Should be HexString
@@ -2044,11 +2045,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyData = exports.signData = exports.getWifFromPrivateKey = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getPublicKeyFromPrivateKey = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var bs58_1 = __importDefault(require("bs58"));
 var bip39 = __importStar(require("bip39"));
 var crypto_1 = __importDefault(require("crypto"));
-var curve = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var curve = new eddsa("ed25519");
 function ab2hexstring(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
@@ -2078,7 +2080,7 @@ function getPrivateKeyFromWif(wif) {
 }
 exports.getPrivateKeyFromWif = getPrivateKeyFromWif;
 function getAddressFromWif(wif) {
-    var curve = new elliptic_1.eddsa("ed25519");
+    var curve = new eddsa("ed25519");
     var privateKey = getPrivateKeyFromWif(wif);
     var privateKeyBuffer = Buffer.from(privateKey, "hex");
     var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");
@@ -2164,8 +2166,9 @@ var utils_1 = require("../utils");
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var tx_1 = require("../tx");
-var elliptic_1 = require("elliptic");
-var curve = new elliptic_1.eddsa("ed25519");
+var elliptic_1 = __importDefault(require("elliptic"));
+var eddsa = elliptic_1.default.eddsa;
+var curve = new eddsa("ed25519");
 var AddressKind;
 (function (AddressKind) {
     AddressKind[AddressKind["Invalid"] = 0] = "Invalid";
@@ -3050,13 +3053,17 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ed25519Signature = void 0;
 var Signature_1 = require("../interfaces/Signature");
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var utils_1 = require("../utils");
 var Extensions_1 = require("./Extensions");
-var ed25519 = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var ed25519 = new eddsa("ed25519");
 var Ed25519Signature = /** @class */ (function () {
     function Ed25519Signature(bytes) {
         this.Kind = Signature_1.SignatureKind.Ed25519;
@@ -3765,10 +3772,11 @@ var bs58_1 = __importDefault(require("bs58"));
 var wif_1 = __importDefault(require("wif"));
 var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var Entropy_1 = require("./Entropy");
 var tx_1 = require("../tx");
-var ed25519 = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var ed25519 = new eddsa("ed25519");
 var PhantasmaKeys = /** @class */ (function () {
     function PhantasmaKeys(privateKey) {
         if (privateKey.length == 64) {
@@ -3993,8 +4001,10 @@ var Serialization = /** @class */ (function () {
         else {
             localType = new type();
         }
-        if (localType instanceof Boolean || typeof localType == "boolean") {
-            return (reader.readByte() == 1);
+        if (localType instanceof Boolean ||
+            typeof localType == "boolean" ||
+            type.name == "Boolean") {
+            return reader.readBoolean();
         }
         else if (localType instanceof Number || typeof localType == "number") {
             return reader.readVarInt();
@@ -6261,7 +6271,8 @@ var VMObject = /** @class */ (function () {
     // Serialization
     VMObject.FromBytes = function (bytes) {
         var result = new VMObject();
-        result.UnserializeData(bytes);
+        var reader = new types_1.PBinaryReader(bytes);
+        result.UnserializeData(reader);
         return result;
     };
     VMObject.prototype.SerializeData = function (writer) {

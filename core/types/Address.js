@@ -9,8 +9,9 @@ var utils_1 = require("../utils");
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var tx_1 = require("../tx");
-var elliptic_1 = require("elliptic");
-var curve = new elliptic_1.eddsa("ed25519");
+var elliptic_1 = __importDefault(require("elliptic"));
+var eddsa = elliptic_1.default.eddsa;
+var curve = new eddsa("ed25519");
 var AddressKind;
 (function (AddressKind) {
     AddressKind[AddressKind["Invalid"] = 0] = "Invalid";

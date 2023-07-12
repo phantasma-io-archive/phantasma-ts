@@ -10,13 +10,17 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ed25519Signature = void 0;
 var Signature_1 = require("../interfaces/Signature");
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var utils_1 = require("../utils");
 var Extensions_1 = require("./Extensions");
-var ed25519 = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var ed25519 = new eddsa("ed25519");
 var Ed25519Signature = /** @class */ (function () {
     function Ed25519Signature(bytes) {
         this.Kind = Signature_1.SignatureKind.Ed25519;

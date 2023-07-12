@@ -1,6 +1,6 @@
 {
   "name": "phantasma-ts",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "description": "Javascript SDK for interacting with the PhantasmaChain",
   "main": "index.js",
   "types": "index.d.ts",
@@ -29,6 +29,7 @@
     "cross-fetch": "^3.1.4",
     "crypto-js": "^4.1.1",
     "csharp-binary-stream": "^1.0.3",
+    "@types/elliptic": "^6.4.13",
     "elliptic": "^6.5.4",
     "ethereumjs-wallet": "^1.0.2",
     "wif": "^2.0.6"
