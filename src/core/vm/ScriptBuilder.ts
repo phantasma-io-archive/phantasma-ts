@@ -27,11 +27,6 @@ export class ScriptBuilder {
 
   public NullAddress = "S1111111111111111111111111111111111";
 
-  public ScriptBuilder(){
-    this.str = "";
-    this.writer = new PBinaryWriter();
-  }
-
   public constructor() {
     this.str = "";
     this.writer = new PBinaryWriter();
@@ -237,7 +232,7 @@ export class ScriptBuilder {
       //console.log("enter");
       if (
         obj.Data instanceof Map ||
-        obj.Data instanceof Map<VMObject, VMObject>
+        obj.Data instanceof Map && obj.Data instanceof VMObject
       ) {
         let resultData = obj.Data as Map<VMObject, VMObject>;
         this.EmitVarInt(resultData.size);
