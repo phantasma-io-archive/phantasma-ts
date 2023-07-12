@@ -1,9 +1,13 @@
-import { phantasmaJS } from "..";
+import {  } from "..";
 import crypto from "crypto";
 import {
   Address,
   ConsensusMode,
   encodeBase16,
+  generateNewWif,
+  getAddressFromWif,
+  getPrivateKeyFromWif,
+  getWifFromPrivateKey,
   PhantasmaKeys,
   PollChoice,
   Serialization,
@@ -14,17 +18,17 @@ import { Base16 } from "../src/core/types/Extensions/Base16";
 
 describe("Utils", () => {
   test("Get a new address", () => {
-    let key = phantasmaJS.generateNewWif();
-    let address = phantasmaJS.getAddressFromWif(key);
+    let key = generateNewWif();
+    let address = getAddressFromWif(key);
   });
 
   test("Get a new address from private key", () => {
-    let key = phantasmaJS.generateNewWif();
-    let address = phantasmaJS.getAddressFromWif(key);
-    let privateKey = phantasmaJS.getPrivateKeyFromWif(key);
+    let key = generateNewWif();
+    let address = getAddressFromWif(key);
+    let privateKey = getPrivateKeyFromWif(key);
 
-    let wifFromPK = phantasmaJS.getWifFromPrivateKey(privateKey);
-    let addressFromPK = phantasmaJS.getAddressFromWif(wifFromPK);
+    let wifFromPK = getWifFromPrivateKey(privateKey);
+    let addressFromPK = getAddressFromWif(wifFromPK);
     expect(address).toBe(addressFromPK);
   });
 

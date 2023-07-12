@@ -1,9 +1,10 @@
-import { phantasmaJS } from "../..";
 import Buffer from "Buffer";
+import { PollChoice } from "../../";
 import crypto from "crypto";
 import {
   Address,
   Base16,
+  Ed25519Signature,
   encodeBase16,
   getAddressFromWif,
   getWifFromPrivateKey,
@@ -24,7 +25,7 @@ import {
 
 describe("test phantasma_ts", function () {
   test("test phantasma-ts.Transaction.SerializeData", function (done) {
-    let writer = new phantasmaJS.PBinaryWriter();
+    let writer = new PBinaryWriter();
     let keys = PhantasmaKeys.generate();
 
     let nexusName = "nexus";
@@ -32,9 +33,9 @@ describe("test phantasma_ts", function () {
     let script = "script";
     let expiration = new Date(17898129498);
     let payload = "payload";
-    let signatures = [new phantasmaJS.Ed25519Signature()];
+    let signatures = [new Ed25519Signature()];
     writer.writeString(nexusName);
-    let tx = new phantasmaJS.Transaction(
+    let tx = new Transaction(
       nexusName,
       chainName,
       script,
@@ -51,7 +52,7 @@ describe("test phantasma_ts", function () {
   });
 
   test("sginature", function (done) {
-    let writer = new phantasmaJS.PBinaryWriter();
+    let writer = new PBinaryWriter();
     let keys = PhantasmaKeys.generate();
 
     let wifTest = "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx";
@@ -64,7 +65,7 @@ describe("test phantasma_ts", function () {
     let script = "script";
     let expiration = new Date(17898129498);
     let payload = "payload";
-    let tx = new phantasmaJS.Transaction(
+    let tx = new Transaction(
       nexusName,
       chainName,
       script,
@@ -97,11 +98,11 @@ describe("test phantasma_ts", function () {
     let wif = "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx";
     let uintArray = Uint8Array.from([0x01, 0x02, 0x03]);
     let script = uint8ArrayToHex(uintArray);
-    let time = new phantasmaJS.Timestamp(1234567890);
+    let time = new Timestamp(1234567890);
     let date = new Date(time.toString());
     let payload = "payload";
-    let keys = phantasmaJS.PhantasmaKeys.fromWIF(wif);
-    let tx = new phantasmaJS.Transaction(
+    let keys = PhantasmaKeys.fromWIF(wif);
+    let tx = new Transaction(
       nexusName,
       chainName,
       script,
@@ -115,7 +116,7 @@ describe("test phantasma_ts", function () {
       "07746573746E6574046D61696E03010203D2029649077061796C6F61640101404C033859A20A4FC2E469B3741FB05ACEDFEC24BFE92E07633680488665D79F916773FF40D0E81C4468E1C1487E6E1E6EEFDA5C5D7C53C15C4FB349C2349A1802";
     let fromCsharpBytes = Buffer.Buffer.from(fromCsharp, "hex");
     let bytes = stringToUint8Array(fromCsharp);
-    let fromCsharpTx = phantasmaJS.Transaction.Unserialize(fromCsharpBytes);
+    let fromCsharpTx = Transaction.Unserialize(fromCsharpBytes);
 
     expect(fromCsharpTx.chainName).toBe(tx.chainName);
     expect(fromCsharpTx.nexusName).toBe(tx.nexusName);
@@ -137,17 +138,17 @@ describe("test phantasma_ts", function () {
     let subject = "system.nexus.protocol.version";
     let wif = "L5UEVHBjujaR1721aZM5Zm5ayjDyamMZS9W35RE9Y9giRkdf3dVx";
     let mode = 1;
-    let choice = new phantasmaJS.PollChoice("myChoice");
-    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choice = new PollChoice("myChoice");
+    let choice2 = new PollChoice("myChoice");
     let choices = [choice, choice2];
-    let choicesSerialized = phantasmaJS.Serialization.Serialize(choices);
-    let time = new phantasmaJS.Timestamp(1234567890);
+    let choicesSerialized = Serialization.Serialize(choices);
+    let time = new Timestamp(1234567890);
     let date = new Date(time.toString());
     let startTime = time;
     let endTime = new Timestamp(time.value + 86400);
     let payload = Base16.encode("Consensus"); // hex string
 
-    let keys = phantasmaJS.PhantasmaKeys.fromWIF(wif);
+    let keys = PhantasmaKeys.fromWIF(wif);
     let sb = new ScriptBuilder();
 
     let gasLimit = 10000;
@@ -163,7 +164,7 @@ describe("test phantasma_ts", function () {
       "0D00030350340303000D000302102703000D000223220000000000000000000000000000000000000000000000000000000000000000000003000D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D000408416C6C6F7747617303000D0004036761732D00012E010D0003010003000D00041D73797374656D2E6E657875732E70726F746F636F6C2E76657273696F6E03000D00042F50324B464579466576705166536157384734566A536D6857555A585234517247395951523148624D7054554370434C03000D00040A53696E676C65566F746503000D000409636F6E73656E7375732D00012E010D000223220100AA53BE71FC41BC0889B694F4D6D03F7906A3D9A21705943CAF9632EEAFBB489503000D0004085370656E6447617303000D0004036761732D00012E010B"
     );
 
-    let tx = new phantasmaJS.Transaction(
+    let tx = new Transaction(
       nexusName,
       chainName,
       script,

@@ -8,33 +8,33 @@ import {
   Timestamp,
   Transaction,
   VMObject,
+  VMType,
 } from "../core";
-import { phantasmaJS } from "../index";
 
 describe("VM index file", () => {
   test("empty string should result in zero", () => {
-    let vm = new phantasmaJS.VMObject();
+    let vm = new VMObject();
 
-    expect(vm).toBeInstanceOf(phantasmaJS.VMObject);
-    expect(vm.Type).toBe(phantasmaJS.VMType.None);
+    expect(vm).toBeInstanceOf(VMObject);
+    expect(vm.Type).toBe(VMType.None);
   });
 
   test("String VM", () => {
-    let vm = new phantasmaJS.VMObject();
+    let vm = new VMObject();
     let myNewVM = VMObject.FromObject("MyString");
 
-    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
-    expect(myNewVM.Type).toBe(phantasmaJS.VMType.String);
+    expect(myNewVM).toBeInstanceOf(VMObject);
+    expect(myNewVM.Type).toBe(VMType.String);
     let result = myNewVM.AsString();
     expect(result).toBe("MyString");
   });
 
   test("Number VM", () => {
-    let vm = new phantasmaJS.VMObject();
+    let vm = new VMObject();
     let myNewVM = VMObject.FromObject(5);
 
-    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
-    expect(myNewVM.Type).toBe(phantasmaJS.VMType.Number);
+    expect(myNewVM).toBeInstanceOf(VMObject);
+    expect(myNewVM.Type).toBe(VMType.Number);
     let result = myNewVM.AsString();
     expect(result).toBe("5");
     expect(myNewVM.AsNumber()).toBe(5);
@@ -77,22 +77,22 @@ describe("VM index file", () => {
   });*/
 
   test("PollChoices", () => {
-    let vm = new phantasmaJS.VMObject();
-    let choice = new phantasmaJS.PollChoice("myChoice");
-    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let vm = new VMObject();
+    let choice = new PollChoice("myChoice");
+    let choice2 = new PollChoice("myChoice");
     let choices: PollChoice[] = [choice, choice2];
     let myNewVM = VMObject.FromArray(choices);
 
-    expect(myNewVM).toBeInstanceOf(phantasmaJS.VMObject);
-    expect(myNewVM.Type).toBe(phantasmaJS.VMType.Struct);
+    expect(myNewVM).toBeInstanceOf(VMObject);
+    expect(myNewVM.Type).toBe(VMType.Struct);
     //let result = myNewVM.ToArray(PollChoice) as PollChoice[];
     //expect(result).toStrictEqual(choices);
   });
 
   test("Serialization", () => {
-    let vm = new phantasmaJS.VMObject();
-    let choice = new phantasmaJS.PollChoice("myChoice");
-    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let vm = new VMObject();
+    let choice = new PollChoice("myChoice");
+    let choice2 = new PollChoice("myChoice");
     let time = new Timestamp(10000);
     let choices: PollChoice[] = [choice, choice2];
 
@@ -129,8 +129,8 @@ describe("VM index file", () => {
   });
 
   test("Serialization2", () => {
-    let choice = new phantasmaJS.PollChoice("myChoice");
-    let choice2 = new phantasmaJS.PollChoice("myChoice");
+    let choice = new PollChoice("myChoice");
+    let choice2 = new PollChoice("myChoice");
     let choices: PollChoice[] = [choice, choice2];
     let choicesSerialized = Serialization.Serialize(choices);
   });
@@ -140,7 +140,7 @@ describe("VM index file", () => {
     let bytes = Base16.decodeUint8Array(vmCode);
     let vm = VMObject.FromBytes(bytes);
 
-    expect(vm.Type).toBe(phantasmaJS.VMType.Bool);
+    expect(vm.Type).toBe(VMType.Bool);
     expect(vm.AsBool()).toBe(true);
   });
 });
