@@ -14,7 +14,6 @@ export declare class ScriptBuilder {
     str: string;
     writer: PBinaryWriter;
     NullAddress: string;
-    ScriptBuilder(): void;
     constructor();
     BeginScript(): this;
     GetScript(): string;

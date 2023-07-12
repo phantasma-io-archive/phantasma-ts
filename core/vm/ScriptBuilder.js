@@ -93,10 +93,6 @@ var ScriptBuilder = /** @class */ (function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
     }
-    ScriptBuilder.prototype.ScriptBuilder = function () {
-        this.str = "";
-        this.writer = new types_1.PBinaryWriter();
-    };
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
@@ -279,7 +275,7 @@ var ScriptBuilder = /** @class */ (function () {
         if (result == undefined) {
             //console.log("enter");
             if (obj.Data instanceof Map ||
-                obj.Data instanceof (Map)) {
+                obj.Data instanceof Map && obj.Data instanceof VMObject_1.VMObject) {
                 var resultData = obj.Data;
                 this.EmitVarInt(resultData.size);
                 try {
