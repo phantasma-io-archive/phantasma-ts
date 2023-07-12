@@ -12,7 +12,7 @@ import {
   uint8ArrayToStringDefault,
 } from "../utils";
 import { Ed25519Signature } from "./Ed25519Signature";
-import { eddsa } from "elliptic";
+import pkg from 'elliptic';
 import { Entropy } from "./Entropy";
 import {
   generateNewWif,
@@ -20,6 +20,7 @@ import {
   getPublicKeyFromPrivateKey,
   getWifFromPrivateKey,
 } from "../tx";
+const { eddsa } = pkg;
 const ed25519 = new eddsa("ed25519");
 
 export class PhantasmaKeys implements IKeyPair {

@@ -9,10 +9,11 @@ var bs58_1 = __importDefault(require("bs58"));
 var wif_1 = __importDefault(require("wif"));
 var utils_1 = require("../utils");
 var Ed25519Signature_1 = require("./Ed25519Signature");
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var Entropy_1 = require("./Entropy");
 var tx_1 = require("../tx");
-var ed25519 = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var ed25519 = new eddsa("ed25519");
 var PhantasmaKeys = /** @class */ (function () {
     function PhantasmaKeys(privateKey) {
         if (privateKey.length == 64) {

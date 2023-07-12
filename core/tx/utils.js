@@ -39,11 +39,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyData = exports.signData = exports.getWifFromPrivateKey = exports.generateNewWif = exports.generateNewSeedWords = exports.generateNewSeed = exports.getPublicKeyFromPrivateKey = exports.getAddressFromWif = exports.getPrivateKeyFromWif = void 0;
 var wif_1 = __importDefault(require("wif"));
-var elliptic_1 = require("elliptic");
+var elliptic_1 = __importDefault(require("elliptic"));
 var bs58_1 = __importDefault(require("bs58"));
 var bip39 = __importStar(require("bip39"));
 var crypto_1 = __importDefault(require("crypto"));
-var curve = new elliptic_1.eddsa("ed25519");
+var eddsa = elliptic_1.default.eddsa;
+var curve = new eddsa("ed25519");
 function ab2hexstring(arr) {
     var e_1, _a;
     if (typeof arr !== "object") {
@@ -73,7 +74,7 @@ function getPrivateKeyFromWif(wif) {
 }
 exports.getPrivateKeyFromWif = getPrivateKeyFromWif;
 function getAddressFromWif(wif) {
-    var curve = new elliptic_1.eddsa("ed25519");
+    var curve = new eddsa("ed25519");
     var privateKey = getPrivateKeyFromWif(wif);
     var privateKeyBuffer = Buffer.from(privateKey, "hex");
     var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");

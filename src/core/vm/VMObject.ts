@@ -927,7 +927,8 @@ export class VMObject implements ISerializable {
   // Serialization
   public static FromBytes(bytes: any): VMObject {
     var result = new VMObject();
-    result.UnserializeData(bytes);
+    var reader = new PBinaryReader(bytes);
+    result.UnserializeData(reader);
     return result;
   }
 

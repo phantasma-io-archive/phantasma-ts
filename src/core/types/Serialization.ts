@@ -166,8 +166,12 @@ export class Serialization<T> {
       localType = new type();
     }
 
-    if (localType instanceof Boolean || typeof localType == "boolean") {
-      return (reader.readByte() == 1) as unknown as T;
+    if (
+      localType instanceof Boolean ||
+      typeof localType == "boolean" ||
+      type.name == "Boolean"
+    ) {
+      return reader.readBoolean() as unknown as T;
     } else if (localType instanceof Number || typeof localType == "number") {
       return reader.readVarInt() as unknown as T;
     } else if (localType instanceof BigInt || typeof localType == "bigint") {

@@ -1,6 +1,7 @@
-import { BinaryWriter } from "csharp-binary-stream";
+import { BinaryReader, BinaryWriter } from "csharp-binary-stream";
 import { Type } from "typescript";
 import {
+  Base16,
   PBinaryWriter,
   PollChoice,
   Serialization,
@@ -132,5 +133,14 @@ describe("VM index file", () => {
     let choice2 = new phantasmaJS.PollChoice("myChoice");
     let choices: PollChoice[] = [choice, choice2];
     let choicesSerialized = Serialization.Serialize(choices);
+  });
+
+  test("DecodeBool", () => {
+    let vmCode = "0601";
+    let bytes = Base16.decodeUint8Array(vmCode);
+    let vm = VMObject.FromBytes(bytes);
+
+    expect(vm.Type).toBe(phantasmaJS.VMType.Bool);
+    expect(vm.AsBool()).toBe(true);
   });
 });

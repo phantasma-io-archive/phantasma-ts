@@ -1,4 +1,5 @@
-import { eddsa } from "elliptic";
+import pkg from 'elliptic';
+const { eddsa } = pkg;
 import { Decoder, ScriptBuilder } from "../vm";
 import {
   hexStringToBytes,

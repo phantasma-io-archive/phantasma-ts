@@ -8,9 +8,9 @@ import {
   getPublicKeyFromPrivateKey,
   getWifFromPrivateKey,
 } from "../tx";
-import { eddsa } from "elliptic";
+import pkg from 'elliptic';
 import { PBinaryWriter, PBinaryReader } from "./Extensions";
-
+const { eddsa } = pkg;
 const curve = new eddsa("ed25519");
 
 export enum AddressKind {

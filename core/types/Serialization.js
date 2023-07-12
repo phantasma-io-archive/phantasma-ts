@@ -143,8 +143,10 @@ var Serialization = /** @class */ (function () {
         else {
             localType = new type();
         }
-        if (localType instanceof Boolean || typeof localType == "boolean") {
-            return (reader.readByte() == 1);
+        if (localType instanceof Boolean ||
+            typeof localType == "boolean" ||
+            type.name == "Boolean") {
+            return reader.readBoolean();
         }
         else if (localType instanceof Number || typeof localType == "number") {
             return reader.readVarInt();
