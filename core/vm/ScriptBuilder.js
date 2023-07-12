@@ -75,7 +75,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScriptBuilder = exports.Contracts = void 0;
+exports.ScriptBuilder = void 0;
 var bs58_1 = __importDefault(require("bs58"));
 var interfaces_1 = require("../interfaces");
 var types_1 = require("../types");
@@ -83,24 +83,8 @@ var utils_1 = require("../utils");
 var Opcode_1 = require("./Opcode");
 var VMObject_1 = require("./VMObject");
 var VMType_1 = require("./VMType");
+var Contracts_1 = require("./Contracts");
 var MaxRegisterCount = 32;
-var Contracts;
-(function (Contracts) {
-    Contracts["GasContractName"] = "gas";
-    Contracts["BlockContractName"] = "block";
-    Contracts["StakeContractName"] = "stake";
-    Contracts["SwapContractName"] = "swap";
-    Contracts["AccountContractName"] = "account";
-    Contracts["ConsensusContractName"] = "consensus";
-    Contracts["GovernanceContractName"] = "governance";
-    Contracts["StorageContractName"] = "storage";
-    Contracts["ValidatorContractName"] = "validator";
-    Contracts["InteropContractName"] = "interop";
-    Contracts["ExchangeContractName"] = "exchange";
-    Contracts["PrivacyContractName"] = "privacy";
-    Contracts["RelayContractName"] = "relay";
-    Contracts["RankingContractName"] = "ranking";
-})(Contracts = exports.Contracts || (exports.Contracts = {}));
 var ScriptBuilder = /** @class */ (function () {
     function ScriptBuilder() {
         this._labelLocations = {};
@@ -109,6 +93,10 @@ var ScriptBuilder = /** @class */ (function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
     }
+    ScriptBuilder.prototype.ScriptBuilder = function () {
+        this.str = "";
+        this.writer = new types_1.PBinaryWriter();
+    };
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
@@ -464,7 +452,7 @@ var ScriptBuilder = /** @class */ (function () {
     };
     //#region ScriptBuilderExtensions
     ScriptBuilder.prototype.AllowGas = function (from, to, gasPrice, gasLimit) {
-        return this.CallContract(Contracts.GasContractName, "AllowGas", [
+        return this.CallContract(Contracts_1.Contracts.GasContractName, "AllowGas", [
             from,
             to,
             gasPrice,
@@ -472,7 +460,7 @@ var ScriptBuilder = /** @class */ (function () {
         ]);
     };
     ScriptBuilder.prototype.SpendGas = function (address) {
-        return this.CallContract(Contracts.GasContractName, "SpendGas", [address]);
+        return this.CallContract(Contracts_1.Contracts.GasContractName, "SpendGas", [address]);
     };
     ScriptBuilder.prototype.CallRPC = function (methodName, params) {
         return __awaiter(this, void 0, void 0, function () {

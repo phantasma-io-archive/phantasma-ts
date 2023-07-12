@@ -25,5 +25,5 @@
     "skipLibCheck": true,
     //"strict": true
   },
-  "files": ["./src/index.ts"]
+  "files": ["./src/index.ts", "./src/core/vm/Contracts.ts"]
 }

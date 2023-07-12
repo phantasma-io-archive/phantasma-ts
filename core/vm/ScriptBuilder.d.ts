@@ -4,22 +4,6 @@ import { Opcode } from "./Opcode";
 import { VMObject } from "./VMObject";
 import { VMType } from "./VMType";
 type byte = number;
-export declare enum Contracts {
-    GasContractName = "gas",
-    BlockContractName = "block",
-    StakeContractName = "stake",
-    SwapContractName = "swap",
-    AccountContractName = "account",
-    ConsensusContractName = "consensus",
-    GovernanceContractName = "governance",
-    StorageContractName = "storage",
-    ValidatorContractName = "validator",
-    InteropContractName = "interop",
-    ExchangeContractName = "exchange",
-    PrivacyContractName = "privacy",
-    RelayContractName = "relay",
-    RankingContractName = "ranking"
-}
 export declare class ScriptBuilder {
     _labelLocations: {
         [id: string]: number;
@@ -30,6 +14,7 @@ export declare class ScriptBuilder {
     str: string;
     writer: PBinaryWriter;
     NullAddress: string;
+    ScriptBuilder(): void;
     constructor();
     BeginScript(): this;
     GetScript(): string;
