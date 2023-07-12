@@ -11,27 +11,11 @@ import {
 import { Opcode } from "./Opcode";
 import { VMObject } from "./VMObject";
 import { VMType } from "./VMType";
+import { Contracts } from "./Contracts";
 
 type byte = number;
 
 const MaxRegisterCount = 32;
-
-export enum Contracts {
-  GasContractName = "gas",
-  BlockContractName = "block",
-  StakeContractName = "stake",
-  SwapContractName = "swap",
-  AccountContractName = "account",
-  ConsensusContractName = "consensus",
-  GovernanceContractName = "governance",
-  StorageContractName = "storage",
-  ValidatorContractName = "validator",
-  InteropContractName = "interop",
-  ExchangeContractName = "exchange",
-  PrivacyContractName = "privacy",
-  RelayContractName = "relay",
-  RankingContractName = "ranking",
-}
 
 export class ScriptBuilder {
   _labelLocations: { [id: string]: number } = {};
@@ -42,6 +26,11 @@ export class ScriptBuilder {
   public writer: PBinaryWriter;
 
   public NullAddress = "S1111111111111111111111111111111111";
+
+  public ScriptBuilder(){
+    this.str = "";
+    this.writer = new PBinaryWriter();
+  }
 
   public constructor() {
     this.str = "";
