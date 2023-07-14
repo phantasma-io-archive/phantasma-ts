@@ -1120,6 +1120,20 @@ var PhantasmaAPI = /** @class */ (function () {
             });
         });
     };
+    //Returns the accounts name and balance of given addresses.
+    PhantasmaAPI.prototype.getAccounts = function (account) {
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [account.join(",")];
+                        return [4 /*yield*/, this.JSONRPC("getAccounts", params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
     //Returns the address that owns a given name.
     PhantasmaAPI.prototype.lookUpName = function (name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -4905,6 +4919,9 @@ var ScriptBuilder = /** @class */ (function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
     }
+    ScriptBuilder.ScriptBuilder = function () {
+        return new ScriptBuilder();
+    };
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();

@@ -93,6 +93,9 @@ var ScriptBuilder = /** @class */ (function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
     }
+    ScriptBuilder.ScriptBuilder = function () {
+        return new ScriptBuilder();
+    };
     ScriptBuilder.prototype.BeginScript = function () {
         this.str = "";
         this.writer = new types_1.PBinaryWriter();
