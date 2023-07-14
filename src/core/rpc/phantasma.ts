@@ -475,9 +475,9 @@ export class PhantasmaAPI {
   }
 
   //Returns the accounts name and balance of given addresses.
-  async getAccounts(account: string[]): Promise<Account> {
-    let params: Array<any> = [account.join(",")];
-    return (await this.JSONRPC("getAccounts", params)) as Account;
+  async getAccounts(accounts: string[]): Promise<Account[]> {
+    let params: Array<any> = [accounts.join(",")];
+    return (await this.JSONRPC("getAccounts", params)) as Account[];
   }
 
   //Returns the address that owns a given name.
