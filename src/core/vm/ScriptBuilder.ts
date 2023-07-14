@@ -27,6 +27,10 @@ export class ScriptBuilder {
 
   public NullAddress = "S1111111111111111111111111111111111";
 
+  public static ScriptBuilder() : ScriptBuilder{
+    return new ScriptBuilder();
+  }
+
   public constructor() {
     this.str = "";
     this.writer = new PBinaryWriter();

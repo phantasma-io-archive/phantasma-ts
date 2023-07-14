@@ -318,6 +318,7 @@ export declare class PhantasmaAPI {
     updateRpc(): void;
     convertDecimals(amount: number, decimals: number): number;
     getAccount(account: string): Promise<Account>;
+    getAccounts(account: string[]): Promise<Account>;
     lookUpName(name: string): Promise<string>;
     getAddressesBySymbol(symbol: string, extended?: boolean): Promise<Account[]>;
     getBlockHeight(chainInput: string): Promise<number>;
