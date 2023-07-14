@@ -1121,13 +1121,13 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns the accounts name and balance of given addresses.
-    PhantasmaAPI.prototype.getAccounts = function (account) {
+    PhantasmaAPI.prototype.getAccounts = function (accounts) {
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [account.join(",")];
+                        params = [accounts.join(",")];
                         return [4 /*yield*/, this.JSONRPC("getAccounts", params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
