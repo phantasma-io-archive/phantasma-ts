@@ -18,6 +18,7 @@ export declare class Transaction implements ISerializable {
     UnserializeData(reader: PBinaryReader): void;
     SerializeData(writer: PBinaryWriter): void;
     toString(withSignature: boolean): string;
+    ToStringEncoded(withSignature: boolean): string;
     getHash(): string;
     mineTransaction(difficulty: number): void;
     private getSign;

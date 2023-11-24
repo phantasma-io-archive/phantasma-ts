@@ -14,10 +14,10 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./rpc/phantasma"), exports);
-__exportStar(require("./vm/index"), exports);
-__exportStar(require("./tx/index"), exports);
-__exportStar(require("./utils/index"), exports);
-__exportStar(require("./types/index"), exports);
-__exportStar(require("./interfaces/index"), exports);
-__exportStar(require("./ledger/index"), exports);
+__exportStar(require("./Mnemonic"), exports);
+__exportStar(require("./Address-Transcode"), exports);
+__exportStar(require("./LedgerConfig"), exports);
+__exportStar(require("./Ledger-Utils"), exports);
+__exportStar(require("./Ledger-Commands"), exports);
+__exportStar(require("./Transaction-Transcode"), exports);
+__exportStar(require("./Transaction-Sign"), exports);

@@ -25,5 +25,5 @@
     "skipLibCheck": true,
     //"strict": true
   },
-  "files": ["./src/index.ts", "./src/core/vm/Contracts.ts"]
+  "files": ["./src/index.ts", "./src/core/vm/Contracts.ts", "./src/core/rpc/Balance.ts", "./src/core/rpc/Interop.ts", "./src/core/rpc/Platform.ts", "./src/core/rpc/Governance.ts", "./src/core/rpc/Organization.ts", "./src/core/rpc/Nexus.ts", "./src/core/rpc/Stake.ts", "./src/core/rpc/Storage.ts", "./src/core/rpc/Account.ts", "src/core/rpc/Leaderboard.ts", "./src/core/rpc/Account.1.ts", "./src/core/rpc/Dapp.ts", "./src/core/rpc/Chain.ts", "./src/core/rpc/NFT.ts", "./src/core/rpc/KeyValue.ts", "./src/core/rpc/Swap.ts", "./src/core/rpc/Validator.ts", "./src/core/rpc/Peer.ts", "./src/core/rpc/Receipt.ts", "./src/core/rpc/Channel.ts", "./src/core/rpc/ABIContract.ts", "./src/core/rpc/ABIEvent.ts"]
 }

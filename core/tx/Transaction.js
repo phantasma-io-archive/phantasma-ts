@@ -147,6 +147,9 @@ var Transaction = /** @class */ (function () {
         }
         return sb.str;
     };
+    Transaction.prototype.ToStringEncoded = function (withSignature) {
+        return types_1.Base16.encodeUint8Array(this.ToByteAray(withSignature));
+    };
     Transaction.prototype.getHash = function () {
         var generatedHash = (0, sha256_1.default)(enc_hex_1.default.parse(this.toString(false)));
         this.hash = (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());

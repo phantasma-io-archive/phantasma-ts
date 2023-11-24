@@ -11,7 +11,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.hexStringToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.hexToByteArray = void 0;
+exports.hex2ascii = exports.bigIntToByteArray = exports.numberToByteArray = exports.uint8ArrayToHex = exports.uint8ArrayToBytes = exports.arrayNumberToUint8Array = exports.hexStringToUint8Array = exports.stringToUint8Array = exports.uint8ArrayToNumberArray = exports.uint8ArrayToStringDefault = exports.uint8ArrayToString = exports.encodeBase16 = exports.decodeBase16 = exports.getDifficulty = exports.reverseHex = exports.BytesToHex = exports.byteArrayToHex = exports.hexStringToBytes = exports.bufferToHex = exports.hexToBuffer = exports.HexToBytes = exports.hexToByteArray = void 0;
 function hexToByteArray(hexBytes) {
     var res = [hexBytes.length / 2];
     for (var i = 0; i < hexBytes.length; i += 2) {
@@ -25,6 +25,18 @@ function hexToByteArray(hexBytes) {
     return res;
 }
 exports.hexToByteArray = hexToByteArray;
+function HexToBytes(hex) {
+    return hexToByteArray(hex);
+}
+exports.HexToBytes = HexToBytes;
+function hexToBuffer(hex) {
+    return new Uint8Array(hexToByteArray(hex));
+}
+exports.hexToBuffer = hexToBuffer;
+function bufferToHex(buffer) {
+    return byteArrayToHex(buffer);
+}
+exports.bufferToHex = bufferToHex;
 function hexStringToBytes(hexString) {
     for (var bytes = [], c = 0; c < hexString.length; c += 2)
         bytes.push(parseInt(hexString.substr(c, 2), 16));
@@ -56,6 +68,10 @@ function byteArrayToHex(arr) {
     return result;
 }
 exports.byteArrayToHex = byteArrayToHex;
+function BytesToHex(bytes) {
+    return byteArrayToHex(bytes);
+}
+exports.BytesToHex = BytesToHex;
 function reverseHex(hex) {
     var out = "";
     for (var i = hex.length - 2; i >= 0; i -= 2) {
@@ -198,3 +214,15 @@ function bigIntToByteArray(bigint) {
     return byteArray;
 }
 exports.bigIntToByteArray = bigIntToByteArray;
+var hex2ascii = function (hexx) {
+    var hex = hexx.toString();
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2) {
+        var char = hex.substr(i, 2);
+        var charCode = String.fromCharCode(parseInt(char, 16));
+        // console.log('char', char, 'charCode', charCode);
+        str += charCode;
+    }
+    return str;
+};
+exports.hex2ascii = hex2ascii;
