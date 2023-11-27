@@ -12,7 +12,7 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var sha256_1 = __importDefault(require("crypto-js/sha256"));
 var types_1 = require("../types");
 var utils_2 = require("./utils");
-var curve = new eddsa("ed25519");
+var curve = new eddsa('ed25519');
 var Transaction = /** @class */ (function () {
     function Transaction(nexusName, chainName, script, // Should be HexString
     expiration, payload // Should be HexString
@@ -21,12 +21,11 @@ var Transaction = /** @class */ (function () {
         this.chainName = chainName;
         this.script = script;
         this.expiration = expiration;
-        this.payload =
-            payload == null || payload == "" ? "7068616e7461736d612d7473" : payload;
+        this.payload = payload == null || payload == '' ? '7068616e7461736d612d7473' : payload;
         this.signatures = [];
     }
     Transaction.FromBytes = function (serializedData) {
-        var transaction = new Transaction("", "", "", new Date(), "");
+        var transaction = new Transaction('', '', '', new Date(), '');
         return transaction.unserialize(serializedData);
     };
     Transaction.prototype.sign = function (wif) {
@@ -131,7 +130,7 @@ var Transaction = /** @class */ (function () {
         if (withSignature) {
             sb.EmitVarInt(this.signatures.length);
             this.signatures.forEach(function (sig) {
-                console.log("adding signature ", sig);
+                console.log('adding signature ', sig);
                 if (sig.Kind == 1) {
                     sb.AppendByte(1); // Signature Type
                     sb.EmitVarInt(sig.Bytes.length / 2);
@@ -147,6 +146,9 @@ var Transaction = /** @class */ (function () {
         }
         return sb.str;
     };
+    Transaction.prototype.ToStringEncoded = function (withSignature) {
+        return types_1.Base16.encodeUint8Array(this.ToByteAray(withSignature));
+    };
     Transaction.prototype.getHash = function () {
         var generatedHash = (0, sha256_1.default)(enc_hex_1.default.parse(this.toString(false)));
         this.hash = (0, utils_1.byteArrayToHex)((0, utils_1.hexStringToBytes)(generatedHash.toString(enc_hex_1.default)).reverse());
@@ -154,7 +156,7 @@ var Transaction = /** @class */ (function () {
     };
     Transaction.prototype.mineTransaction = function (difficulty) {
         if (difficulty < 0 || difficulty > 256) {
-            console.log("Error adding difficulty");
+            console.log('Error adding difficulty');
             return;
         }
         var nonce = 0;
@@ -163,10 +165,7 @@ var Transaction = /** @class */ (function () {
         while (true) {
             if ((0, utils_1.getDifficulty)(deepCopy.getHash()) >= difficulty) {
                 this.payload = deepCopy.payload;
-                console.log("It took " +
-                    nonce +
-                    " iterations to get a difficulty of >" +
-                    difficulty);
+                console.log('It took ' + nonce + ' iterations to get a difficulty of >' + difficulty);
                 return;
             }
             nonce++;
@@ -178,8 +177,8 @@ var Transaction = /** @class */ (function () {
         }
     };
     Transaction.prototype.getSign = function (msgHex, privateKey) {
-        var msgHashHex = Buffer.from(msgHex, "hex");
-        var privateKeyBuffer = Buffer.from(privateKey, "hex");
+        var msgHashHex = Buffer.from(msgHex, 'hex');
+        var privateKeyBuffer = Buffer.from(privateKey, 'hex');
         var sig = curve.sign(msgHashHex, privateKeyBuffer);
         return sig.toHex();
     };
@@ -201,7 +200,7 @@ var Transaction = /** @class */ (function () {
     };
     Transaction.Unserialize = function (serialized) {
         var reader = new types_1.PBinaryReader(serialized);
-        var tx = new Transaction("", "", "", new Date(), "");
+        var tx = new Transaction('', '', '', new Date(), '');
         tx.UnserializeData(reader);
         return tx;
     };

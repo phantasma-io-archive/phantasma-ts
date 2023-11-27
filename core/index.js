@@ -20,3 +20,5 @@ __exportStar(require("./tx/index"), exports);
 __exportStar(require("./utils/index"), exports);
 __exportStar(require("./types/index"), exports);
 __exportStar(require("./interfaces/index"), exports);
+__exportStar(require("./ledger/index"), exports);
+__exportStar(require("./link/index"), exports);

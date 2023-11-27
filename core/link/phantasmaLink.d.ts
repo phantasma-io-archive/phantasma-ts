@@ -1,28 +1,5 @@
-import { Balance } from "../rpc/phantasma";
-export declare enum ProofOfWork {
-    None = 0,
-    Minimal = 5,
-    Moderate = 15,
-    Hard = 19,
-    Heavy = 24,
-    Extreme = 30
-}
-export interface IFile {
-    name: string;
-    hash: string;
-    size: number;
-    date: string;
-}
-export interface IAccount {
-    alias: string;
-    name: string;
-    address: string;
-    avatar: string;
-    platform: string;
-    external: string;
-    balances: Balance[];
-    files: IFile[];
-}
+import { ProofOfWork } from './interfaces/ProofOfWork';
+import { IAccount } from './interfaces/IAccount';
 export declare class PhantasmaLink {
     host: string;
     dapp: any;

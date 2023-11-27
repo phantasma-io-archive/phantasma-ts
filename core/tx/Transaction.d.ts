@@ -1,5 +1,5 @@
-import { ISerializable, Signature } from "../interfaces";
-import { PBinaryReader, PBinaryWriter, PhantasmaKeys } from "../types";
+import { ISerializable, Signature } from '../interfaces';
+import { PBinaryReader, PBinaryWriter, PhantasmaKeys } from '../types';
 export declare class Transaction implements ISerializable {
     script: string;
     nexusName: string;
@@ -18,6 +18,7 @@ export declare class Transaction implements ISerializable {
     UnserializeData(reader: PBinaryReader): void;
     SerializeData(writer: PBinaryWriter): void;
     toString(withSignature: boolean): string;
+    ToStringEncoded(withSignature: boolean): string;
     getHash(): string;
     mineTransaction(difficulty: number): void;
     private getSign;

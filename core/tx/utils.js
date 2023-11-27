@@ -44,19 +44,19 @@ var bs58_1 = __importDefault(require("bs58"));
 var bip39 = __importStar(require("bip39"));
 var crypto_1 = __importDefault(require("crypto"));
 var eddsa = elliptic_1.default.eddsa;
-var curve = new eddsa("ed25519");
+var curve = new eddsa('ed25519');
 function ab2hexstring(arr) {
     var e_1, _a;
-    if (typeof arr !== "object") {
+    if (typeof arr !== 'object') {
         throw new Error("ab2hexstring expects an array.Input was ".concat(arr));
     }
-    var result = "";
+    var result = '';
     var intArray = new Uint8Array(arr);
     try {
         for (var intArray_1 = __values(intArray), intArray_1_1 = intArray_1.next(); !intArray_1_1.done; intArray_1_1 = intArray_1.next()) {
             var i = intArray_1_1.value;
             var str = i.toString(16);
-            str = str.length === 0 ? "00" : str.length === 1 ? "0" + str : str;
+            str = str.length === 0 ? '00' : str.length === 1 ? '0' + str : str;
             result += str;
         }
     }
@@ -74,17 +74,17 @@ function getPrivateKeyFromWif(wif) {
 }
 exports.getPrivateKeyFromWif = getPrivateKeyFromWif;
 function getAddressFromWif(wif) {
-    var curve = new eddsa("ed25519");
+    var curve = new eddsa('ed25519');
     var privateKey = getPrivateKeyFromWif(wif);
-    var privateKeyBuffer = Buffer.from(privateKey, "hex");
-    var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");
-    var addressHex = Buffer.from("0100" + publicKey, "hex");
-    return "P" + bs58_1.default.encode(addressHex);
+    var privateKeyBuffer = Buffer.from(privateKey, 'hex');
+    var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic('hex');
+    var addressHex = Buffer.from('0100' + publicKey, 'hex');
+    return 'P' + bs58_1.default.encode(addressHex);
 }
 exports.getAddressFromWif = getAddressFromWif;
 function getPublicKeyFromPrivateKey(privateKey) {
-    var privateKeyBuffer = Buffer.from(privateKey, "hex");
-    var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic("hex");
+    var privateKeyBuffer = Buffer.from(privateKey, 'hex');
+    var publicKey = curve.keyFromSecret(privateKeyBuffer).getPublic('hex');
     return publicKey;
 }
 exports.getPublicKeyFromPrivateKey = getPublicKeyFromPrivateKey;
@@ -109,7 +109,7 @@ function generateNewSeedWords() {
     }
     var wif = wif_1.default.encode(128, privateKey, true);
     var mnemonic = bip39.generateMnemonic();
-    var seedWords = mnemonic.split(" ");
+    var seedWords = mnemonic.split(' ');
     return seedWords;
 }
 exports.generateNewSeedWords = generateNewSeedWords;
@@ -125,23 +125,23 @@ function generateNewWif() {
 }
 exports.generateNewWif = generateNewWif;
 function getWifFromPrivateKey(privateKey) {
-    var privateKeyBuffer = Buffer.from(privateKey, "hex");
+    var privateKeyBuffer = Buffer.from(privateKey, 'hex');
     var wif = wif_1.default.encode(128, privateKeyBuffer, true);
     return wif;
 }
 exports.getWifFromPrivateKey = getWifFromPrivateKey;
 function signData(msgHex, privateKey) {
-    var msgHashHex = Buffer.from(msgHex, "hex");
-    var privateKeyBuffer = Buffer.from(privateKey, "hex");
+    var msgHashHex = Buffer.from(msgHex, 'hex');
+    var privateKeyBuffer = Buffer.from(privateKey, 'hex');
     var sig = curve.sign(msgHashHex, privateKeyBuffer);
     var numBytes = sig.toBytes().length;
-    return ("01" + (numBytes < 16 ? "0" : "") + numBytes.toString(16) + sig.toHex());
+    return '01' + (numBytes < 16 ? '0' : '') + numBytes.toString(16) + sig.toHex();
 }
 exports.signData = signData;
 function verifyData(msgHex, phaSig, address) {
-    var msgBytes = Buffer.from(msgHex, "hex");
+    var msgBytes = Buffer.from(msgHex, 'hex');
     var realSig = phaSig.substring(4);
     var pubKey = bs58_1.default.decode(address.substring(1)).slice(2);
-    return curve.verify(msgBytes, realSig, pubKey.toString("hex"));
+    return curve.verify(msgBytes, realSig, ab2hexstring(pubKey));
 }
 exports.verifyData = verifyData;
