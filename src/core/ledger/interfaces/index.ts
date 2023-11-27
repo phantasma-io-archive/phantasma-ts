@@ -9,3 +9,4 @@ export * from './SignResponse';
 export * from './VersionResponse';
 export * from './LedgerBalanceFromLedgerResponse';
 export * from './LedgerSigner';
+export * from './LedgerSignerData';

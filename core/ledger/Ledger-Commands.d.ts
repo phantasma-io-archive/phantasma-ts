@@ -1,4 +1,4 @@
-import { PublicKeyResponse } from '..';
+import { LedgerSignerData, PublicKeyResponse } from '..';
 import { LedgerConfig } from './interfaces/LedgerConfig';
 import { LedgerDeviceInfoResponse } from './interfaces/LedgerDeviceInfoResponse';
 import { LedgerBalanceFromLedgerResponse } from './interfaces/LedgerBalanceFromLedgerResponse';
@@ -30,6 +30,13 @@ export declare const GetLedgerDeviceInfo: (config: LedgerConfig) => Promise<Ledg
  * @returns
  */
 export declare const GetLedgerAccountSigner: (config: LedgerConfig, accountIx: any) => Promise<LedgerSigner>;
+/**
+ * GetLedgerSignerData
+ * @param config
+ * @param options
+ * @returns
+ */
+export declare function GetLedgerSignerData(config: LedgerConfig, options: any): Promise<LedgerSignerData>;
 /**
  * GetBalanceFromLedger
  * @param config
