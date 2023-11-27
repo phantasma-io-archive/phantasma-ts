@@ -25,3 +25,4 @@ __exportStar(require("./SignResponse"), exports);
 __exportStar(require("./VersionResponse"), exports);
 __exportStar(require("./LedgerBalanceFromLedgerResponse"), exports);
 __exportStar(require("./LedgerSigner"), exports);
+__exportStar(require("./LedgerSignerData"), exports);

@@ -4,5 +4,9 @@ export interface LedgerBalanceFromLedgerResponse {
     message: string;
     publicKey?: string;
     address?: Address;
+    balances?: Map<string, {
+        amount: number;
+        decimals: number;
+    }>;
 }
 //# sourceMappingURL=LedgerBalanceFromLedgerResponse.d.ts.map

@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetBalanceFromMnemonic = exports.GetBalanceFromPrivateKey = exports.SendTransactionLedger = exports.GetAddressFromLedeger = exports.GetBalanceFromLedger = exports.GetLedgerAccountSigner = exports.GetLedgerDeviceInfo = exports.ToWholeNumber = exports.LeftPad = void 0;
+exports.GetBalanceFromMnemonic = exports.GetBalanceFromPrivateKey = exports.SendTransactionLedger = exports.GetAddressFromLedeger = exports.GetBalanceFromLedger = exports.GetLedgerSignerData = exports.GetLedgerAccountSigner = exports.GetLedgerDeviceInfo = exports.ToWholeNumber = exports.LeftPad = void 0;
 var __1 = require("..");
 var tx_1 = require("../tx");
 var types_1 = require("../types");
@@ -137,7 +137,7 @@ var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(voi
                     alert('NUmber of devices found:' + paths.length);
                     return [2 /*return*/];
                 }
-                return [4 /*yield*/, (0, exports.GetBalanceFromLedger)(config, {
+                return [4 /*yield*/, GetLedgerSignerData(config, {
                         verifyOnDevice: false,
                         debug: true,
                     })];
@@ -155,13 +155,51 @@ var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(voi
 }); };
 exports.GetLedgerAccountSigner = GetLedgerAccountSigner;
 /**
+ * GetLedgerSignerData
+ * @param config
+ * @param options
+ * @returns
+ */
+function GetLedgerSignerData(config, options) {
+    return __awaiter(this, void 0, void 0, function () {
+        var msg, response, publicKey, address;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (config == undefined) {
+                        throw Error('config is a required parameter.');
+                    }
+                    if (options == undefined) {
+                        throw Error('options is a required parameter.');
+                    }
+                    return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config.Transport, options)];
+                case 1:
+                    msg = _a.sent();
+                    response.success = false;
+                    response.message = msg.message;
+                    if (!msg.success) {
+                        return [2 /*return*/, response];
+                    }
+                    publicKey = msg.publicKey;
+                    address = (0, Address_Transcode_1.GetAddressPublicKeyFromPublicKey)(publicKey);
+                    response.success = true;
+                    response.message = 'success';
+                    response.address = address;
+                    response.publicKey = publicKey;
+                    return [2 /*return*/, response];
+            }
+        });
+    });
+}
+exports.GetLedgerSignerData = GetLedgerSignerData;
+/**
  * GetBalanceFromLedger
  * @param config
  * @param options
  * @returns
  */
 var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0, void 0, void 0, function () {
-    var msg, publicKey, address, _a, _b, _c, rpcResponse, response_1;
+    var msg, response, publicKey, address, _a, _b, _c, rpcResponse;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
@@ -180,7 +218,12 @@ var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0,
                 if (config.Debug) {
                     console.log('getBalanceFromLedger', 'msg', msg);
                 }
-                if (!msg.success) return [3 /*break*/, 4];
+                response.balances = new Map();
+                response.success = false;
+                response.message = msg.message;
+                if (!msg.success) {
+                    return [2 /*return*/, response];
+                }
                 publicKey = msg.publicKey;
                 address = (0, Address_Transcode_1.GetAddressPublicKeyFromPublicKey)(publicKey);
                 /* istanbul ignore if */
@@ -199,17 +242,16 @@ var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0,
                 if (config.Debug) {
                     console.log('rpcResponse', rpcResponse);
                 }
-                response_1 = {};
-                response_1.balances = {};
+                response.balances = new Map();
                 if (rpcResponse.balances !== undefined) {
                     rpcResponse.balances.forEach(function (balanceElt) {
-                        response_1.balances[balanceElt.symbol] = (0, exports.ToWholeNumber)(balanceElt.amount, balanceElt.decimals);
+                        response.balances[balanceElt.symbol] = (0, exports.ToWholeNumber)(balanceElt.amount, balanceElt.decimals);
                     });
                 }
-                response_1.address = address;
-                response_1.success = true;
-                return [2 /*return*/, response_1];
-            case 4: return [2 /*return*/, msg];
+                response.address = address;
+                response.publicKey = publicKey;
+                response.success = true;
+                return [2 /*return*/, response];
         }
     });
 }); };

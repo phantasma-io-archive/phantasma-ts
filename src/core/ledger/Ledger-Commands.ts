@@ -1,4 +1,4 @@
-import { GetPrivateKeyFromMnemonic, PublicKeyResponse, Signature } from '..';
+import { GetPrivateKeyFromMnemonic, LedgerSignerData, PublicKeyResponse, Signature } from '..';
 import { Transaction } from '../tx';
 import { Base16, Ed25519Signature, PBinaryReader } from '../types';
 import { GetAddressFromPublicKey, GetAddressPublicKeyFromPublicKey } from './Address-Transcode';
@@ -94,7 +94,7 @@ export const GetLedgerAccountSigner = async (
     alert('NUmber of devices found:' + paths.length);
     return;
   }
-  const accountData = await GetBalanceFromLedger(config, {
+  const accountData = await GetLedgerSignerData(config, {
     verifyOnDevice: false,
     debug: true,
   });
@@ -108,6 +108,42 @@ export const GetLedgerAccountSigner = async (
   };
   return signer;
 };
+
+/**
+ * GetLedgerSignerData
+ * @param config
+ * @param options
+ * @returns
+ */
+export async function GetLedgerSignerData(
+  config: LedgerConfig,
+  options
+): Promise<LedgerSignerData> {
+  if (config == undefined) {
+    throw Error('config is a required parameter.');
+  }
+
+  if (options == undefined) {
+    throw Error('options is a required parameter.');
+  }
+
+  const msg = await GetPublicKey(config.Transport, options);
+  let response: LedgerSignerData;
+  response.success = false;
+  response.message = msg.message;
+
+  if (!msg.success) {
+    return response;
+  }
+
+  const publicKey = msg.publicKey;
+  const address = GetAddressPublicKeyFromPublicKey(publicKey!);
+  response.success = true;
+  response.message = 'success';
+  response.address = address;
+  response.publicKey = publicKey;
+  return response;
+}
 
 /**
  * GetBalanceFromLedger
@@ -132,36 +168,38 @@ export const GetBalanceFromLedger = async (
   if (config.Debug) {
     console.log('getBalanceFromLedger', 'msg', msg);
   }
-  if (msg.success) {
-    const publicKey = msg.publicKey;
-    const address = GetAddressPublicKeyFromPublicKey(publicKey!);
-    /* istanbul ignore if */
-    if (config.Debug) {
-      console.log('address', address);
-      console.log('rpc', config.RPC);
-    }
+  let response: LedgerBalanceFromLedgerResponse;
+  response.balances = new Map<string, { amount: number; decimals: number }>();
+  response.success = false;
+  response.message = msg.message;
 
-    console.log('rpcAwait', await config.RPC.getAccount(address.Text));
-    const rpcResponse = await config.RPC.getAccount(address.Text);
-    if (config.Debug) {
-      console.log('rpcResponse', rpcResponse);
-    }
-    const response: any = {};
-    response.balances = {};
-    if (rpcResponse.balances !== undefined) {
-      rpcResponse.balances.forEach((balanceElt) => {
-        response.balances[balanceElt.symbol] = ToWholeNumber(
-          balanceElt.amount,
-          balanceElt.decimals
-        );
-      });
-    }
-    response.address = address;
-    response.success = true;
+  if (!msg.success) {
     return response;
-  } else {
-    return msg;
   }
+
+  const publicKey = msg.publicKey;
+  const address = GetAddressPublicKeyFromPublicKey(publicKey!);
+  /* istanbul ignore if */
+  if (config.Debug) {
+    console.log('address', address);
+    console.log('rpc', config.RPC);
+  }
+
+  console.log('rpcAwait', await config.RPC.getAccount(address.Text));
+  const rpcResponse = await config.RPC.getAccount(address.Text);
+  if (config.Debug) {
+    console.log('rpcResponse', rpcResponse);
+  }
+  response.balances = new Map<string, { amount: number; decimals: number }>();
+  if (rpcResponse.balances !== undefined) {
+    rpcResponse.balances.forEach((balanceElt) => {
+      response.balances[balanceElt.symbol] = ToWholeNumber(balanceElt.amount, balanceElt.decimals);
+    });
+  }
+  response.address = address;
+  response.publicKey = publicKey;
+  response.success = true;
+  return response;
 };
 
 /**
