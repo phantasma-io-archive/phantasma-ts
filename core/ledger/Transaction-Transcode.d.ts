@@ -14,6 +14,11 @@ export declare const GetExpirationDate: () => Date;
  * @param transaction
  * @returns
  */
-export declare const encodeSendTxWithSignature: (transaction: any) => any;
-export declare const encodeSendTxWithoutSignature: (transaction: any) => any;
+export declare const EncodeSendTxWithSignature: (transaction: any) => any;
+/**
+ *
+ * @param transaction
+ * @returns
+ */
+export declare const EncodeSendTxWithoutSignature: (transaction: any) => any;
 //# sourceMappingURL=Transaction-Transcode.d.ts.map

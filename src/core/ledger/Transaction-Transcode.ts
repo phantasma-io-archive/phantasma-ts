@@ -37,14 +37,19 @@ export const GetExpirationDate = () => {
  * @param transaction
  * @returns
  */
-export const encodeSendTxWithSignature = (transaction) => {
+export const EncodeSendTxWithSignature = (transaction) => {
   // console.log('encodeSendTx', 'transaction', transaction);
   const sendTx = transaction.toString(true);
   // console.log('encodeSendTx', 'sendTx', sendTx);
   return sendTx;
 };
 
-export const encodeSendTxWithoutSignature = (transaction) => {
+/**
+ *
+ * @param transaction
+ * @returns
+ */
+export const EncodeSendTxWithoutSignature = (transaction) => {
   const sendTx = transaction.toString(false);
   // console.log('encodeSendTx', 'sendTx', sendTx);
   return sendTx;

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export declare function hexToByteArray(hexBytes: string): number[];
 export declare function HexToBytes(hex: string): number[];
 export declare function hexToBuffer(hex: string): Uint8Array;
@@ -20,4 +21,5 @@ export declare function uint8ArrayToHex(arr: Uint8Array): string;
 export declare function numberToByteArray(num: number, size?: number): Uint8Array;
 export declare function bigIntToByteArray(bigint: bigint): Uint8Array;
 export declare const hex2ascii: (hexx: any) => string;
+export declare const Int2Buffer: (i: number) => Buffer;
 //# sourceMappingURL=index.d.ts.map

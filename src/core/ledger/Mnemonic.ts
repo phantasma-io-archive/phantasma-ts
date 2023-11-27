@@ -1,7 +1,7 @@
 // coin used by ledger nano s.
 
-import { bufferToHex, hexToBuffer } from "../utils";
-import { LedgerConfig } from "./LedgerConfig";
+import { bufferToHex, hexToBuffer } from '../utils';
+import { LedgerConfig } from './interfaces/LedgerConfig';
 
 // 60   | 0x80000273 | SOUL   | [Phantasma](https://phantasma.io/)
 export const SOUL_COIN: number = 60;
@@ -14,7 +14,11 @@ export const SOUL_COIN: number = 60;
  * @param index the bip44 index
  * @return returns the private key, hex encoded, upper case.
  */
-export const GetPrivateKeyFromMnemonic = (config: LedgerConfig, mnemonic: string, index: string): string => {
+export const GetPrivateKeyFromMnemonic = (
+  config: LedgerConfig,
+  mnemonic: string,
+  index: string
+): string => {
   const bip39 = config.Bip39;
   const seedBytes = bip39.mnemonicToSeedSync(mnemonic);
   const seed = bufferToHex(seedBytes);
@@ -29,7 +33,11 @@ export const GetPrivateKeyFromMnemonic = (config: LedgerConfig, mnemonic: string
  * @param index the bip44 index
  * @return returns the seed, hex encoded, upper case.
  */
-export const GetPrivateKeyFromSeed = (config: LedgerConfig, seed: string, index: string): string => {
+export const GetPrivateKeyFromSeed = (
+  config: LedgerConfig,
+  seed: string,
+  index: string
+): string => {
   const bip32Factory = config.Bip32Factory;
   const curve = config.Curve;
   const seedBytes = hexToBuffer(seed);
@@ -50,7 +58,11 @@ export const GetPrivateKeyFromSeed = (config: LedgerConfig, seed: string, index:
  * @param index the index
  * @return returns the private key, hex encoded, upper case.
  */
-export const GetPoltergeistMnemonic = (config: LedgerConfig, mnemonic: string, index: string): string => {
+export const GetPoltergeistMnemonic = (
+  config: LedgerConfig,
+  mnemonic: string,
+  index: string
+): string => {
   const bip39 = config.Bip39;
   const privateKey = GetPrivateKeyFromMnemonic(config, mnemonic, index);
   const poltergeistMnemonic = bip39.entropyToMnemonic(privateKey);
@@ -65,4 +77,3 @@ export const GetBip44Path = (index: string): string => {
   const bip44path = `m/44'/${SOUL_COIN}'/0'/0/${index}`;
   return bip44path;
 };
-

@@ -1,354 +1,30 @@
 /* eslint-disable */
 
-import fetch from "cross-fetch";
-import { TokenSeriesMode } from "../interfaces";
-
-export interface Balance {
-  chain: string;
-  amount: string;
-  symbol: string;
-  decimals: number;
-  ids?: Array<string>;
-}
-
-export interface Interop {
-  local: string;
-  external: string;
-}
-
-export interface Platform {
-  platform: string;
-  chain: string;
-  fuel: string;
-  tokens: Array<string>;
-  interop: Array<Interop>;
-}
-
-export interface Governance {
-  name: string;
-  value: string;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  members: Array<string>;
-}
-
-export interface Nexus {
-  name: string; //Name of the nexus
-  protocol: string;
-  platforms: Array<Platform>; //List of platforms
-  tokens: Array<Token>; //List of tokens
-  chains: Array<Chain>; //List of chains
-  governance: Array<Governance>; //List of governance values
-  organizations: Array<string>; //List of organizations
-}
-
-export interface Stake {
-  amount: string; //Amount of staked SOUL
-  time: number; //Time of last stake
-  unclaimed: string; //Amount of claimable KCAL
-}
-
-export interface Storage {
-  available: number;
-  used: number;
-  avatar: string;
-  archives: Array<Archive>;
-}
-
-export interface Account {
-  address: string;
-  name: string;
-  stakes: Stake; //Info about staking if available
-  stake: string;
-  unclaimed: string;
-  relay: string; //Amount of available KCAL for relay channel
-  validator: string; //Validator role
-  storage: Storage;
-  balances: Array<Balance>;
-  txs: Array<string>;
-}
-
-export interface LeaderboardRow {
-  address: string;
-  value: string;
-}
-
-export interface Leaderboard {
-  name: string;
-  rows: Array<LeaderboardRow>;
-}
-
-export interface Dapp {
-  name: string;
-  address: string;
-  chain: string;
-}
-
-export interface Chain {
-  name: string;
-  address: string;
-  parent: string; //Name of parent chain
-  height: number; //Current chain height
-  organization: string; //Chain organization
-  contracts: Array<string>; //Contracts deployed in the chain
-  dapps: Array<string>; //Dapps deployed in the chain
-}
-
-export interface Contract {
-  name: string;
-  address: string;
-  owner: string;
-  script: string;
-  methods?: Array<ABIMethod>;
-  events?: Array<ABIEvent>;
-}
-
-export interface Event {
-  address: string;
-  contract: string;
-  kind: string;
-  data: string; //Data in hexadecimal format, content depends on the event kind
-}
-
-export interface Oracle {
-  url: string; //URL that was read by the oracle
-  content: string; //Byte array content read by the oracle, encoded as hex string
-}
-
-export interface SignatureResult {
-  Kind: string;
-  Data: string;
-}
-
-export interface TransactionData {
-  hash: string; //Hash of the transaction
-  chainAddress: string; //Transaction chain address
-  timestamp: number; //Block time
-  blockHeight: number; //Block height at which the transaction was accepted
-  blockHash: string; //Hash of the block
-  script: string; //Script content of the transaction, in hexadecimal format
-  payload: string; //Payload content of the transaction, in hexadecimal format
-  events: Array<Event>; //List of events that triggered in the transaction
-  result: string; //Result of the transaction, if any. Serialized, in hexadecimal format
-  fee: string; //Fee of the transaction, in KCAL, fixed point
-  state: string;
-  signatures: Array<SignatureResult>;
-  sender: string;
-  gasPayer: string;
-  gasTarget: string;
-  gasPrice: string;
-  gasLimit: string;
-  expiration: number;
-}
-
-export interface AccountTransactions {
-  address: string;
-  txs: Array<TransactionData>; //List of transactions
-}
-
-export interface Paginated<T> {
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
-  result: T;
-}
-
-export interface Block {
-  hash: string;
-  previousHash: string; //Hash of previous block
-  timestamp: number;
-  height: number;
-  chainAddress: string; //Address of chain where the block belongs
-  protocol: number; //Network protocol version
-  txs: Array<TransactionData>; //List of transactions in block
-  validatorAddress: string; //Address of validator who minted the block
-  reward: string; //Amount of KCAL rewarded by this fees in this block
-  events: Array<Event>; //Block events
-  oracles: Array<Oracle>; //Block oracles
-}
-
-export interface TokenExternal {
-  platform: string;
-  hash: string;
-}
-
-export interface TokenPrice {
-  Timestamp: number;
-  Open: string;
-  High: string;
-  Low: string;
-  Close: string;
-}
-
-export interface Token {
-  symbol: string; //Ticker symbol for the token
-  name: string;
-  decimals: number; //Amount of decimals when converting from fixed point format to decimal format
-  currentSupply: string; //Amount of minted tokens
-  maxSupply: string; //Max amount of tokens that can be minted
-  burnedSupply: string;
-  address: string;
-  owner: string;
-  flags: string;
-  script: string;
-  series: Array<TokenSeries>;
-  external?: Array<TokenExternal>;
-  price?: Array<TokenPrice>;
-  //external?: { hash: string; platform: string }[];
-}
-
-export interface TokenSeries {
-  seriesID: number;
-  currentSupply: string;
-  maxSupply: string;
-  burnedSupply: string;
-  mode: TokenSeriesMode;
-  script: string;
-  methods: Array<ABIMethod>;
-}
-
-export interface TokenData {
-  ID: string; //ID of token
-  series: string;
-  mint: string;
-  chainName: string; //Chain where currently is stored
-  ownerAddress: string; //Address who currently owns the token
-  creatorAddress: string;
-  ram: string; //Writable data of token, hex encoded
-  rom: string; //Read-only data of token, hex encoded
-  status: string;
-  forSale: boolean; //True if is being sold in market
-}
-
-export interface SendRawTx {
-  hash: string; //Transaction hash
-  error: string; //Error message if transaction did not succeed
-}
-
-export interface Auction {
-  creatorAddress: string; //Address of auction creator
-  chainAddress: string; //Address of auction chain
-  startDate: number;
-  endDate: number;
-  baseSymbol: string;
-  quoteSymbol: string;
-  tokenId: string;
-  price: string;
-  rom: string;
-  ram: string;
-}
-
-export interface Script {
-  events: Array<Event>; //List of events that triggered in the transaction
-  result: string;
-  results: Array<string>; //Results of the transaction, if any. Serialized, in hexadecimal format
-  oracles: Array<Oracle>; //List of oracle reads that were triggered in the transaction
-}
-
-export interface Archive {
-  name: string;
-  hash: string; //Archive hash
-  time: number;
-  size: number; //Size of archive in bytes
-  encryption: string;
-  blockCount: number; //Number of blocks
-  missingBlocks: Array<number>;
-  owners: Array<string>;
-}
-
-export interface ABIParameter {
-  name: string; //Name of method
-  type: string;
-}
-
-export interface ABIMethod {
-  name: string; //Name of method
-  returnType: string;
-  parameters: Array<ABIParameter>; //Type of parameters
-}
-
-export interface ABIEvent {
-  value: number; //Name of method
-  name: string; //Name of Event
-  returnType: string;
-  description: string; //Description
-}
-
-export interface ABIContract {
-  name: string; //Name of contract
-  methods: Array<ABIMethod>; //List of methods
-}
-
-export interface Channel {
-  creatorAddress: string; //Creator of channel
-  targetAddress: string; //Target of channel
-  name: string; //Name of channel
-  chain: string; //Chain of channel
-  creationTime: number; //Creation time
-  symbol: string; //Token symbol
-  fee: string; //Fee of messages
-  balance: string; //Estimated balance
-  active: boolean; //Channel status
-  index: number; //Message index
-}
-
-export interface Receipt {
-  nexus: string; //Name of nexus
-  channel: string; //Name of channel
-  index: string; //Index of message
-  timestamp: number; //Date of message
-  sender: string; //Sender address
-  receiver: string; //Receiver address
-  script: string; //Script of message, in hex
-}
-
-export interface Peer {
-  url: string; //URL of peer
-  version: string; //Software version of peer
-  flags: string; //Features supported by peer
-  fee: string; //Minimum fee required by node
-  pow: number; //Minimum proof of work required by node
-}
-
-export interface Validator {
-  address: string; //Address of validator
-  type: string; //Either primary or secondary
-}
-
-export interface Swap {
-  sourcePlatform: string;
-  sourceChain: string;
-  sourceHash: string;
-  sourceAddress: string;
-  destinationPlatform: string;
-  destinationChain: string;
-  destinationHash: string;
-  destinationAddress: string;
-  symbol: string;
-  value: string;
-}
-
-export interface KeyValue {
-  Key: string;
-  Value: string;
-}
-
-export interface NFT {
-  ID: string;
-  series: string;
-  mint: string;
-  chainName: string;
-  ownerAddress: string;
-  creatorAddress: string;
-  ram: string;
-  rom: string;
-  infusion: KeyValue[];
-  properties: KeyValue[];
-}
+import fetch from 'cross-fetch';
+import { Balance } from './interfaces/Balance';
+import { Platform } from './interfaces/Platform';
+import { Organization } from './interfaces/Organization';
+import { Nexus } from './interfaces/Nexus';
+import { Account } from './interfaces/Account';
+import { Leaderboard } from './interfaces/Leaderboard';
+import { Chain } from './interfaces/Chain';
+import { Contract } from './interfaces/Contract';
+import { Event } from './interfaces/Event';
+import { TransactionData } from './interfaces/TransactionData';
+import { AccountTransactions } from './interfaces/AccountTransactions';
+import { Paginated } from './interfaces/Paginated';
+import { Block } from './interfaces/Block';
+import { Token } from './interfaces/Token';
+import { TokenData } from './interfaces/TokenData';
+import { Auction } from './interfaces/Auction';
+import { Script } from './interfaces/Script';
+import { Archive } from './interfaces/Archive';
+import { ABIContract } from './interfaces/ABIContract';
+import { Receipt } from './interfaces/Receipt';
+import { Peer } from './interfaces/Peer';
+import { Validator } from './interfaces/Validator';
+import { Swap } from './interfaces/Swap';
+import { NFT } from './interfaces/NFT';
 
 export class PhantasmaAPI {
   host: string;
@@ -361,7 +37,7 @@ export class PhantasmaAPI {
       var started = new Date().getTime();
       var http = new XMLHttpRequest();
 
-      http.open("GET", host + "/rpc", true);
+      http.open('GET', host + '/rpc', true);
       http.timeout = 4500;
       http.onreadystatechange = function () {
         if (http.readyState == 4 && http.status == 200) {
@@ -387,26 +63,24 @@ export class PhantasmaAPI {
   }
 
   constructor(defHost: string, peersUrlJson: string, nexus: string) {
-    this.rpcName = "Auto";
+    this.rpcName = 'Auto';
     this.nexus = nexus;
     this.host = defHost;
     this.availableHosts = [];
 
     if (peersUrlJson != undefined) {
-      fetch(peersUrlJson + "?_=" + new Date().getTime()).then(async (res) => {
+      fetch(peersUrlJson + '?_=' + new Date().getTime()).then(async (res) => {
         const data = await res.json();
         for (var i = 0; i < data.length; i++) {
-          console.log("Checking RPC: ", data[i]);
+          console.log('Checking RPC: ', data[i]);
           try {
             const msecs = await this.pingAsync(data[i].url);
-            data[i].info = data[i].location + " • " + msecs + " ms";
+            data[i].info = data[i].location + ' • ' + msecs + ' ms';
             data[i].msecs = msecs;
-            console.log(
-              data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc"
-            );
+            console.log(data[i].location + ' • ' + msecs + ' ms • ' + data[i].url + '/rpc');
             this.availableHosts.push(data[i]);
           } catch (err) {
-            console.log("Error with RPC: " + data[i]);
+            console.log('Error with RPC: ' + data[i]);
           }
         }
         this.availableHosts.sort((a, b) => a.msecs - b.msecs);
@@ -417,18 +91,18 @@ export class PhantasmaAPI {
 
   async JSONRPC(method: string, params: Array<any>): Promise<any> {
     let res = await fetch(this.host, {
-      method: "POST",
-      mode: "cors",
+      method: 'POST',
+      mode: 'cors',
       body: JSON.stringify({
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         method: method,
         params: params,
-        id: "1",
+        id: '1',
       }),
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
     let resJson = await res.json();
-    console.log("method", method, resJson);
+    console.log('method', method, resJson);
     if (resJson.error) {
       if (resJson.error.message) return { error: resJson.error.message };
       return { error: resJson.error };
@@ -442,7 +116,7 @@ export class PhantasmaAPI {
 
   setRpcByName(rpcName: string) {
     this.rpcName = rpcName;
-    if (this.nexus === "mainnet") this.updateRpc();
+    if (this.nexus === 'mainnet') this.updateRpc();
   }
 
   setNexus(nexus: string) {
@@ -450,16 +124,16 @@ export class PhantasmaAPI {
   }
 
   updateRpc() {
-    if (this.nexus === "mainnet" && this.availableHosts.length > 0) {
-      console.log("%cUpdate RPC with name " + this.rpcName, "font-size: 20px");
-      if (this.rpcName == "Auto") {
-        this.host = this.availableHosts[0].url + "/rpc";
+    if (this.nexus === 'mainnet' && this.availableHosts.length > 0) {
+      console.log('%cUpdate RPC with name ' + this.rpcName, 'font-size: 20px');
+      if (this.rpcName == 'Auto') {
+        this.host = this.availableHosts[0].url + '/rpc';
       } else {
         const rpc = this.availableHosts.find((h) => h.location == this.rpcName);
-        if (rpc) this.host = rpc.url + "/rpc";
-        else this.host = this.availableHosts[0].url + "/rpc";
+        if (rpc) this.host = rpc.url + '/rpc';
+        else this.host = this.availableHosts[0].url + '/rpc';
       }
-      console.log("%cSet RPC api to " + this.host, "font-size: 20px");
+      console.log('%cSet RPC api to ' + this.host, 'font-size: 20px');
     }
   }
 
@@ -471,82 +145,73 @@ export class PhantasmaAPI {
   //Returns the account name and balance of given address.
   async getAccount(account: string): Promise<Account> {
     let params: Array<any> = [account];
-    return (await this.JSONRPC("getAccount", params)) as Account;
+    return (await this.JSONRPC('getAccount', params)) as Account;
   }
 
   //Returns the accounts name and balance of given addresses.
   async getAccounts(accounts: string[]): Promise<Account[]> {
-    let params: Array<any> = [accounts.join(",")];
-    return (await this.JSONRPC("getAccounts", params)) as Account[];
+    let params: Array<any> = [accounts.join(',')];
+    return (await this.JSONRPC('getAccounts', params)) as Account[];
   }
 
   //Returns the address that owns a given name.
   async lookUpName(name: string): Promise<string> {
     let params: Array<any> = [name];
-    return (await this.JSONRPC("lookUpName", params)) as string;
+    return (await this.JSONRPC('lookUpName', params)) as string;
   }
 
   //Returns the address that owns a given name.
-  async getAddressesBySymbol(
-    symbol: string,
-    extended: boolean = false
-  ): Promise<Account[]> {
+  async getAddressesBySymbol(symbol: string, extended: boolean = false): Promise<Account[]> {
     let params: Array<any> = [symbol, extended];
-    return (await this.JSONRPC("getAddressesBySymbol", params)) as Account[];
+    return (await this.JSONRPC('getAddressesBySymbol', params)) as Account[];
   }
 
   //Returns the height of a chain.
   async getBlockHeight(chainInput: string): Promise<number> {
     let params: Array<any> = [chainInput];
-    return (await this.JSONRPC("getBlockHeight", params)) as number;
+    return (await this.JSONRPC('getBlockHeight', params)) as number;
   }
 
   //Returns the number of transactions of given block hash or error if given hash is invalid or is not found.
   async getBlockTransactionCountByHash(blockHash: string): Promise<number> {
     let params: Array<any> = [blockHash];
-    return (await this.JSONRPC(
-      "getBlockTransactionCountByHash",
-      params
-    )) as number;
+    return (await this.JSONRPC('getBlockTransactionCountByHash', params)) as number;
   }
 
   //Returns information about a block by hash.
   async getBlockByHash(blockHash: string): Promise<Block> {
     let params: Array<any> = [blockHash];
-    return (await this.JSONRPC("getBlockByHash", params)) as Block;
+    return (await this.JSONRPC('getBlockByHash', params)) as Block;
   }
 
   //Returns a serialized string, containing information about a block by hash.
   async getRawBlockByHash(blockHash: string): Promise<string> {
     let params: Array<any> = [blockHash];
-    return (await this.JSONRPC("getRawBlockByHash", params)) as string;
+    return (await this.JSONRPC('getRawBlockByHash', params)) as string;
   }
 
   //Returns information about a block by height and chain.
   async getBlockByHeight(chainInput: string, height: number): Promise<Block> {
     let params: Array<any> = [chainInput, height];
-    return (await this.JSONRPC("getBlockByHeight", params)) as Block;
+    return (await this.JSONRPC('getBlockByHeight', params)) as Block;
   }
 
   //Returns information about a block by height and chain.
   async getLatestBlock(chainInput: string): Promise<Block> {
     let params: Array<any> = [chainInput];
-    return (await this.JSONRPC("getLatestBlock", params)) as Block;
+    return (await this.JSONRPC('getLatestBlock', params)) as Block;
   }
 
   //Returns a serialized string, in hex format, containing information about a block by height and chain.
-  async getRawBlockByHeight(
-    chainInput: string,
-    height: number
-  ): Promise<string> {
+  async getRawBlockByHeight(chainInput: string, height: number): Promise<string> {
     let params: Array<any> = [chainInput, height];
-    return (await this.JSONRPC("getRawBlockByHeight", params)) as string;
+    return (await this.JSONRPC('getRawBlockByHeight', params)) as string;
   }
 
   //Returns a serialized string, in hex format, containing information about a block by height and chain.
   async getRawLatestBlock(chainInput: string): Promise<string> {
     let params: Array<any> = [chainInput];
-    return (await this.JSONRPC("getRawLatestBlock", params)) as string;
+    return (await this.JSONRPC('getRawLatestBlock', params)) as string;
   }
 
   //Returns the information about a transaction requested by a block hash and transaction index.
@@ -555,10 +220,7 @@ export class PhantasmaAPI {
     index: number
   ): Promise<TransactionData> {
     let params: Array<any> = [blockHash, index];
-    return (await this.JSONRPC(
-      "getTransactionByBlockHashAndIndex",
-      params
-    )) as TransactionData;
+    return (await this.JSONRPC('getTransactionByBlockHashAndIndex', params)) as TransactionData;
   }
 
   //Returns last X transactions of given address.
@@ -568,118 +230,103 @@ export class PhantasmaAPI {
     pageSize: number
   ): Promise<Paginated<AccountTransactions>> {
     let params: Array<any> = [account, page, pageSize];
-    return (await this.JSONRPC(
-      "getAddressTransactions",
-      params
-    )) as Paginated<AccountTransactions>;
+    return (await this.JSONRPC('getAddressTransactions', params)) as Paginated<AccountTransactions>;
   }
 
   //Get number of transactions in a specific address and chain
-  async getAddressTransactionCount(
-    account: string,
-    chainInput: string
-  ): Promise<number> {
+  async getAddressTransactionCount(account: string, chainInput: string): Promise<number> {
     let params: Array<any> = [account, chainInput];
-    return (await this.JSONRPC("getAddressTransactionCount", params)) as number;
+    return (await this.JSONRPC('getAddressTransactionCount', params)) as number;
   }
 
   //Allows to broadcast a signed operation on the network, but it&apos;s required to build it manually.
   async sendRawTransaction(txData: string): Promise<string> {
     let params: Array<any> = [txData];
-    return (await this.JSONRPC("sendRawTransaction", params)) as string;
+    return (await this.JSONRPC('sendRawTransaction', params)) as string;
   }
 
   //Allows to invoke script based on network state, without state changes.
-  async invokeRawScript(
-    chainInput: string,
-    scriptData: string
-  ): Promise<Script> {
+  async invokeRawScript(chainInput: string, scriptData: string): Promise<Script> {
     let params: Array<any> = [chainInput, scriptData];
-    return (await this.JSONRPC("invokeRawScript", params)) as Script;
+    return (await this.JSONRPC('invokeRawScript', params)) as Script;
   }
 
   //Returns information about a transaction by hash.
   async getTransaction(hashText: string): Promise<TransactionData> {
     let params: Array<any> = [hashText];
-    return (await this.JSONRPC("getTransaction", params)) as TransactionData;
+    return (await this.JSONRPC('getTransaction', params)) as TransactionData;
   }
 
   //Removes a pending transaction from the mempool.
   async cancelTransaction(hashText: string): Promise<string> {
     let params: Array<any> = [hashText];
-    return (await this.JSONRPC("cancelTransaction", params)) as string;
+    return (await this.JSONRPC('cancelTransaction', params)) as string;
   }
 
   //Returns an array of all chains deployed in Phantasma.
   async getChains(): Promise<Chain> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getChains", params)) as Chain;
+    return (await this.JSONRPC('getChains', params)) as Chain;
   }
 
   //Returns info about the nexus.
   async getNexus(): Promise<Nexus> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getNexus", params)) as Nexus;
+    return (await this.JSONRPC('getNexus', params)) as Nexus;
   }
 
   //Returns the contract info deployed in Phantasma.
-  async getContract(
-    chainAddressOrName: string = "main",
-    contractName: string
-  ): Promise<Contract> {
+  async getContract(chainAddressOrName: string = 'main', contractName: string): Promise<Contract> {
     let params: Array<any> = [chainAddressOrName, contractName];
-    return (await this.JSONRPC("getContract", params)) as Contract;
+    return (await this.JSONRPC('getContract', params)) as Contract;
   }
 
   async getContractByAddress(
-    chainAddressOrName: string = "main",
+    chainAddressOrName: string = 'main',
     contractAddress: string
   ): Promise<Contract> {
     let params: Array<any> = [chainAddressOrName, contractAddress];
-    return (await this.JSONRPC("getContractByAddress", params)) as Contract;
+    return (await this.JSONRPC('getContractByAddress', params)) as Contract;
   }
 
   //Returns info about an organization.
   async getOrganization(ID: string): Promise<Organization> {
     let params: Array<any> = [ID];
-    return (await this.JSONRPC("getOrganization", params)) as Organization;
+    return (await this.JSONRPC('getOrganization', params)) as Organization;
   }
 
   async getOrganizationByName(name: string): Promise<Organization> {
     let params: Array<any> = [name];
-    return (await this.JSONRPC(
-      "getOrganizationByName",
-      params
-    )) as Organization;
+    return (await this.JSONRPC('getOrganizationByName', params)) as Organization;
   }
 
   async getOrganizations(extended: boolean = false): Promise<Organization[]> {
     let params: Array<any> = [extended];
-    return (await this.JSONRPC("getOrganizations", params)) as Organization[];
+    return (await this.JSONRPC('getOrganizations', params)) as Organization[];
   }
 
   //Returns content of a Phantasma leaderboard.
   async getLeaderboard(name: string): Promise<Leaderboard> {
     let params: Array<any> = [name];
-    return (await this.JSONRPC("getLeaderboard", params)) as Leaderboard;
+    return (await this.JSONRPC('getLeaderboard', params)) as Leaderboard;
   }
 
   //Returns an array of tokens deployed in Phantasma.
   async getTokens(): Promise<Token[]> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getTokens", params)) as Token[];
+    return (await this.JSONRPC('getTokens', params)) as Token[];
   }
 
   //Returns info about a specific token deployed in Phantasma.
   async getToken(symbol: string): Promise<Token> {
     let params: Array<any> = [symbol];
-    return (await this.JSONRPC("getToken", params)) as Token;
+    return (await this.JSONRPC('getToken', params)) as Token;
   }
 
   //Returns data of a non-fungible token, in hexadecimal format.
   async getTokenData(symbol: string, IDtext: string): Promise<TokenData> {
     let params: Array<any> = [symbol, IDtext];
-    return (await this.JSONRPC("getTokenData", params)) as TokenData;
+    return (await this.JSONRPC('getTokenData', params)) as TokenData;
   }
 
   //Returns the balance for a specific token and chain, given an address.
@@ -689,16 +336,13 @@ export class PhantasmaAPI {
     chainInput: string
   ): Promise<Balance> {
     let params: Array<any> = [account, tokenSymbol, chainInput];
-    return (await this.JSONRPC("getTokenBalance", params)) as Balance;
+    return (await this.JSONRPC('getTokenBalance', params)) as Balance;
   }
 
   //Returns the number of active auctions.
-  async getAuctionsCount(
-    chainAddressOrName: string,
-    symbol: string
-  ): Promise<number> {
+  async getAuctionsCount(chainAddressOrName: string, symbol: string): Promise<number> {
     let params: Array<any> = [chainAddressOrName, symbol];
-    return (await this.JSONRPC("getAuctionsCount", params)) as number;
+    return (await this.JSONRPC('getAuctionsCount', params)) as number;
   }
 
   //Returns the auctions available in the market.
@@ -709,78 +353,67 @@ export class PhantasmaAPI {
     pageSize: number
   ): Promise<Auction> {
     let params: Array<any> = [chainAddressOrName, symbol, page, pageSize];
-    return (await this.JSONRPC("getAuctions", params)) as Auction;
+    return (await this.JSONRPC('getAuctions', params)) as Auction;
   }
 
   //Returns the auction for a specific token.
-  async getAuction(
-    chainAddressOrName: string,
-    symbol: string,
-    IDtext: string
-  ): Promise<Auction> {
+  async getAuction(chainAddressOrName: string, symbol: string, IDtext: string): Promise<Auction> {
     let params: Array<any> = [chainAddressOrName, symbol, IDtext];
-    return (await this.JSONRPC("getAuction", params)) as Auction;
+    return (await this.JSONRPC('getAuction', params)) as Auction;
   }
 
   //Returns info about a specific archive.
   async getArchive(hashText: string): Promise<Archive> {
     let params: Array<any> = [hashText];
-    return (await this.JSONRPC("getArchive", params)) as Archive;
+    return (await this.JSONRPC('getArchive', params)) as Archive;
   }
 
   //Writes the contents of an incomplete archive.
-  async writeArchive(
-    hashText: string,
-    blockIndex: number,
-    blockContent: string
-  ): Promise<boolean> {
+  async writeArchive(hashText: string, blockIndex: number, blockContent: string): Promise<boolean> {
     let params: Array<any> = [hashText, blockIndex, blockContent];
-    return (await this.JSONRPC("writeArchive", params)) as boolean;
+    return (await this.JSONRPC('writeArchive', params)) as boolean;
   }
 
   //Returns the ABI interface of specific contract.
-  async getABI(
-    chainAddressOrName: string,
-    contractName: string
-  ): Promise<ABIContract> {
+  async getABI(chainAddressOrName: string, contractName: string): Promise<ABIContract> {
     let params: Array<any> = [chainAddressOrName, contractName];
-    return (await this.JSONRPC("getABI", params)) as ABIContract;
+    return (await this.JSONRPC('getABI', params)) as ABIContract;
   }
 
   //Returns list of known peers.
   async getPeers(): Promise<Peer> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getPeers", params)) as Peer;
+    return (await this.JSONRPC('getPeers', params)) as Peer;
   }
 
   //Writes a message to the relay network.
   async relaySend(receiptHex: string): Promise<boolean> {
     let params: Array<any> = [receiptHex];
-    return (await this.JSONRPC("relaySend", params)) as boolean;
+    return (await this.JSONRPC('relaySend', params)) as boolean;
   }
 
   //Receives messages from the relay network.
   async relayReceive(account: string): Promise<Receipt> {
     let params: Array<any> = [account];
-    return (await this.JSONRPC("relayReceive", params)) as Receipt;
+    return (await this.JSONRPC('relayReceive', params)) as Receipt;
   }
 
   //Reads pending messages from the relay network.
   async getEvents(account: string): Promise<Event> {
     let params: Array<any> = [account];
-    return (await this.JSONRPC("getEvents", params)) as Event;
+    return (await this.JSONRPC('getEvents', params)) as Event;
   }
 
   //Returns an array of available interop platforms.
   async getPlatforms(): Promise<Platform[]> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getPlatforms", params)) as Platform[];
+    return (await this.JSONRPC('getPlatforms', params)) as Platform[];
   }
 
   //Returns an array of available validators.
   async getValidators(): Promise<Validator> {
     let params: Array<any> = [];
-    return (await this.JSONRPC("getValidators", params)) as Validator;
+    return (await this.JSONRPC('getValidators', params)) as Validator;
   }
 
   //Tries to settle a pending swap for a specific hash.
@@ -790,29 +423,29 @@ export class PhantasmaAPI {
     hashText: string
   ): Promise<string> {
     let params: Array<any> = [sourcePlatform, destPlatform, hashText];
-    return (await this.JSONRPC("settleSwap", params)) as string;
+    return (await this.JSONRPC('settleSwap', params)) as string;
   }
 
   //Returns platform swaps for a specific address.
   async getSwapsForAddressOld(account: string): Promise<Swap[]> {
     let params: Array<any> = [account];
-    return (await this.JSONRPC("getSwapsForAddress", params)) as Swap[];
+    return (await this.JSONRPC('getSwapsForAddress', params)) as Swap[];
   }
 
   //Returns platform swaps for a specific address.
   async getSwapsForAddress(account: string, platform: string): Promise<Swap[]> {
     let params: Array<any> = [account, platform, false];
-    return (await this.JSONRPC("getSwapsForAddress", params)) as Swap[];
+    return (await this.JSONRPC('getSwapsForAddress', params)) as Swap[];
   }
 
   //Returns info of a nft.
   async getNFT(symbol: string, nftId: string): Promise<NFT> {
     let params: Array<any> = [symbol, nftId, true];
-    return (await this.JSONRPC("getNFT", params)) as NFT;
+    return (await this.JSONRPC('getNFT', params)) as NFT;
   }
 
   async getNFTs(symbol: string, nftIDs: string[]): Promise<NFT[]> {
-    let params: Array<any> = [symbol, nftIDs.join(","), true];
-    return (await this.JSONRPC("getNFTs", params)) as NFT[];
+    let params: Array<any> = [symbol, nftIDs.join(','), true];
+    return (await this.JSONRPC('getNFTs', params)) as NFT[];
   }
 }

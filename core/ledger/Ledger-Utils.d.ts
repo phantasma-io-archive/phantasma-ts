@@ -1,4 +1,9 @@
 /// <reference types="node" />
+import { ApplicationNameResponse } from './interfaces/ApplicationNameResponse';
+import { DeviceResponse } from './interfaces/DeviceResponse';
+import { PublicKeyResponse } from './interfaces/PublicKeyResponse';
+import { SignResponse } from './interfaces/SignResponse';
+import { VersionResponse } from './interfaces/VersionResponse';
 export declare const MAX_SIGNED_TX_LEN = 1024;
 export declare const Bip44Path: string;
 export declare const ErrorDescriptions: {
@@ -19,36 +24,24 @@ export declare const ErrorDescriptions: {
     B008: string;
     B009: string;
 };
-export declare const hex2ascii: (hexx: string) => string;
+/**
+ * Get's the error message.
+ * @param responseStr
+ * @returns
+ */
 export declare const GetErrorMessage: (responseStr: string) => string;
-export interface DeviceResponse {
-    enabled: boolean;
-    error: boolean;
-    message?: string;
-    device?: any;
-}
 /**
  * Get Device
  * @param transport
  * @returns
  */
 export declare const GetDevice: (transport: any) => Promise<DeviceResponse>;
-export interface ApplicationNameResponse {
-    success: boolean;
-    message: string;
-    applicationName?: string;
-}
 /**
  * Get Application Name
  * @param transport
  * @returns
  */
 export declare const GetApplicationName: (transport: any) => Promise<ApplicationNameResponse>;
-export interface VersionResponse {
-    success: boolean;
-    message: string;
-    version?: string;
-}
 /**
  * Get Version
  * @param transport
@@ -61,11 +54,6 @@ export declare const GetVersion: (transport: any) => Promise<VersionResponse>;
  * @returns
  */
 export declare const GetBip44PathMessage: (messagePrefix: any) => Buffer;
-export interface PublicKeyResponse {
-    success: boolean;
-    message: string;
-    publicKey?: string;
-}
 /**
  * Get Public Key
  * @param transport
@@ -73,13 +61,14 @@ export interface PublicKeyResponse {
  * @returns
  */
 export declare const GetPublicKey: (transport: any, options: any) => Promise<PublicKeyResponse>;
-export declare const chunkString: (str: any, length: any) => any;
-export declare const splitMessageIntoChunks: (ledgerMessage: any) => any;
-export declare const decodeSignature: (response: any) => any;
-export interface SignResponse {
-    success: boolean;
-    message: string;
-    signature?: string;
-}
+/**
+ * Chunk String
+ * @param str
+ * @param length
+ * @returns
+ */
+export declare const ChunkString: (str: any, length: any) => any;
+export declare const SplitMessageIntoChunks: (ledgerMessage: any) => any;
+export declare const DecodeSignature: (response: any) => any;
 export declare const SignLedger: (transport: any, transactionHex: any) => Promise<SignResponse>;
 //# sourceMappingURL=Ledger-Utils.d.ts.map

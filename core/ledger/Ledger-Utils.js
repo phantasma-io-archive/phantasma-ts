@@ -36,7 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SignLedger = exports.decodeSignature = exports.splitMessageIntoChunks = exports.chunkString = exports.GetPublicKey = exports.GetBip44PathMessage = exports.GetVersion = exports.GetApplicationName = exports.GetDevice = exports.GetErrorMessage = exports.hex2ascii = exports.ErrorDescriptions = exports.Bip44Path = exports.MAX_SIGNED_TX_LEN = void 0;
+exports.SignLedger = exports.DecodeSignature = exports.SplitMessageIntoChunks = exports.ChunkString = exports.GetPublicKey = exports.GetBip44PathMessage = exports.GetVersion = exports.GetApplicationName = exports.GetDevice = exports.GetErrorMessage = exports.ErrorDescriptions = exports.Bip44Path = exports.MAX_SIGNED_TX_LEN = void 0;
+var utils_1 = require("../utils");
 exports.MAX_SIGNED_TX_LEN = 1024;
 var Debug = true;
 exports.Bip44Path = '8000002C' + // 44
@@ -62,22 +63,11 @@ exports.ErrorDescriptions = {
     B008: 'Failed to sign Transaction on Ledger Device',
     B009: 'Wrong signing parmeters on Ledger Device',
 };
-var hex2ascii = function (hexx) {
-    var hex = hexx.toString(); // force conversion
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2) {
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
-    return str;
-};
-exports.hex2ascii = hex2ascii;
-var int2buffer = function (i) {
-    var hex = i.toString(16).toUpperCase();
-    if (hex.length % 2 === 1) {
-        hex = '0' + hex;
-    }
-    return Buffer.from(hex, 'hex');
-};
+/**
+ * Get's the error message.
+ * @param responseStr
+ * @returns
+ */
 var GetErrorMessage = function (responseStr) {
     var suffix = responseStr.slice(-4);
     if (exports.ErrorDescriptions[suffix] !== undefined) {
@@ -193,7 +183,7 @@ var GetApplicationName = function (transport) { return __awaiter(void 0, void 0,
                     success = true;
                     message = responseStr;
                     applicationName = responseStr.substring(0, responseStr.length - 4);
-                    applicationName = (0, exports.hex2ascii)(applicationName);
+                    applicationName = (0, utils_1.hex2ascii)(applicationName);
                 }
                 else {
                     message = (0, exports.GetErrorMessage)(responseStr);
@@ -270,7 +260,7 @@ var GetVersion = function (transport) { return __awaiter(void 0, void 0, void 0,
                     success = true;
                     message = responseStr;
                     version = responseStr.substring(0, responseStr.length - 4);
-                    version = (0, exports.hex2ascii)(version);
+                    version = (0, utils_1.hex2ascii)(version);
                 }
                 else {
                     message = (0, exports.GetErrorMessage)(responseStr);
@@ -321,9 +311,9 @@ var GetBip44PathMessage = function (messagePrefix) {
     }
     var bip44PathBuffer = Buffer.from(exports.Bip44Path, 'hex');
     var bip44PathBufferLen = 5; // bip44PathBuffer.length;
-    var bip44PathBufferLenBuffer = int2buffer(bip44PathBufferLen);
+    var bip44PathBufferLenBuffer = (0, utils_1.Int2Buffer)(bip44PathBufferLen);
     var payload = Buffer.concat([bip44PathBufferLenBuffer, bip44PathBuffer]);
-    var payloadLen = int2buffer(payload.length);
+    var payloadLen = (0, utils_1.Int2Buffer)(payload.length);
     if (Debug) {
         console.log('getBip44PathMessage', 'bip44PathBuffer', bip44PathBuffer.toString('hex').toUpperCase());
         console.log('getBip44PathMessage', 'bip44PathBufferLen', bip44PathBufferLen);
@@ -431,11 +421,17 @@ var GetPublicKey = function (transport, options) { return __awaiter(void 0, void
     });
 }); };
 exports.GetPublicKey = GetPublicKey;
-var chunkString = function (str, length) {
+/**
+ * Chunk String
+ * @param str
+ * @param length
+ * @returns
+ */
+var ChunkString = function (str, length) {
     return str.match(new RegExp('.{1,' + length + '}', 'g'));
 };
-exports.chunkString = chunkString;
-var splitMessageIntoChunks = function (ledgerMessage) {
+exports.ChunkString = ChunkString;
+var SplitMessageIntoChunks = function (ledgerMessage) {
     var messages = [];
     messages.push((0, exports.GetBip44PathMessage)(Buffer.from('E006' + '00' + '80', 'hex')));
     if (Debug) {
@@ -444,7 +440,7 @@ var splitMessageIntoChunks = function (ledgerMessage) {
     // MAX 250, as theres 5 header bytes, and max total buffer size is 255.
     var bufferSize = 250 * 2;
     // ledgerMessage = ledgerMessage.substring(0,bufferSize);
-    var chunks = (0, exports.chunkString)(ledgerMessage, bufferSize);
+    var chunks = (0, exports.ChunkString)(ledgerMessage, bufferSize);
     for (var chunkIx = 0; chunkIx < chunks.length; chunkIx++) {
         var chunk = chunks[chunkIx];
         var chunkNbr = chunkIx + 1;
@@ -484,8 +480,8 @@ var splitMessageIntoChunks = function (ledgerMessage) {
     }
     return messages;
 };
-exports.splitMessageIntoChunks = splitMessageIntoChunks;
-var decodeSignature = function (response) {
+exports.SplitMessageIntoChunks = SplitMessageIntoChunks;
+var DecodeSignature = function (response) {
     /* istanbul ignore if */
     if (Debug) {
         console.log('decodeSignature', 'response', response);
@@ -497,7 +493,7 @@ var decodeSignature = function (response) {
     }
     return signature;
 };
-exports.decodeSignature = decodeSignature;
+exports.DecodeSignature = DecodeSignature;
 var SignLedger = function (transport, transactionHex) { return __awaiter(void 0, void 0, void 0, function () {
     var transactionByteLength, ledgerMessage, messages, device, lastResponse, ix, message_1, response, responseStr, message_2, signature, success, message, error_4;
     return __generator(this, function (_a) {
@@ -515,7 +511,7 @@ var SignLedger = function (transport, transactionHex) { return __awaiter(void 0,
                         }];
                 }
                 ledgerMessage = transactionHex;
-                messages = (0, exports.splitMessageIntoChunks)(ledgerMessage);
+                messages = (0, exports.SplitMessageIntoChunks)(ledgerMessage);
                 if (Debug) {
                     console.log('sign', 'transport', transport);
                 }
@@ -573,7 +569,7 @@ var SignLedger = function (transport, transactionHex) { return __awaiter(void 0,
                 message = lastResponse;
                 if (lastResponse !== undefined) {
                     if (lastResponse.endsWith('9000')) {
-                        signature = (0, exports.decodeSignature)(lastResponse);
+                        signature = (0, exports.DecodeSignature)(lastResponse);
                         success = true;
                     }
                     else {

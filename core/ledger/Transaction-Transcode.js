@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encodeSendTxWithoutSignature = exports.encodeSendTxWithSignature = exports.GetExpirationDate = exports.GetDateAsUTCSeconds = void 0;
+exports.EncodeSendTxWithoutSignature = exports.EncodeSendTxWithSignature = exports.GetExpirationDate = exports.GetDateAsUTCSeconds = void 0;
 /**
  * Expiration Date is in UTC Seconds
  * @param expirationDate
@@ -18,7 +18,7 @@ exports.GetDateAsUTCSeconds = GetDateAsUTCSeconds;
 var GetExpirationDate = function () {
     // TODO: make expirationDate configurable.
     var expirationMinutes = 5; // This is in minutes
-    var expirationDate = new Date(Date.now() + (expirationMinutes * 60000));
+    var expirationDate = new Date(Date.now() + expirationMinutes * 60000);
     return expirationDate;
 };
 exports.GetExpirationDate = GetExpirationDate;
@@ -27,16 +27,21 @@ exports.GetExpirationDate = GetExpirationDate;
  * @param transaction
  * @returns
  */
-var encodeSendTxWithSignature = function (transaction) {
+var EncodeSendTxWithSignature = function (transaction) {
     // console.log('encodeSendTx', 'transaction', transaction);
     var sendTx = transaction.toString(true);
     // console.log('encodeSendTx', 'sendTx', sendTx);
     return sendTx;
 };
-exports.encodeSendTxWithSignature = encodeSendTxWithSignature;
-var encodeSendTxWithoutSignature = function (transaction) {
+exports.EncodeSendTxWithSignature = EncodeSendTxWithSignature;
+/**
+ *
+ * @param transaction
+ * @returns
+ */
+var EncodeSendTxWithoutSignature = function (transaction) {
     var sendTx = transaction.toString(false);
     // console.log('encodeSendTx', 'sendTx', sendTx);
     return sendTx;
 };
-exports.encodeSendTxWithoutSignature = encodeSendTxWithoutSignature;
+exports.EncodeSendTxWithoutSignature = EncodeSendTxWithoutSignature;

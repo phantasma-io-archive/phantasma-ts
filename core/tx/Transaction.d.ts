@@ -1,5 +1,5 @@
-import { ISerializable, Signature } from "../interfaces";
-import { PBinaryReader, PBinaryWriter, PhantasmaKeys } from "../types";
+import { ISerializable, Signature } from '../interfaces';
+import { PBinaryReader, PBinaryWriter, PhantasmaKeys } from '../types';
 export declare class Transaction implements ISerializable {
     script: string;
     nexusName: string;

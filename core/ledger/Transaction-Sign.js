@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetPublicFromPrivate = exports.GetHash = exports.Sign = exports.Verify = void 0;
+exports.GetPublicFromPrivate = exports.Verify = exports.Sign = exports.GetHash = exports.SignBytes = exports.PublicToPem = exports.PublicToDer = exports.PrivateToDer = void 0;
 var crypto = __importStar(require("crypto"));
 var PUBLIC_KEY_PREFIX = '302A300506032B6570032100';
 var DEBUG = false;
@@ -37,25 +37,32 @@ var PrivateToDer = function (privateKeyHex) {
     }
     return Buffer.from(derHex, 'hex');
 };
+exports.PrivateToDer = PrivateToDer;
 var PublicToDer = function (publicKeyHex) {
     var publicKeyDerHex = "".concat(PUBLIC_KEY_PREFIX).concat(publicKeyHex);
     return Buffer.from(publicKeyDerHex, 'hex');
 };
+exports.PublicToDer = PublicToDer;
 var PublicToPem = function (publicKeyHex) {
-    var publicKeyDer = PublicToDer(publicKeyHex);
+    var publicKeyDer = (0, exports.PublicToDer)(publicKeyHex);
     var publicKeyDerBase64 = publicKeyDer.toString('base64');
     return "-----BEGIN PUBLIC KEY-----\n".concat(publicKeyDerBase64, "\n-----END PUBLIC KEY-----");
 };
+exports.PublicToPem = PublicToPem;
 var SignBytes = function (hash, privateKey) {
     if (DEBUG) {
         console.log('signBytes.hash', hash);
         console.log('signBytes.privateKey', privateKey);
     }
-    var privateKeyDer = PrivateToDer(privateKey.toString('hex'));
+    var privateKeyDer = (0, exports.PrivateToDer)(privateKey.toString('hex'));
     if (DEBUG) {
         console.log('signBytes.privateKeyDer', privateKeyDer);
     }
-    var privateKeyObj = crypto.createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' });
+    var privateKeyObj = crypto.createPrivateKey({
+        key: privateKeyDer,
+        format: 'der',
+        type: 'pkcs8',
+    });
     var signature = crypto.sign(undefined, hash, privateKeyObj);
     var signatureHex = signature.toString('hex');
     if (DEBUG) {
@@ -63,6 +70,7 @@ var SignBytes = function (hash, privateKey) {
     }
     return signatureHex;
 };
+exports.SignBytes = SignBytes;
 var GetHash = function (encodedTx, debug) {
     return Buffer.from(encodedTx, 'hex');
 };
@@ -75,11 +83,11 @@ var Sign = function (encodedTx, privateKeyHex) {
     if (DEBUG) {
         console.log('sign', 'privateKey', privateKey.toString('hex'));
     }
-    var hash = GetHash(encodedTx);
+    var hash = (0, exports.GetHash)(encodedTx);
     if (DEBUG) {
         console.log('sign', 'hash', hash.toString('hex'));
     }
-    var signature = SignBytes(hash, privateKey);
+    var signature = (0, exports.SignBytes)(hash, privateKey);
     if (DEBUG) {
         console.log('sign', 'signature', signature);
     }
@@ -92,13 +100,17 @@ var Verify = function (encodedTx, signatureHex, publicKeyHex) {
         console.log('verify', 'signatureHex', signatureHex);
         console.log('verify', 'publicKeyHex', publicKeyHex);
     }
-    var publicKeyPem = PublicToPem(publicKeyHex);
+    var publicKeyPem = (0, exports.PublicToPem)(publicKeyHex);
     if (DEBUG) {
         console.log('verify', 'publicKeyPem', publicKeyPem);
     }
-    var publicKeyObj = crypto.createPublicKey({ key: publicKeyPem, format: 'pem', type: 'spki' });
+    var publicKeyObj = crypto.createPublicKey({
+        key: publicKeyPem,
+        format: 'pem',
+        type: 'spki',
+    });
     var signature = Buffer.from(signatureHex, 'hex');
-    var hash = GetHash(encodedTx);
+    var hash = (0, exports.GetHash)(encodedTx);
     if (DEBUG) {
         console.log('verify', 'hash', hash.toString('hex'));
     }
@@ -106,10 +118,27 @@ var Verify = function (encodedTx, signatureHex, publicKeyHex) {
 };
 exports.Verify = Verify;
 var GetPublicFromPrivate = function (privateKey) {
-    var privateKeyDer = PrivateToDer(privateKey);
-    var privateKeyObj = crypto.createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' });
-    var publicKeyObj = crypto.createPublicKey({ key: privateKeyObj, format: 'pem', type: 'sec1' });
-    var encodedHex = publicKeyObj.export({ format: 'der', type: 'spki' }).toString('hex').toUpperCase();
+    var privateKeyDer = (0, exports.PrivateToDer)(privateKey);
+    var privateKeyObj = crypto.createPrivateKey({
+        key: privateKeyDer,
+        format: 'der',
+        type: 'pkcs8',
+    });
+    var privateKeyString = privateKeyObj.export({ format: 'der', type: 'pkcs8' });
+    /*const publicKeyObj = crypto.createPublicKey({
+      key: privateKeyObj,
+      format: 'pem',
+      type: 'sec1',
+    });*/
+    var publicKeyObj = crypto.createPublicKey({
+        key: privateKeyString,
+        format: 'pem',
+        type: 'spki',
+    });
+    var encodedHex = publicKeyObj
+        .export({ format: 'der', type: 'spki' })
+        .toString('hex')
+        .toUpperCase();
     if (encodedHex.startsWith(PUBLIC_KEY_PREFIX)) {
         return encodedHex.substring(PUBLIC_KEY_PREFIX.length);
     }

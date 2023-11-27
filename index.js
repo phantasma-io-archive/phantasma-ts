@@ -33,3 +33,4 @@ var phantasmaLink_1 = require("./core/link/phantasmaLink");
 Object.defineProperty(exports, "PhantasmaLink", { enumerable: true, get: function () { return phantasmaLink_1.PhantasmaLink; } });
 var easyConnect_1 = require("./core/link/easyConnect");
 Object.defineProperty(exports, "EasyConnect", { enumerable: true, get: function () { return easyConnect_1.EasyConnect; } });
+//const TransportWebUSB = require('@ledgerhq/hw-transport-webusb').default;

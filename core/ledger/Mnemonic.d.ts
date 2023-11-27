@@ -1,4 +1,4 @@
-import { LedgerConfig } from "./LedgerConfig";
+import { LedgerConfig } from './interfaces/LedgerConfig';
 export declare const SOUL_COIN: number;
 /**
  * converts a mnemonic into a private key, using the phantasma coin's bip44 path.

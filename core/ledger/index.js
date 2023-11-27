@@ -16,8 +16,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Mnemonic"), exports);
 __exportStar(require("./Address-Transcode"), exports);
-__exportStar(require("./LedgerConfig"), exports);
+__exportStar(require("./interfaces/LedgerConfig"), exports);
 __exportStar(require("./Ledger-Utils"), exports);
 __exportStar(require("./Ledger-Commands"), exports);
 __exportStar(require("./Transaction-Transcode"), exports);
 __exportStar(require("./Transaction-Sign"), exports);
+__exportStar(require("./interfaces/index"), exports);

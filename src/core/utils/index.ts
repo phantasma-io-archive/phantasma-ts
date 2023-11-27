@@ -197,7 +197,7 @@ export const hex2ascii = (hexx) => {
   return str;
 };
 
-export const int2buffer = (i: number): Buffer => {
+export const Int2Buffer = (i: number): Buffer => {
   let hex = i.toString(16).toUpperCase();
   if (hex.length % 2 === 1) {
     hex = '0' + hex;

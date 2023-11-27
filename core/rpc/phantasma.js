@@ -45,12 +45,12 @@ var cross_fetch_1 = __importDefault(require("cross-fetch"));
 var PhantasmaAPI = /** @class */ (function () {
     function PhantasmaAPI(defHost, peersUrlJson, nexus) {
         var _this = this;
-        this.rpcName = "Auto";
+        this.rpcName = 'Auto';
         this.nexus = nexus;
         this.host = defHost;
         this.availableHosts = [];
         if (peersUrlJson != undefined) {
-            (0, cross_fetch_1.default)(peersUrlJson + "?_=" + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
+            (0, cross_fetch_1.default)(peersUrlJson + '?_=' + new Date().getTime()).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
                 var data, i, msecs, err_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -61,21 +61,21 @@ var PhantasmaAPI = /** @class */ (function () {
                             _a.label = 2;
                         case 2:
                             if (!(i < data.length)) return [3 /*break*/, 7];
-                            console.log("Checking RPC: ", data[i]);
+                            console.log('Checking RPC: ', data[i]);
                             _a.label = 3;
                         case 3:
                             _a.trys.push([3, 5, , 6]);
                             return [4 /*yield*/, this.pingAsync(data[i].url)];
                         case 4:
                             msecs = _a.sent();
-                            data[i].info = data[i].location + " • " + msecs + " ms";
+                            data[i].info = data[i].location + ' • ' + msecs + ' ms';
                             data[i].msecs = msecs;
-                            console.log(data[i].location + " • " + msecs + " ms • " + data[i].url + "/rpc");
+                            console.log(data[i].location + ' • ' + msecs + ' ms • ' + data[i].url + '/rpc');
                             this.availableHosts.push(data[i]);
                             return [3 /*break*/, 6];
                         case 5:
                             err_1 = _a.sent();
-                            console.log("Error with RPC: " + data[i]);
+                            console.log('Error with RPC: ' + data[i]);
                             return [3 /*break*/, 6];
                         case 6:
                             i++;
@@ -93,7 +93,7 @@ var PhantasmaAPI = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             var started = new Date().getTime();
             var http = new XMLHttpRequest();
-            http.open("GET", host + "/rpc", true);
+            http.open('GET', host + '/rpc', true);
             http.timeout = 4500;
             http.onreadystatechange = function () {
                 if (http.readyState == 4 && http.status == 200) {
@@ -123,22 +123,22 @@ var PhantasmaAPI = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, (0, cross_fetch_1.default)(this.host, {
-                            method: "POST",
-                            mode: "cors",
+                            method: 'POST',
+                            mode: 'cors',
                             body: JSON.stringify({
-                                jsonrpc: "2.0",
+                                jsonrpc: '2.0',
                                 method: method,
                                 params: params,
-                                id: "1",
+                                id: '1',
                             }),
-                            headers: { "Content-Type": "application/json" },
+                            headers: { 'Content-Type': 'application/json' },
                         })];
                     case 1:
                         res = _a.sent();
                         return [4 /*yield*/, res.json()];
                     case 2:
                         resJson = _a.sent();
-                        console.log("method", method, resJson);
+                        console.log('method', method, resJson);
                         if (resJson.error) {
                             if (resJson.error.message)
                                 return [2 /*return*/, { error: resJson.error.message }];
@@ -155,7 +155,7 @@ var PhantasmaAPI = /** @class */ (function () {
     };
     PhantasmaAPI.prototype.setRpcByName = function (rpcName) {
         this.rpcName = rpcName;
-        if (this.nexus === "mainnet")
+        if (this.nexus === 'mainnet')
             this.updateRpc();
     };
     PhantasmaAPI.prototype.setNexus = function (nexus) {
@@ -163,19 +163,19 @@ var PhantasmaAPI = /** @class */ (function () {
     };
     PhantasmaAPI.prototype.updateRpc = function () {
         var _this = this;
-        if (this.nexus === "mainnet" && this.availableHosts.length > 0) {
-            console.log("%cUpdate RPC with name " + this.rpcName, "font-size: 20px");
-            if (this.rpcName == "Auto") {
-                this.host = this.availableHosts[0].url + "/rpc";
+        if (this.nexus === 'mainnet' && this.availableHosts.length > 0) {
+            console.log('%cUpdate RPC with name ' + this.rpcName, 'font-size: 20px');
+            if (this.rpcName == 'Auto') {
+                this.host = this.availableHosts[0].url + '/rpc';
             }
             else {
                 var rpc = this.availableHosts.find(function (h) { return h.location == _this.rpcName; });
                 if (rpc)
-                    this.host = rpc.url + "/rpc";
+                    this.host = rpc.url + '/rpc';
                 else
-                    this.host = this.availableHosts[0].url + "/rpc";
+                    this.host = this.availableHosts[0].url + '/rpc';
             }
-            console.log("%cSet RPC api to " + this.host, "font-size: 20px");
+            console.log('%cSet RPC api to ' + this.host, 'font-size: 20px');
         }
     };
     PhantasmaAPI.prototype.convertDecimals = function (amount, decimals) {
@@ -190,7 +190,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account];
-                        return [4 /*yield*/, this.JSONRPC("getAccount", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAccount', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -203,8 +203,8 @@ var PhantasmaAPI = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [accounts.join(",")];
-                        return [4 /*yield*/, this.JSONRPC("getAccounts", params)];
+                        params = [accounts.join(',')];
+                        return [4 /*yield*/, this.JSONRPC('getAccounts', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -218,7 +218,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [name];
-                        return [4 /*yield*/, this.JSONRPC("lookUpName", params)];
+                        return [4 /*yield*/, this.JSONRPC('lookUpName', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -233,7 +233,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [symbol, extended];
-                        return [4 /*yield*/, this.JSONRPC("getAddressesBySymbol", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAddressesBySymbol', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -247,7 +247,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput];
-                        return [4 /*yield*/, this.JSONRPC("getBlockHeight", params)];
+                        return [4 /*yield*/, this.JSONRPC('getBlockHeight', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -261,7 +261,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [blockHash];
-                        return [4 /*yield*/, this.JSONRPC("getBlockTransactionCountByHash", params)];
+                        return [4 /*yield*/, this.JSONRPC('getBlockTransactionCountByHash', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -275,7 +275,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [blockHash];
-                        return [4 /*yield*/, this.JSONRPC("getBlockByHash", params)];
+                        return [4 /*yield*/, this.JSONRPC('getBlockByHash', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -289,7 +289,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [blockHash];
-                        return [4 /*yield*/, this.JSONRPC("getRawBlockByHash", params)];
+                        return [4 /*yield*/, this.JSONRPC('getRawBlockByHash', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -303,7 +303,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput, height];
-                        return [4 /*yield*/, this.JSONRPC("getBlockByHeight", params)];
+                        return [4 /*yield*/, this.JSONRPC('getBlockByHeight', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -317,7 +317,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput];
-                        return [4 /*yield*/, this.JSONRPC("getLatestBlock", params)];
+                        return [4 /*yield*/, this.JSONRPC('getLatestBlock', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -331,7 +331,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput, height];
-                        return [4 /*yield*/, this.JSONRPC("getRawBlockByHeight", params)];
+                        return [4 /*yield*/, this.JSONRPC('getRawBlockByHeight', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -345,7 +345,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput];
-                        return [4 /*yield*/, this.JSONRPC("getRawLatestBlock", params)];
+                        return [4 /*yield*/, this.JSONRPC('getRawLatestBlock', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -359,7 +359,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [blockHash, index];
-                        return [4 /*yield*/, this.JSONRPC("getTransactionByBlockHashAndIndex", params)];
+                        return [4 /*yield*/, this.JSONRPC('getTransactionByBlockHashAndIndex', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -373,7 +373,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account, page, pageSize];
-                        return [4 /*yield*/, this.JSONRPC("getAddressTransactions", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAddressTransactions', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -387,7 +387,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account, chainInput];
-                        return [4 /*yield*/, this.JSONRPC("getAddressTransactionCount", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAddressTransactionCount', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -401,7 +401,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [txData];
-                        return [4 /*yield*/, this.JSONRPC("sendRawTransaction", params)];
+                        return [4 /*yield*/, this.JSONRPC('sendRawTransaction', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -415,7 +415,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainInput, scriptData];
-                        return [4 /*yield*/, this.JSONRPC("invokeRawScript", params)];
+                        return [4 /*yield*/, this.JSONRPC('invokeRawScript', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -429,7 +429,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [hashText];
-                        return [4 /*yield*/, this.JSONRPC("getTransaction", params)];
+                        return [4 /*yield*/, this.JSONRPC('getTransaction', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -443,7 +443,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [hashText];
-                        return [4 /*yield*/, this.JSONRPC("cancelTransaction", params)];
+                        return [4 /*yield*/, this.JSONRPC('cancelTransaction', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -457,7 +457,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getChains", params)];
+                        return [4 /*yield*/, this.JSONRPC('getChains', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -471,7 +471,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getNexus", params)];
+                        return [4 /*yield*/, this.JSONRPC('getNexus', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -479,28 +479,28 @@ var PhantasmaAPI = /** @class */ (function () {
     };
     //Returns the contract info deployed in Phantasma.
     PhantasmaAPI.prototype.getContract = function (chainAddressOrName, contractName) {
-        if (chainAddressOrName === void 0) { chainAddressOrName = "main"; }
+        if (chainAddressOrName === void 0) { chainAddressOrName = 'main'; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, contractName];
-                        return [4 /*yield*/, this.JSONRPC("getContract", params)];
+                        return [4 /*yield*/, this.JSONRPC('getContract', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
         });
     };
     PhantasmaAPI.prototype.getContractByAddress = function (chainAddressOrName, contractAddress) {
-        if (chainAddressOrName === void 0) { chainAddressOrName = "main"; }
+        if (chainAddressOrName === void 0) { chainAddressOrName = 'main'; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, contractAddress];
-                        return [4 /*yield*/, this.JSONRPC("getContractByAddress", params)];
+                        return [4 /*yield*/, this.JSONRPC('getContractByAddress', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -514,7 +514,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [ID];
-                        return [4 /*yield*/, this.JSONRPC("getOrganization", params)];
+                        return [4 /*yield*/, this.JSONRPC('getOrganization', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -527,7 +527,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [name];
-                        return [4 /*yield*/, this.JSONRPC("getOrganizationByName", params)];
+                        return [4 /*yield*/, this.JSONRPC('getOrganizationByName', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -541,7 +541,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [extended];
-                        return [4 /*yield*/, this.JSONRPC("getOrganizations", params)];
+                        return [4 /*yield*/, this.JSONRPC('getOrganizations', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -555,7 +555,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [name];
-                        return [4 /*yield*/, this.JSONRPC("getLeaderboard", params)];
+                        return [4 /*yield*/, this.JSONRPC('getLeaderboard', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -569,7 +569,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getTokens", params)];
+                        return [4 /*yield*/, this.JSONRPC('getTokens', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -583,7 +583,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [symbol];
-                        return [4 /*yield*/, this.JSONRPC("getToken", params)];
+                        return [4 /*yield*/, this.JSONRPC('getToken', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -597,7 +597,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [symbol, IDtext];
-                        return [4 /*yield*/, this.JSONRPC("getTokenData", params)];
+                        return [4 /*yield*/, this.JSONRPC('getTokenData', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -611,7 +611,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account, tokenSymbol, chainInput];
-                        return [4 /*yield*/, this.JSONRPC("getTokenBalance", params)];
+                        return [4 /*yield*/, this.JSONRPC('getTokenBalance', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -625,7 +625,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, symbol];
-                        return [4 /*yield*/, this.JSONRPC("getAuctionsCount", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAuctionsCount', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -639,7 +639,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, symbol, page, pageSize];
-                        return [4 /*yield*/, this.JSONRPC("getAuctions", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAuctions', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -653,7 +653,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, symbol, IDtext];
-                        return [4 /*yield*/, this.JSONRPC("getAuction", params)];
+                        return [4 /*yield*/, this.JSONRPC('getAuction', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -667,7 +667,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [hashText];
-                        return [4 /*yield*/, this.JSONRPC("getArchive", params)];
+                        return [4 /*yield*/, this.JSONRPC('getArchive', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -681,7 +681,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [hashText, blockIndex, blockContent];
-                        return [4 /*yield*/, this.JSONRPC("writeArchive", params)];
+                        return [4 /*yield*/, this.JSONRPC('writeArchive', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -695,7 +695,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [chainAddressOrName, contractName];
-                        return [4 /*yield*/, this.JSONRPC("getABI", params)];
+                        return [4 /*yield*/, this.JSONRPC('getABI', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -709,7 +709,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getPeers", params)];
+                        return [4 /*yield*/, this.JSONRPC('getPeers', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -723,7 +723,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [receiptHex];
-                        return [4 /*yield*/, this.JSONRPC("relaySend", params)];
+                        return [4 /*yield*/, this.JSONRPC('relaySend', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -737,7 +737,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account];
-                        return [4 /*yield*/, this.JSONRPC("relayReceive", params)];
+                        return [4 /*yield*/, this.JSONRPC('relayReceive', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -751,7 +751,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account];
-                        return [4 /*yield*/, this.JSONRPC("getEvents", params)];
+                        return [4 /*yield*/, this.JSONRPC('getEvents', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -765,7 +765,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getPlatforms", params)];
+                        return [4 /*yield*/, this.JSONRPC('getPlatforms', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -779,7 +779,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [];
-                        return [4 /*yield*/, this.JSONRPC("getValidators", params)];
+                        return [4 /*yield*/, this.JSONRPC('getValidators', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -793,7 +793,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [sourcePlatform, destPlatform, hashText];
-                        return [4 /*yield*/, this.JSONRPC("settleSwap", params)];
+                        return [4 /*yield*/, this.JSONRPC('settleSwap', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -807,7 +807,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account];
-                        return [4 /*yield*/, this.JSONRPC("getSwapsForAddress", params)];
+                        return [4 /*yield*/, this.JSONRPC('getSwapsForAddress', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -821,7 +821,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [account, platform, false];
-                        return [4 /*yield*/, this.JSONRPC("getSwapsForAddress", params)];
+                        return [4 /*yield*/, this.JSONRPC('getSwapsForAddress', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -835,7 +835,7 @@ var PhantasmaAPI = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         params = [symbol, nftId, true];
-                        return [4 /*yield*/, this.JSONRPC("getNFT", params)];
+                        return [4 /*yield*/, this.JSONRPC('getNFT', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -847,8 +847,8 @@ var PhantasmaAPI = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [symbol, nftIDs.join(","), true];
-                        return [4 /*yield*/, this.JSONRPC("getNFTs", params)];
+                        params = [symbol, nftIDs.join(','), true];
+                        return [4 /*yield*/, this.JSONRPC('getNFTs', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });

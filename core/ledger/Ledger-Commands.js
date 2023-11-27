@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetBalanceFromMnemonic = exports.GetBalanceFromPrivateKey = exports.SendTransactionLedger = exports.GetAddressFromLedeger = exports.GetBalanceFromLedger = exports.GetLedgerDeviceInfo = exports.ToWholeNumber = exports.LeftPad = void 0;
+exports.GetBalanceFromMnemonic = exports.GetBalanceFromPrivateKey = exports.SendTransactionLedger = exports.GetAddressFromLedeger = exports.GetBalanceFromLedger = exports.GetLedgerAccountSigner = exports.GetLedgerDeviceInfo = exports.ToWholeNumber = exports.LeftPad = void 0;
 var __1 = require("..");
 var tx_1 = require("../tx");
 var types_1 = require("../types");
@@ -44,6 +44,12 @@ var Address_Transcode_1 = require("./Address-Transcode");
 var Transaction_Sign_1 = require("./Transaction-Sign");
 var Transaction_Transcode_1 = require("./Transaction-Transcode");
 var Ledger_Utils_1 = require("./Ledger-Utils");
+/**
+ *
+ * @param number
+ * @param length
+ * @returns
+ */
 var LeftPad = function (number, length) {
     var str = '' + number;
     while (str.length < length) {
@@ -52,6 +58,12 @@ var LeftPad = function (number, length) {
     return str;
 };
 exports.LeftPad = LeftPad;
+/**
+ *
+ * @param balance
+ * @param decimals
+ * @returns
+ */
 var ToWholeNumber = function (balance, decimals) {
     if (balance === undefined) {
         throw Error('balance is a required parameter.');
@@ -71,6 +83,11 @@ var ToWholeNumber = function (balance, decimals) {
     return "".concat(prefix, ".").concat(suffix);
 };
 exports.ToWholeNumber = ToWholeNumber;
+/**
+ * Get the device info from the ledger.
+ * @param config
+ * @returns
+ */
 var GetLedgerDeviceInfo = function (config) { return __awaiter(void 0, void 0, void 0, function () {
     var version, applicationName;
     return __generator(this, function (_a) {
@@ -93,6 +110,57 @@ var GetLedgerDeviceInfo = function (config) { return __awaiter(void 0, void 0, v
     });
 }); };
 exports.GetLedgerDeviceInfo = GetLedgerDeviceInfo;
+/**
+ * Get Ledger Account Signer
+ * @param config
+ * @param accountIx
+ * @returns
+ */
+var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(void 0, void 0, void 0, function () {
+    var paths, accountData, signer;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                /* istanbul ignore if */
+                if (config === undefined) {
+                    throw Error('config is a required parameter.');
+                }
+                /* istanbul ignore if */
+                if (accountIx === undefined) {
+                    throw Error('accountIx is a required parameter.');
+                }
+                return [4 /*yield*/, globalThis.TransportWebUSB.list()];
+            case 1:
+                paths = _a.sent();
+                console.log('paths', paths);
+                if (paths.length == 0) {
+                    alert('NUmber of devices found:' + paths.length);
+                    return [2 /*return*/];
+                }
+                return [4 /*yield*/, (0, exports.GetBalanceFromLedger)(config, {
+                        verifyOnDevice: false,
+                        debug: true,
+                    })];
+            case 2:
+                accountData = _a.sent();
+                signer = {};
+                signer.GetPublicKey = function () {
+                    return accountData.publicKey;
+                };
+                signer.GetAccount = function () {
+                    return accountData.address;
+                };
+                return [2 /*return*/, signer];
+        }
+    });
+}); };
+exports.GetLedgerAccountSigner = GetLedgerAccountSigner;
+/**
+ * GetBalanceFromLedger
+ * @param config
+ * @param options
+ * @returns
+ */
 var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0, void 0, void 0, function () {
     var msg, publicKey, address, _a, _b, _c, rpcResponse, response_1;
     return __generator(this, function (_d) {
@@ -147,6 +215,12 @@ var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0,
     });
 }); };
 exports.GetBalanceFromLedger = GetBalanceFromLedger;
+/**
+ * Get Addres from Ledger
+ * @param config
+ * @param options
+ * @returns
+ */
 var GetAddressFromLedeger = function (config, options) { return __awaiter(void 0, void 0, void 0, function () {
     var msg, publicKey, address;
     return __generator(this, function (_a) {
@@ -160,7 +234,7 @@ var GetAddressFromLedeger = function (config, options) { return __awaiter(void 0
                 if (options == undefined) {
                     throw Error('options is a required parameter.');
                 }
-                return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config.transport, options)];
+                return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config.Transport, options)];
             case 1:
                 msg = _a.sent();
                 /* istanbul ignore if */
@@ -180,12 +254,18 @@ var GetAddressFromLedeger = function (config, options) { return __awaiter(void 0
     });
 }); };
 exports.GetAddressFromLedeger = GetAddressFromLedeger;
+/**
+ *
+ * @param encodedTx
+ * @param config
+ * @returns
+ */
 function SignEncodedTx(encodedTx, config) {
     return __awaiter(this, void 0, void 0, function () {
         var response;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, Ledger_Utils_1.SignLedger)(config.transport, encodedTx)];
+                case 0: return [4 /*yield*/, (0, Ledger_Utils_1.SignLedger)(config.Transport, encodedTx)];
                 case 1:
                     response = _a.sent();
                     /* istanbul ignore if */
@@ -203,6 +283,12 @@ function SignEncodedTx(encodedTx, config) {
         });
     });
 }
+/**
+ * SendTransactionLedger
+ * @param config
+ * @param script
+ * @returns
+ */
 function SendTransactionLedger(config, script) {
     return __awaiter(this, void 0, void 0, function () {
         var options, msg_publicKey, addr, publicKey, nexusName, chainName, gasPrice, gasLimit, expirationDate, payload, myTransaction, encodedTx, signature, verifyResponse, signatureBytes, mySignature, myNewSignaturesArray, encodedSignedTx, txHash, response, error_1, errorResponse;
@@ -299,6 +385,12 @@ function SendTransactionLedger(config, script) {
     });
 }
 exports.SendTransactionLedger = SendTransactionLedger;
+/**
+ *
+ * @param config
+ * @param privateKey
+ * @returns
+ */
 var GetBalanceFromPrivateKey = function (config, privateKey) { return __awaiter(void 0, void 0, void 0, function () {
     var publicKey, address, rpcResponse, response;
     return __generator(this, function (_a) {
@@ -349,6 +441,13 @@ var GetBalanceFromPrivateKey = function (config, privateKey) { return __awaiter(
     });
 }); };
 exports.GetBalanceFromPrivateKey = GetBalanceFromPrivateKey;
+/**
+ *
+ * @param config
+ * @param mnemonic
+ * @param index
+ * @returns
+ */
 var GetBalanceFromMnemonic = function (config, mnemonic, index) { return __awaiter(void 0, void 0, void 0, function () {
     var privateKey;
     return __generator(this, function (_a) {

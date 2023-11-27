@@ -38,20 +38,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EasyConnect = void 0;
 var phantasmaLink_1 = require("./phantasmaLink");
+var ProofOfWork_1 = require("./interfaces/ProofOfWork");
 var easyScript_1 = require("./easyScript");
 var EasyConnect = /** @class */ (function () {
     function EasyConnect(_options) {
         if (_options === void 0) { _options = null; }
-        this.platform = "phantasma";
-        this.providerHint = "poltergeist";
+        this.platform = 'phantasma';
+        this.providerHint = 'poltergeist';
         this.script = new easyScript_1.EasyScript();
-        this.link = new phantasmaLink_1.PhantasmaLink("easyConnect", false);
+        this.link = new phantasmaLink_1.PhantasmaLink('easyConnect', false);
         this.connected = false;
         this.requiredVersion = 2;
         //Make This Auto In Future
         this.nexus = easyScript_1.Nexus.Mainnet;
         if (_options == null) {
-            this.setConfig("auto");
+            this.setConfig('auto');
         }
         else {
             try {
@@ -67,29 +68,29 @@ var EasyConnect = /** @class */ (function () {
     }
     EasyConnect.prototype.setConfig = function (_provider) {
         this.requiredVersion = 2;
-        this.platform = "phantasma";
+        this.platform = 'phantasma';
         switch (_provider) {
-            case "auto":
+            case 'auto':
                 // @ts-ignore
                 if (!!window.PhantasmaLinkSocket == true) {
-                    this.setConfig("ecto");
+                    this.setConfig('ecto');
                 }
                 else {
-                    this.providerHint = "";
+                    this.providerHint = '';
                 }
                 break;
-            case "ecto":
-                this.providerHint = "ecto";
+            case 'ecto':
+                this.providerHint = 'ecto';
                 break;
-            case "poltergeist":
-                this.providerHint = "poltergeist";
+            case 'poltergeist':
+                this.providerHint = 'poltergeist';
                 break;
         }
     };
     EasyConnect.prototype.connect = function (onSuccess, onFail) {
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) {
-            console.log("%cError: " + data, "color:red");
+            console.log('%cError: ' + data, 'color:red');
         }; }
         var that = this;
         this.link.login(function (data) {
@@ -97,20 +98,17 @@ var EasyConnect = /** @class */ (function () {
             if (data) {
                 that.connected = true;
                 onSuccess(data);
-                console.log("%c[EasyConnect Connected]", "color:green");
-                console.log("Wallet Address '" +
-                    that.link.account.address +
-                    "' connected via " +
-                    that.link.wallet);
+                console.log('%c[EasyConnect Connected]', 'color:green');
+                console.log("Wallet Address '" + that.link.account.address + "' connected via " + that.link.wallet);
             }
             else {
                 onFail();
-                console.log("EasyConnect could not connect to wallet");
+                console.log('EasyConnect could not connect to wallet');
             }
         }, onFail, this.requiredVersion, this.platform, this.providerHint);
     };
     EasyConnect.prototype.disconnect = function (_message) {
-        if (_message === void 0) { _message = "Graceful Disconect"; }
+        if (_message === void 0) { _message = 'Graceful Disconect'; }
         this.link.disconnect(_message);
         this.connected = false;
     };
@@ -125,39 +123,39 @@ var EasyConnect = /** @class */ (function () {
             return __generator(this, function (_a) {
                 if (this.connected == true) {
                     switch (_type) {
-                        case "account":
+                        case 'account':
                             account = this.link.account;
                             _callback(account);
                             return [2 /*return*/, account];
                             break;
-                        case "name":
+                        case 'name':
                             name_1 = this.link.account.name;
                             _callback(name_1);
                             return [2 /*return*/, name_1];
                             break;
-                        case "balances":
+                        case 'balances':
                             balances = this.link.account.balances;
                             _callback(balances);
                             return [2 /*return*/, balances];
                             break;
-                        case "walletAddress":
+                        case 'walletAddress':
                             walletAddress = this.link.account.address;
                             _callback(walletAddress);
                             return [2 /*return*/, walletAddress];
                             break;
-                        case "avatar":
+                        case 'avatar':
                             avatar = this.link.account.avatar;
                             _callback(avatar);
                             return [2 /*return*/, avatar];
                             break;
-                        case "tokenBalance":
+                        case 'tokenBalance':
                             //let token = _arguments[0];
                             //return this.link.accounts[]
                             break;
                     }
                 }
                 else {
-                    console.log("%cWallet is not connected", "color:red");
+                    console.log('%cWallet is not connected', 'color:red');
                 }
                 return [2 /*return*/];
             });
@@ -168,7 +166,7 @@ var EasyConnect = /** @class */ (function () {
         if (_arguments === void 0) { _arguments = null; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) {
-            console.log("%cError: " + data, "color:red");
+            console.log('%cError: ' + data, 'color:red');
         }; }
         return __awaiter(this, void 0, void 0, function () {
             var _a, sendFTScript, sendNFTScript;
@@ -178,20 +176,20 @@ var EasyConnect = /** @class */ (function () {
                         if (!(this.connected == true)) return [3 /*break*/, 6];
                         _a = _type;
                         switch (_a) {
-                            case "sendFT": return [3 /*break*/, 1];
-                            case "sendNFT": return [3 /*break*/, 3];
+                            case 'sendFT': return [3 /*break*/, 1];
+                            case 'sendNFT': return [3 /*break*/, 3];
                         }
                         return [3 /*break*/, 5];
-                    case 1: return [4 /*yield*/, this.script.buildScript("interop", [
-                            "Runtime.SendTokens",
+                    case 1: return [4 /*yield*/, this.script.buildScript('interop', [
+                            'Runtime.SendTokens',
                             [_arguments[0], _arguments[1], _arguments[2], _arguments[3]],
                         ])];
                     case 2:
                         sendFTScript = _b.sent();
                         this.signTransaction(sendFTScript, null, onSuccess, onFail);
                         return [3 /*break*/, 5];
-                    case 3: return [4 /*yield*/, this.script.buildScript("interop", [
-                            "Runtime.SendTokens",
+                    case 3: return [4 /*yield*/, this.script.buildScript('interop', [
+                            'Runtime.SendTokens',
                             [_arguments[0], _arguments[1], _arguments[2], _arguments[3]],
                         ])];
                     case 4:
@@ -200,7 +198,7 @@ var EasyConnect = /** @class */ (function () {
                         return [3 /*break*/, 5];
                     case 5: return [3 /*break*/, 7];
                     case 6:
-                        console.log("%cWallet is not connected", "color:red");
+                        console.log('%cWallet is not connected', 'color:red');
                         _b.label = 7;
                     case 7: return [2 /*return*/];
                 }
@@ -211,14 +209,14 @@ var EasyConnect = /** @class */ (function () {
         if (payload === void 0) { payload = null; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) {
-            console.log("%cError: " + data, "color:red");
+            console.log('%cError: ' + data, 'color:red');
         }; }
         this.link.signTx(script, payload, onSuccess, onFail);
     };
     EasyConnect.prototype.signData = function (data, onSuccess, onFail) {
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) {
-            console.log("%cError: " + data, "color:red");
+            console.log('%cError: ' + data, 'color:red');
         }; }
         this.link.signData(data, onSuccess, onFail);
     };
@@ -227,10 +225,10 @@ var EasyConnect = /** @class */ (function () {
     };
     EasyConnect.prototype.deployContract = function (script, payload, proofOfWork, onSuccess, onFail) {
         if (payload === void 0) { payload = null; }
-        if (proofOfWork === void 0) { proofOfWork = phantasmaLink_1.ProofOfWork.Minimal; }
+        if (proofOfWork === void 0) { proofOfWork = ProofOfWork_1.ProofOfWork.Minimal; }
         if (onSuccess === void 0) { onSuccess = function (data) { }; }
         if (onFail === void 0) { onFail = function (data) {
-            console.log("%cError: " + data, "color:red");
+            console.log('%cError: ' + data, 'color:red');
         }; }
         this.link.signTx(script, payload, onSuccess, onFail, proofOfWork);
     };

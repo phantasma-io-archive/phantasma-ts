@@ -53,6 +53,11 @@ var GetAddressFromPublicKey = function (publicKey) {
     return 'P' + bs58.encode(addrArray);
 };
 exports.GetAddressFromPublicKey = GetAddressFromPublicKey;
+/**
+ * Gets the address from a public key.
+ * @param publicKey Public key as a string.
+ * @returns Address
+ */
 var GetAddressPublicKeyFromPublicKey = function (publicKey) {
     var pubKeyBytes = types_1.Base16.decodeUint8Array(publicKey);
     // Create a new array and set the first two elements

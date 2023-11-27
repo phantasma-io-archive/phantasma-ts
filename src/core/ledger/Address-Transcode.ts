@@ -28,6 +28,11 @@ export const GetAddressFromPublicKey = (publicKey: string): string => {
   return 'P' + bs58.encode(addrArray);
 };
 
+/**
+ * Gets the address from a public key.
+ * @param publicKey Public key as a string.
+ * @returns Address
+ */
 export const GetAddressPublicKeyFromPublicKey = (publicKey: string): Address => {
   let pubKeyBytes = Base16.decodeUint8Array(publicKey);
   // Create a new array and set the first two elements

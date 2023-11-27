@@ -101,10 +101,16 @@ export const GetPublicFromPrivate = (privateKey: string): string => {
     format: 'der',
     type: 'pkcs8',
   });
-  const publicKeyObj = crypto.createPublicKey({
+  const privateKeyString = privateKeyObj.export({ format: 'der', type: 'pkcs8' });
+  /*const publicKeyObj = crypto.createPublicKey({
     key: privateKeyObj,
     format: 'pem',
     type: 'sec1',
+  });*/
+  const publicKeyObj = crypto.createPublicKey({
+    key: privateKeyString,
+    format: 'pem',
+    type: 'spki',
   });
   const encodedHex = publicKeyObj
     .export({ format: 'der', type: 'spki' })

@@ -1,3 +1,10 @@
+import { Int2Buffer, hex2ascii } from '../utils';
+import { ApplicationNameResponse } from './interfaces/ApplicationNameResponse';
+import { DeviceResponse } from './interfaces/DeviceResponse';
+import { PublicKeyResponse } from './interfaces/PublicKeyResponse';
+import { SignResponse } from './interfaces/SignResponse';
+import { VersionResponse } from './interfaces/VersionResponse';
+
 export const MAX_SIGNED_TX_LEN = 1024;
 
 const Debug = true;
@@ -28,14 +35,11 @@ export const ErrorDescriptions = {
   B009: 'Wrong signing parmeters on Ledger Device',
 };
 
-export const int2buffer = (i: number): Buffer => {
-  let hex = i.toString(16).toUpperCase();
-  if (hex.length % 2 === 1) {
-    hex = '0' + hex;
-  }
-  return Buffer.from(hex, 'hex');
-};
-
+/**
+ * Get's the error message.
+ * @param responseStr
+ * @returns
+ */
 export const GetErrorMessage = (responseStr: string): string => {
   const suffix = responseStr.slice(-4);
   if (ErrorDescriptions[suffix] !== undefined) {
@@ -45,29 +49,6 @@ export const GetErrorMessage = (responseStr: string): string => {
     return `[${suffix}] ${responseStr} Unknown Error`;
   }
 };
-
-interface Device {
-  enabled: boolean;
-  error?: boolean;
-  message?: string;
-  device?: any; // Define the type based on your device's type
-}
-
-interface Ledger {
-  device: Device;
-  publicKey: string;
-  address: string;
-  signature: string;
-  error?: boolean;
-  message?: string;
-}
-
-export interface DeviceResponse {
-  enabled: boolean;
-  error: boolean;
-  message?: string;
-  device?: any; // Define the type based on your device's type
-}
 
 /**
  * Get Device
@@ -124,12 +105,6 @@ export const GetDevice = async (transport): Promise<DeviceResponse> => {
     device: device,
   };
 };
-
-export interface ApplicationNameResponse {
-  success: boolean;
-  message: string;
-  applicationName?: string;
-}
 
 /**
  * Get Application Name
@@ -193,12 +168,6 @@ export const GetApplicationName = async (transport): Promise<ApplicationNameResp
     };
   }
 };
-
-export interface VersionResponse {
-  success: boolean;
-  message: string;
-  version?: string;
-}
 
 /**
  * Get Version
@@ -279,9 +248,9 @@ export const GetBip44PathMessage = (messagePrefix: any): Buffer => {
 
   const bip44PathBuffer = Buffer.from(Bip44Path, 'hex');
   const bip44PathBufferLen = 5; // bip44PathBuffer.length;
-  const bip44PathBufferLenBuffer = int2buffer(bip44PathBufferLen);
+  const bip44PathBufferLenBuffer = Int2Buffer(bip44PathBufferLen);
   const payload = Buffer.concat([bip44PathBufferLenBuffer, bip44PathBuffer]);
-  const payloadLen = int2buffer(payload.length);
+  const payloadLen = Int2Buffer(payload.length);
 
   if (Debug) {
     console.log(
@@ -302,12 +271,6 @@ export const GetBip44PathMessage = (messagePrefix: any): Buffer => {
   const message = Buffer.concat([messagePrefix, payloadLen, payload]);
   return message;
 };
-
-export interface PublicKeyResponse {
-  success: boolean;
-  message: string;
-  publicKey?: string;
-}
 
 /**
  * Get Public Key
@@ -392,11 +355,17 @@ export const GetPublicKey = async (transport, options): Promise<PublicKeyRespons
   };
 };
 
-export const chunkString = (str, length) => {
+/**
+ * Chunk String
+ * @param str
+ * @param length
+ * @returns
+ */
+export const ChunkString = (str, length) => {
   return str.match(new RegExp('.{1,' + length + '}', 'g'));
 };
 
-export const splitMessageIntoChunks = (ledgerMessage) => {
+export const SplitMessageIntoChunks = (ledgerMessage) => {
   const messages: any = [];
 
   messages.push(GetBip44PathMessage(Buffer.from('E006' + '00' + '80', 'hex')));
@@ -410,7 +379,7 @@ export const splitMessageIntoChunks = (ledgerMessage) => {
 
   // ledgerMessage = ledgerMessage.substring(0,bufferSize);
 
-  const chunks = chunkString(ledgerMessage, bufferSize);
+  const chunks = ChunkString(ledgerMessage, bufferSize);
 
   for (let chunkIx = 0; chunkIx < chunks.length; chunkIx++) {
     const chunk = chunks[chunkIx];
@@ -458,7 +427,7 @@ export const splitMessageIntoChunks = (ledgerMessage) => {
   return messages;
 };
 
-export const decodeSignature = (response) => {
+export const DecodeSignature = (response) => {
   /* istanbul ignore if */
   if (Debug) {
     console.log('decodeSignature', 'response', response);
@@ -470,12 +439,6 @@ export const decodeSignature = (response) => {
   }
   return signature;
 };
-
-export interface SignResponse {
-  success: boolean;
-  message: string;
-  signature?: string;
-}
 
 export const SignLedger = async (transport, transactionHex): Promise<SignResponse> => {
   /* istanbul ignore if */
@@ -493,7 +456,7 @@ export const SignLedger = async (transport, transactionHex): Promise<SignRespons
 
   const ledgerMessage = transactionHex;
 
-  const messages = splitMessageIntoChunks(ledgerMessage);
+  const messages = SplitMessageIntoChunks(ledgerMessage);
   if (Debug) {
     console.log('sign', 'transport', transport);
   }
@@ -552,7 +515,7 @@ export const SignLedger = async (transport, transactionHex): Promise<SignRespons
     let message = lastResponse;
     if (lastResponse !== undefined) {
       if (lastResponse.endsWith('9000')) {
-        signature = decodeSignature(lastResponse);
+        signature = DecodeSignature(lastResponse);
         success = true;
       } else {
         message = GetErrorMessage(lastResponse);
