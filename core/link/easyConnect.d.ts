@@ -13,7 +13,7 @@ export declare class EasyConnect {
     setConfig(_provider: string): void;
     connect(onSuccess?: any, onFail?: any): void;
     disconnect(_message?: string): void;
-    query(_type?: string, _arguments?: Array<string>, _callback?: any): Promise<string | import("../rpc/interfaces/Balance").Balance[] | import("./interfaces").IAccount>;
+    query(_type?: string, _arguments?: Array<string>, _callback?: any): Promise<string | import("..").Balance[] | import("./interfaces").IAccount>;
     action(_type?: string, _arguments?: Array<any>, onSuccess?: any, onFail?: any): Promise<void>;
     signTransaction(script: string, payload?: any, onSuccess?: any, onFail?: any): void;
     signData(data: any, onSuccess?: any, onFail?: any): void;
