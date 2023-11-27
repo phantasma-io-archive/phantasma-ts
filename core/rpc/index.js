@@ -14,12 +14,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./rpc/phantasma"), exports);
-__exportStar(require("./rpc/index"), exports);
-__exportStar(require("./vm/index"), exports);
-__exportStar(require("./tx/index"), exports);
-__exportStar(require("./utils/index"), exports);
-__exportStar(require("./types/index"), exports);
+__exportStar(require("./phantasma"), exports);
 __exportStar(require("./interfaces/index"), exports);
-__exportStar(require("./ledger/index"), exports);
-__exportStar(require("./link/index"), exports);

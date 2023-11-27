@@ -1,4 +1,5 @@
 export * from './rpc/phantasma';
+export * from './rpc/index';
 export * from './vm/index';
 export * from './tx/index';
 export * from './utils/index';
