@@ -1,5 +1,8 @@
+import { PublicKeyResponse } from '..';
 import { LedgerConfig } from './interfaces/LedgerConfig';
 import { LedgerDeviceInfoResponse } from './interfaces/LedgerDeviceInfoResponse';
+import { LedgerBalanceFromLedgerResponse } from './interfaces/LedgerBalanceFromLedgerResponse';
+import { LedgerSigner } from './interfaces/LedgerSigner';
 /**
  *
  * @param number
@@ -26,21 +29,21 @@ export declare const GetLedgerDeviceInfo: (config: LedgerConfig) => Promise<Ledg
  * @param accountIx
  * @returns
  */
-export declare const GetLedgerAccountSigner: (config: LedgerConfig, accountIx: any) => Promise<any>;
+export declare const GetLedgerAccountSigner: (config: LedgerConfig, accountIx: any) => Promise<LedgerSigner>;
 /**
  * GetBalanceFromLedger
  * @param config
  * @param options
  * @returns
  */
-export declare const GetBalanceFromLedger: (config: LedgerConfig, options: any) => Promise<any>;
+export declare const GetBalanceFromLedger: (config: LedgerConfig, options: any) => Promise<LedgerBalanceFromLedgerResponse>;
 /**
  * Get Addres from Ledger
  * @param config
  * @param options
  * @returns
  */
-export declare const GetAddressFromLedeger: (config: LedgerConfig, options: any) => Promise<string | import("..").PublicKeyResponse>;
+export declare const GetAddressFromLedeger: (config: LedgerConfig, options: any) => Promise<string | PublicKeyResponse>;
 /**
  * SendTransactionLedger
  * @param config

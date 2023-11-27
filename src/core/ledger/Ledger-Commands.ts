@@ -1,12 +1,14 @@
-import { GetPrivateKeyFromMnemonic, Signature } from '..';
+import { GetPrivateKeyFromMnemonic, PublicKeyResponse, Signature } from '..';
 import { Transaction } from '../tx';
-import { Address, Base16, Ed25519Signature, PBinaryReader } from '../types';
+import { Base16, Ed25519Signature, PBinaryReader } from '../types';
 import { GetAddressFromPublicKey, GetAddressPublicKeyFromPublicKey } from './Address-Transcode';
 import { LedgerConfig } from './interfaces/LedgerConfig';
 import { GetPublicFromPrivate, Sign, Verify } from './Transaction-Sign';
 import { GetExpirationDate } from './Transaction-Transcode';
 import { GetVersion, GetApplicationName, GetPublicKey, SignLedger } from './Ledger-Utils';
 import { LedgerDeviceInfoResponse } from './interfaces/LedgerDeviceInfoResponse';
+import { LedgerBalanceFromLedgerResponse } from './interfaces/LedgerBalanceFromLedgerResponse';
+import { LedgerSigner } from './interfaces/LedgerSigner';
 
 /**
  *
@@ -14,7 +16,7 @@ import { LedgerDeviceInfoResponse } from './interfaces/LedgerDeviceInfoResponse'
  * @param length
  * @returns
  */
-export const LeftPad = (number, length) => {
+export const LeftPad = (number, length): string => {
   let str = '' + number;
   while (str.length < length) {
     str = '0' + str;
@@ -28,7 +30,7 @@ export const LeftPad = (number, length) => {
  * @param decimals
  * @returns
  */
-export const ToWholeNumber = (balance, decimals) => {
+export const ToWholeNumber = (balance, decimals): string => {
   if (balance === undefined) {
     throw Error('balance is a required parameter.');
   }
@@ -73,7 +75,10 @@ export const GetLedgerDeviceInfo = async (
  * @param accountIx
  * @returns
  */
-export const GetLedgerAccountSigner = async (config: LedgerConfig, accountIx) => {
+export const GetLedgerAccountSigner = async (
+  config: LedgerConfig,
+  accountIx
+): Promise<LedgerSigner> => {
   /* istanbul ignore if */
   if (config === undefined) {
     throw Error('config is a required parameter.');
@@ -83,8 +88,7 @@ export const GetLedgerAccountSigner = async (config: LedgerConfig, accountIx) =>
     throw Error('accountIx is a required parameter.');
   }
 
-  // window.TransportWebUSB = TransportWebUSB;
-  const paths = await globalThis.TransportWebUSB.list();
+  const paths = await config.Transport.list();
   console.log('paths', paths);
   if (paths.length == 0) {
     alert('NUmber of devices found:' + paths.length);
@@ -94,7 +98,8 @@ export const GetLedgerAccountSigner = async (config: LedgerConfig, accountIx) =>
     verifyOnDevice: false,
     debug: true,
   });
-  const signer: any = {};
+
+  let signer: LedgerSigner;
   signer.GetPublicKey = () => {
     return accountData.publicKey;
   };
@@ -110,7 +115,10 @@ export const GetLedgerAccountSigner = async (config: LedgerConfig, accountIx) =>
  * @param options
  * @returns
  */
-export const GetBalanceFromLedger = async (config: LedgerConfig, options) => {
+export const GetBalanceFromLedger = async (
+  config: LedgerConfig,
+  options
+): Promise<LedgerBalanceFromLedgerResponse> => {
   /* istanbul ignore if */
   if (config == undefined) {
     throw Error('config is a required parameter.');
@@ -162,7 +170,10 @@ export const GetBalanceFromLedger = async (config: LedgerConfig, options) => {
  * @param options
  * @returns
  */
-export const GetAddressFromLedeger = async (config: LedgerConfig, options) => {
+export const GetAddressFromLedeger = async (
+  config: LedgerConfig,
+  options
+): Promise<string | PublicKeyResponse> => {
   /* istanbul ignore if */
   if (config == undefined) {
     throw Error('config is a required parameter.');
@@ -191,7 +202,7 @@ export const GetAddressFromLedeger = async (config: LedgerConfig, options) => {
  * @param config
  * @returns
  */
-async function SignEncodedTx(encodedTx: string, config: LedgerConfig) {
+async function SignEncodedTx(encodedTx: string, config: LedgerConfig): Promise<string> {
   const response = await SignLedger(config.Transport, encodedTx);
   /* istanbul ignore if */
   if (config.Debug) {
@@ -210,7 +221,7 @@ async function SignEncodedTx(encodedTx: string, config: LedgerConfig) {
  * @param script
  * @returns
  */
-export async function SendTransactionLedger(config: LedgerConfig, script: string) {
+export async function SendTransactionLedger(config: LedgerConfig, script: string): Promise<any> {
   if (config == undefined) {
     throw Error('config is a required parameter.');
   }
@@ -320,7 +331,7 @@ export async function SendTransactionLedger(config: LedgerConfig, script: string
  * @param privateKey
  * @returns
  */
-export const GetBalanceFromPrivateKey = async (config, privateKey) => {
+export const GetBalanceFromPrivateKey = async (config, privateKey): Promise<any> => {
   /* istanbul ignore if */
   if (config == undefined) {
     throw Error('config is a required parameter.');

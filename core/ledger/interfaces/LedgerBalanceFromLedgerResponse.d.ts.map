@@ -1,0 +1,1 @@
+{"version":3,"file":"LedgerBalanceFromLedgerResponse.d.ts","sourceRoot":"","sources":["../../../src/core/ledger/interfaces/LedgerBalanceFromLedgerResponse.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,aAAa,CAAC;AAEtC,MAAM,WAAW,+BAA+B;IAC9C,OAAO,EAAE,OAAO,CAAC;IACjB,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,OAAO,CAAC,EAAE,OAAO,CAAC;CACnB"}
