@@ -368,11 +368,13 @@ var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(voi
                     })];
             case 2:
                 accountData = _a.sent();
-                signer.GetPublicKey = function () {
-                    return accountData.publicKey;
-                };
-                signer.GetAccount = function () {
-                    return accountData.address;
+                signer = {
+                    GetPublicKey: function () {
+                        return accountData.publicKey;
+                    },
+                    GetAccount: function () {
+                        return accountData.address;
+                    },
                 };
                 return [2 /*return*/, signer];
         }
@@ -400,6 +402,12 @@ function GetLedgerSignerData(config, options) {
                     return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config.Transport, options)];
                 case 1:
                     msg = _a.sent();
+                    response = {
+                        address: types_1.Address.Null,
+                        publicKey: '',
+                        success: false,
+                        message: '',
+                    };
                     response.success = false;
                     response.message = msg.message;
                     if (!msg.success) {
@@ -443,8 +451,13 @@ var GetBalanceFromLedger = function (config, options) { return __awaiter(void 0,
                 if (config.Debug) {
                     console.log('getBalanceFromLedger', 'msg', msg);
                 }
-                response.balances = new Map();
-                response.success = false;
+                response = {
+                    address: types_1.Address.Null,
+                    publicKey: '',
+                    balances: new Map(),
+                    success: false,
+                    message: '',
+                };
                 response.message = msg.message;
                 if (!msg.success) {
                     return [2 /*return*/, response];

@@ -1,6 +1,6 @@
 import { GetPrivateKeyFromMnemonic, LedgerSignerData, PublicKeyResponse, Signature } from '..';
 import { Transaction } from '../tx';
-import { Base16, Ed25519Signature, PBinaryReader } from '../types';
+import { Address, Base16, Ed25519Signature, PBinaryReader } from '../types';
 import { GetAddressFromPublicKey, GetAddressPublicKeyFromPublicKey } from './Address-Transcode';
 import { LedgerConfig } from './interfaces/LedgerConfig';
 import { GetPublicFromPrivate, Sign, Verify } from './Transaction-Sign';
@@ -99,12 +99,13 @@ export const GetLedgerAccountSigner = async (
     debug: true,
   });
 
-  let signer: LedgerSigner;
-  signer.GetPublicKey = () => {
-    return accountData.publicKey;
-  };
-  signer.GetAccount = () => {
-    return accountData.address;
+  let signer: LedgerSigner = {
+    GetPublicKey: () => {
+      return accountData.publicKey;
+    },
+    GetAccount: () => {
+      return accountData.address;
+    },
   };
   return signer;
 };
@@ -128,7 +129,12 @@ export async function GetLedgerSignerData(
   }
 
   const msg = await GetPublicKey(config.Transport, options);
-  let response: LedgerSignerData;
+  let response: LedgerSignerData = {
+    address: Address.Null,
+    publicKey: '',
+    success: false,
+    message: '',
+  };
   response.success = false;
   response.message = msg.message;
 
@@ -168,9 +174,13 @@ export const GetBalanceFromLedger = async (
   if (config.Debug) {
     console.log('getBalanceFromLedger', 'msg', msg);
   }
-  let response: LedgerBalanceFromLedgerResponse;
-  response.balances = new Map<string, { amount: number; decimals: number }>();
-  response.success = false;
+  let response: LedgerBalanceFromLedgerResponse = {
+    address: Address.Null,
+    publicKey: '',
+    balances: new Map<string, { amount: number; decimals: number }>(),
+    success: false,
+    message: '',
+  };
   response.message = msg.message;
 
   if (!msg.success) {
