@@ -23,3 +23,5 @@ __exportStar(require("./LedgerDeviceInfoResponse"), exports);
 __exportStar(require("./PublicKeyResponse"), exports);
 __exportStar(require("./SignResponse"), exports);
 __exportStar(require("./VersionResponse"), exports);
+__exportStar(require("./LedgerBalanceFromLedgerResponse"), exports);
+__exportStar(require("./LedgerSigner"), exports);

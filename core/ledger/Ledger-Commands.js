@@ -129,7 +129,7 @@ var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(voi
                 if (accountIx === undefined) {
                     throw Error('accountIx is a required parameter.');
                 }
-                return [4 /*yield*/, globalThis.TransportWebUSB.list()];
+                return [4 /*yield*/, config.Transport.list()];
             case 1:
                 paths = _a.sent();
                 console.log('paths', paths);
@@ -143,7 +143,6 @@ var GetLedgerAccountSigner = function (config, accountIx) { return __awaiter(voi
                     })];
             case 2:
                 accountData = _a.sent();
-                signer = {};
                 signer.GetPublicKey = function () {
                     return accountData.publicKey;
                 };
