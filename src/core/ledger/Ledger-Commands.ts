@@ -275,7 +275,7 @@ export async function SendTransactionLedger(config: LedgerConfig, script: string
   }
 
   const options = { verifyOnDevice: false };
-  const msg_publicKey = await GetPublicKey(config, options);
+  const msg_publicKey = await GetPublicKey(config.Transport, options);
   if (!msg_publicKey.success) {
     if (config.Debug) {
       console.log('SendTransactionLedger', 'error ', msg_publicKey);

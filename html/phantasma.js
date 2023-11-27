@@ -578,7 +578,7 @@ function SendTransactionLedger(config, script) {
                         throw Error('config is a required parameter.');
                     }
                     options = { verifyOnDevice: false };
-                    return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config, options)];
+                    return [4 /*yield*/, (0, Ledger_Utils_1.GetPublicKey)(config.Transport, options)];
                 case 1:
                     msg_publicKey = _a.sent();
                     if (!msg_publicKey.success) {
