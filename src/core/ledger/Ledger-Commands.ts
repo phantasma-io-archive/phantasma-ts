@@ -1,4 +1,10 @@
-import { GetPrivateKeyFromMnemonic, LedgerSignerData, PublicKeyResponse, Signature } from '..';
+import {
+  GetPrivateKeyFromMnemonic,
+  LedgerSendTransactionResponse,
+  LedgerSignerData,
+  PublicKeyResponse,
+  Signature,
+} from '..';
 import { Transaction } from '../tx';
 import { Address, Base16, Ed25519Signature, PBinaryReader } from '../types';
 import { GetAddressFromPublicKey, GetAddressPublicKeyFromPublicKey } from './Address-Transcode';
@@ -269,7 +275,10 @@ async function SignEncodedTx(encodedTx: string, config: LedgerConfig): Promise<s
  * @param script
  * @returns
  */
-export async function SendTransactionLedger(config: LedgerConfig, script: string): Promise<any> {
+export async function SendTransactionLedger(
+  config: LedgerConfig,
+  script: string
+): Promise<LedgerSendTransactionResponse> {
   if (config == undefined) {
     throw Error('config is a required parameter.');
   }
@@ -348,13 +357,10 @@ export async function SendTransactionLedger(config: LedgerConfig, script: string
       console.log('sendAmountUsingCallback', 'txHash', txHash);
     }
 
-    const response: any = {};
-    response.success = true;
-    response.message = txHash;
-
-    if (txHash !== undefined) {
-      response.success = false;
-    }
+    const response: LedgerSendTransactionResponse = {
+      success: true,
+      message: txHash,
+    };
 
     /* istanbul ignore if */
     if (config.Debug) {
@@ -366,9 +372,10 @@ export async function SendTransactionLedger(config: LedgerConfig, script: string
       console.log('error', error);
     }
 
-    const errorResponse: any = {};
-    errorResponse.success = false;
-    errorResponse.message = error.message;
+    const errorResponse: LedgerSendTransactionResponse = {
+      success: false,
+      message: error.message,
+    };
     return errorResponse;
   }
 }
@@ -379,7 +386,10 @@ export async function SendTransactionLedger(config: LedgerConfig, script: string
  * @param privateKey
  * @returns
  */
-export const GetBalanceFromPrivateKey = async (config, privateKey): Promise<any> => {
+export const GetBalanceFromPrivateKey = async (
+  config,
+  privateKey
+): Promise<LedgerBalanceFromLedgerResponse> => {
   /* istanbul ignore if */
   if (config == undefined) {
     throw Error('config is a required parameter.');
@@ -409,14 +419,14 @@ export const GetBalanceFromPrivateKey = async (config, privateKey): Promise<any>
   if (config.Debug) {
     console.log('rpcResponse', rpcResponse);
   }
-  const response: any = {};
-  response.balances = {};
+  let response: LedgerBalanceFromLedgerResponse;
+  response.balances = new Map<string, { amount: number; decimals: number }>();
   if (rpcResponse.balances !== undefined) {
     rpcResponse.balances.forEach((balanceElt) => {
       response.balances[balanceElt.symbol] = ToWholeNumber(balanceElt.amount, balanceElt.decimals);
     });
   }
-  response.address = address;
+  response.address = Address.FromText(address);
   response.success = true;
   // const lastRefPath = `/transaction/last-ref/${address}`;
   // const lastRefResponse = await httpRequestUtil.get(config, lastRefPath);

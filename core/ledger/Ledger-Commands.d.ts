@@ -1,4 +1,4 @@
-import { LedgerSignerData, PublicKeyResponse } from '..';
+import { LedgerSendTransactionResponse, LedgerSignerData, PublicKeyResponse } from '..';
 import { LedgerConfig } from './interfaces/LedgerConfig';
 import { LedgerDeviceInfoResponse } from './interfaces/LedgerDeviceInfoResponse';
 import { LedgerBalanceFromLedgerResponse } from './interfaces/LedgerBalanceFromLedgerResponse';
@@ -57,14 +57,14 @@ export declare const GetAddressFromLedeger: (config: LedgerConfig, options: any)
  * @param script
  * @returns
  */
-export declare function SendTransactionLedger(config: LedgerConfig, script: string): Promise<any>;
+export declare function SendTransactionLedger(config: LedgerConfig, script: string): Promise<LedgerSendTransactionResponse>;
 /**
  *
  * @param config
  * @param privateKey
  * @returns
  */
-export declare const GetBalanceFromPrivateKey: (config: any, privateKey: any) => Promise<any>;
+export declare const GetBalanceFromPrivateKey: (config: any, privateKey: any) => Promise<LedgerBalanceFromLedgerResponse>;
 /**
  *
  * @param config
@@ -72,5 +72,5 @@ export declare const GetBalanceFromPrivateKey: (config: any, privateKey: any) =>
  * @param index
  * @returns
  */
-export declare const GetBalanceFromMnemonic: (config: LedgerConfig, mnemonic: string, index: any) => Promise<any>;
+export declare const GetBalanceFromMnemonic: (config: LedgerConfig, mnemonic: string, index: any) => Promise<LedgerBalanceFromLedgerResponse>;
 //# sourceMappingURL=Ledger-Commands.d.ts.map
