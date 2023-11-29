@@ -413,12 +413,10 @@ function SendTransactionLedger(config, script) {
                     if (config.Debug) {
                         console.log('sendAmountUsingCallback', 'txHash', txHash);
                     }
-                    response = {};
-                    response.success = true;
-                    response.message = txHash;
-                    if (txHash !== undefined) {
-                        response.success = false;
-                    }
+                    response = {
+                        success: true,
+                        message: txHash,
+                    };
                     /* istanbul ignore if */
                     if (config.Debug) {
                         console.log('response', response);
@@ -429,9 +427,10 @@ function SendTransactionLedger(config, script) {
                     if (config.Debug) {
                         console.log('error', error_1);
                     }
-                    errorResponse = {};
-                    errorResponse.success = false;
-                    errorResponse.message = error_1.message;
+                    errorResponse = {
+                        success: false,
+                        message: error_1.message,
+                    };
                     return [2 /*return*/, errorResponse];
                 case 6: return [2 /*return*/];
             }
@@ -478,14 +477,13 @@ var GetBalanceFromPrivateKey = function (config, privateKey) { return __awaiter(
                 if (config.Debug) {
                     console.log('rpcResponse', rpcResponse);
                 }
-                response = {};
-                response.balances = {};
+                response.balances = new Map();
                 if (rpcResponse.balances !== undefined) {
                     rpcResponse.balances.forEach(function (balanceElt) {
                         response.balances[balanceElt.symbol] = (0, exports.ToWholeNumber)(balanceElt.amount, balanceElt.decimals);
                     });
                 }
-                response.address = address;
+                response.address = types_1.Address.FromText(address);
                 response.success = true;
                 // const lastRefPath = `/transaction/last-ref/${address}`;
                 // const lastRefResponse = await httpRequestUtil.get(config, lastRefPath);

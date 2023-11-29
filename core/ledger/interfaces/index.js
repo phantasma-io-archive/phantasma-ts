@@ -26,3 +26,4 @@ __exportStar(require("./VersionResponse"), exports);
 __exportStar(require("./LedgerBalanceFromLedgerResponse"), exports);
 __exportStar(require("./LedgerSigner"), exports);
 __exportStar(require("./LedgerSignerData"), exports);
+__exportStar(require("./LedgerSendTransactionResponse"), exports);
