@@ -13,7 +13,7 @@ npm install phantasma-ts
 ## Importing
 
 ```javascript
-const { phantasmaJS } = require("phantasma-ts");
+const { PhantasmaTS } = require("phantasma-ts");
 ```
 
 ## Standalone HTML Import
@@ -23,70 +23,70 @@ const { phantasmaJS } = require("phantasma-ts");
 ```
 
 ```javascript
-phantasma.phantasmaJS; // To use PhantasmaJS
+phantasma.PhantasmaTS; // To use PhantasmaTS
 phantasma.PhantasmaLink; // To use PhantasmaLink
 phantasma.EasyConnect; // To use EasyConnect, an easy to use PhantasmaLink wrapper
 ```
 
 ## Table Of Contents
 
-The Phantasma TypeScript SDK transpiles into phantasmaJS, PhantasmaLink and EasyConnect.
+The Phantasma TypeScript SDK transpiles into PhantasmaTS, PhantasmaLink and EasyConnect.
 
-1. [PhantasmaJS](#phantasmajs) - Allows you to interact with the Phantasma Blockchain
+1. [PhantasmaTS](#phantasmats) - Allows you to interact with the Phantasma Blockchain
 
-   - [Utility Functions](#PhantasmaJS-Utility-Functions)
-   - [Script Builder](#Building-a-Script-with-Script-Builder)
-     - [Interop Commands](#Interop-Functions)
-     - [Building Transaction](#Building-a-Transaction)
-     - [Deploying Smart Contract](#Deploying-a-Contract)
-     - [RPC](#Using-RPC)
+   - [Utility Functions](#phantasmats-utility-functions)
+   - [Script Builder](#building-a-script-with-script-builder)
+     - [Interop Commands](#interop-functions)
+     - [Building Transaction](#building-a-transaction)
+     - [Deploying Smart Contract](#deploying-a-contract)
+     - [RPC](#using-rpc)
 
 2. [PhantasmaLink](#phantasmalink) - Allows you to interact with Phantasma based wallets
    - [Functions](#functions)
-   - [Exsamples](#Exsample-Code)
+   - [Examples](#example-code)
 
 3. [EasyConnect](#easyconnect) - Easy plug and play solution for creating DApps
 
-   - [Core Functions](#Core-Functions)
-   - [Query Function](#Query-Function)
-   - [Action Function](#Action-Function)
-   - [Easy Script](#Easy-Script-Create)
+   - [Core Functions](#core-functions)
+   - [Query Function](#query-function)
+   - [Action Function](#action-function)
+   - [Easy Script](#easy-script-create)
 
 4. [Misc]
-   - [Vocab](#Vocab)
+   - [Vocab](#vocab)
 
 ---
 
-## PhantasmaJS
+## PhantasmaTS
 
-Use phantasmaJS to interact with the Phantasma blockchain directly.
+Use PhantasmaTS to interact with the Phantasma blockchain directly.
 
-### PhantasmaJS Utility Functions
+### PhantasmaTS Utility Functions
 
 Just some standard useful functions that you probably will end up using at some point.
 
 ```javascript
-phantasmaJS.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>); //Turns a Byte Array into Serialized Hex
+PhantasmaTS.byteArrayToHex(arr: ArrayBuffer | ArrayLike<number>); //Turns a Byte Array into Serialized Hex
 ```
 
 ```javascript
-phantasmaJS.getAddressFromWif(wif: string); //Get's Public Address from WIF (Wallet Import Format)
+PhantasmaTS.getAddressFromWif(wif: string); //Get's Public Address from WIF (Wallet Import Format)
 ```
 
 ```javascript
-phantasmaJS.getPrivateKeyFromWif(wif: string); //Get's Private Key from WIF (Wallet Import Format)
+PhantasmaTS.getPrivateKeyFromWif(wif: string); //Get's Private Key from WIF (Wallet Import Format)
 ```
 
 ```javascript
-phantasmaJS.hexToByteArray(hexBytes: string); //Turns Serialized Hex into Byte Array
+PhantasmaTS.hexToByteArray(hexBytes: string); //Turns Serialized Hex into Byte Array
 ```
 
 ```javascript
-phantasmaJS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
+PhantasmaTS.reverseHex(hex: string); //Reverse <-> esreveR Serialized Hex
 ```
 
 ```javascript
-phantasmaJS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
+PhantasmaTS.signData(msgHex: string, privateKey: string); //Signs some text with given Private Key
 ```
 
 ### Building a Script with Script Builder
@@ -107,7 +107,7 @@ These functions, `.CallContract` and `.CallInterop`, are your bread and butter f
 
 ```javascript
 //Creating a new Script Builder Object
-let sb = new phantasmaJS.ScriptBuilder();
+let sb = new PhantasmaTS.ScriptBuilder();
 
 //Here is an example of a Transactional Script
     sb
@@ -128,7 +128,7 @@ let sb = new phantasmaJS.ScriptBuilder();
 #### InvokeRawScript and decoding the result
 ```javascript
 
-let sb = new phantasmaJS.ScriptBuilder();
+let sb = new PhantasmaTS.ScriptBuilder();
 sb.CallContract("stake", "GetMasterCount", []);
 let script = sb.EndScript();
 let targetNet = 'main';
@@ -136,7 +136,7 @@ let targetNet = 'main';
 // NOTE - we assume RPC was instantiated previously already, check other samples to see how
 let response = await RPC.invokeRawScript(targetNet, script);
 
-const decoder = new phantasmaJS.Decoder(response.result);	
+const decoder = new PhantasmaTS.Decoder(response.result);	
 const value = decoder.readVmObject();
 console.log(value); // print the decoded value to the console
 	
@@ -181,63 +181,69 @@ To build a transaction you will first need to build a script.
 Note, building a Transaction is for transactional scripts only. Non transactional scripts should use the RPC function `RPC.invokeRawScript(chainInput: string, scriptData: string)`
 
 ```javascript
+const { PhantasmaTS } = require("phantasma-ts");
+
+
 async function sendTransaction() {
-  let privateKey = "yourPrivateKey"; //In Hex Format
 
-  let fromAddress = "yourPublicWalletAddress";
-  let toAddress = "addressYourSendingTo";
-
-  //Creating a new Script Builder Object
-  let sb = new phantasmaJS.ScriptBuilder();
-  let gasPrice = 10000;
-  let gasLimit = 21000;
+  let WIF = "KxMn2TgXukYaNXx7tEdjh7qB2YaMgeuKy47j4rvKigHhBuZWeP3r"; //In WIF Format - simnet node 0 WIF
+  let fromAddress = "P2K9zmyFDNGN6n6hHiTUAz6jqn29s5G1SWLiXwCVQcpHcQb"; //simnet node0
+  let toAddress = "P2K65RZhfxZhQcXKGgSPZL6c6hkygXipNxdeuW5FU531Bqc"; //simnet node1
 
   //Creating RPC Connection **(Needs To Be Updated)
-  let RPC = new phantasmaJS.PhantasmaAPI(
-    "http://testnet.phantasma.io:5101/rpc",
+  let RPC = new PhantasmaTS.PhantasmaAPI(
+    "http://localhost:7077/rpc",
     null,
     "mainnet"
   );
 
+  //set Gas parameters for Runtime.TransferTokens
+  let gasPrice = PhantasmaTS.DomainSettings.DefaultMinimumGasFee; //Internal Blockchain minimum gas fee needed - i.e 10000
+  let gasLimit = 9999;
+
+  //Creating a new Script Builder Object
+  let sb = new PhantasmaTS.ScriptBuilder();
+
   //Making a Script
   let script = sb
-    .AllowGas(fromAddress, sb.nullAddress, gasPrice, gasLimit)
+    .BeginScript()
+    .AllowGas(fromAddress, sb.NullAddress, gasPrice, gasLimit)
     .CallInterop("Runtime.TransferTokens", [
       fromAddress,
       toAddress,
-      "KCAL",
-      10000000000,
-    ]) //10000000000 = 1 KCAL
+      "SOUL",
+      100000000,
+    ]) //100000000 = 1 SOUL
     .SpendGas(fromAddress)
     .EndScript();
 
   //Used to set expiration date
   let expiration = 5; //This is in miniutes
   let getTime = new Date();
-  let date = new Date(getTime.getTime() + expiration * 60000);
+  let expiration_date = new Date(getTime.getTime() + expiration * 60000);
 
-  let payload = Base16.encode("Phantasma-ts"); //Says '7068616e7461736d612d7473' in hex
+  let payload = PhantasmaTS.Base16.encode("Phantasma-ts"); //Says '7068616e7461736d612d7473' in hex
 
   //Creating New Transaction Object
-  let transaction = new phantasmaJS.Transaction(
-    "testnet", //Nexus Name - if you're using mainnet change it to mainnet or simnet if you're using you localnode
+  let transaction = new PhantasmaTS.Transaction(
+    "simnet", //Nexus Name - if you're using mainnet change it to mainnet or simnet if you're using you localnode
     "main", //Chain
     script, //In string format
-    expiration, //Date Object
+    expiration_date, //Date Object
     payload //Extra Info to attach to Transaction in Serialized Hex
   );
 
-  //Sign's Transaction with Private Key
-  await transaction.sign(privateKey);
+  //Sign's Transaction with WIF
+  transaction.sign(WIF);
+  let hexEncodedTx = transaction.ToStringEncoded(true); //converts trasnaction to base16 string -true means transaction is signed-
 
   //Send Transaction
-  let txHash = await RPC.sendRawTransaction(transaction.toString(true));
-
+  let txHash = await RPC.sendRawTransaction(hexEncodedTx);
   //Return Transaction Hash
   return txHash;
 }
-```
 
+```
 ### Staking SOUL
 
 This is an example how to stake SOUL
@@ -249,14 +255,14 @@ async function stakeSOUL() {
   let fromAddress = "yourPublicWalletAddress"; // Phantasma Public Address
 
   //Creating a new Script Builder Object
-  let sb = new phantasmaJS.ScriptBuilder();
+  let sb = new PhantasmaTS.ScriptBuilder();
   let gasPrice = 10000;
   let gasLimit = 21000;
   let amount = String(100 * 10 ** 8); // 100 the amount - 10**8 it's to get the decimals to the desired amount
   // Soul has 8 decimals places.
 
   //Creating RPC Connection **(Needs To Be Updated)
-  let RPC = new phantasmaJS.PhantasmaAPI(
+  let RPC = new PhantasmaTS.PhantasmaAPI(
     "http://testnet.phantasma.io:5101/rpc",
     null,
     "testnet"
@@ -277,7 +283,7 @@ async function stakeSOUL() {
   let payload = "7068616e7461736d612d7473"; //Says 'Phantasma-ts' in hex
 
   //Creating New Transaction Object
-  let transaction = new phantasmaJS.Transaction(
+  let transaction = new PhantasmaTS.Transaction(
     "testnet", //Nexus Name - if you're using mainnet change it to mainnet
     "main", //Chain
     script, //In string format
@@ -314,11 +320,11 @@ async function deployContract() {
   let contractName = "ContractName"; //Whatever you want
 
   //Creating a new Script Builder Object
-  let sb = new phantasmaJS.ScriptBuilder();
+  let sb = new PhantasmaTS.ScriptBuilder();
 
   //New RPC and Peers Needed
   //Creating RPC Connection, use ('http://testnet.phantasma.io:5101/rpc', null, 'testnet') for testing
-  let RPC = new phantasmaJS.PhantasmaAPI(
+  let RPC = new PhantasmaTS.PhantasmaAPI(
     "http://phantasma.io:5101/rpc",
     null,
     "mainnet"
@@ -345,7 +351,7 @@ async function deployContract() {
   let payload = "MyApp";
 
   //Creating New Transaction Object
-  let transaction = new phantasmaJS.Transaction(
+  let transaction = new PhantasmaTS.Transaction(
     "testnet", //Nexus Name
     "main", //Chain
     script, //In string format
@@ -372,9 +378,9 @@ async function deployContract() {
 ### Scanning the blockchain for incoming transactions
 
 ```javascript
-const { phantasmaJS } = require("phantasma-ts");
+const { PhantasmaTS } = require("phantasma-ts");
 
-let RPC = new phantasmaJS.PhantasmaAPI(
+let RPC = new PhantasmaTS.PhantasmaAPI(
   "http://pharpc1.phantasma.io:7077/rpc",
   null,
   "mainnet"
@@ -405,7 +411,7 @@ async function checkForNewBlocks() {
       for (j = 0; j < tx.events.length; j++) {
         let evt = tx.events[j];
         if (evt.kind == "TokenReceive") {
-          var data = phantasmaJS.getTokenEventData(evt.data);
+          var data = PhantasmaTS.getTokenEventData(evt.data);
           onTransactionReceived(evt.address, data.symbol, data.value);
         }
       }
@@ -426,7 +432,7 @@ checkForNewBlocks();
 ### Using RPC
 
 ```javascript
-let RPC = new phantasmaJS.PhantasmaAPI(
+let RPC = new PhantasmaTS.PhantasmaAPI(
   "http://pharpc1.phantasma.io:7077/rpc",
   null,
   "mainnet"
