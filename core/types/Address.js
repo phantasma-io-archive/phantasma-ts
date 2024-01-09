@@ -11,7 +11,7 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var tx_1 = require("../tx");
 var elliptic_1 = __importDefault(require("elliptic"));
 var eddsa = elliptic_1.default.eddsa;
-var curve = new eddsa("ed25519");
+var curve = new eddsa('ed25519');
 var AddressKind;
 (function (AddressKind) {
     AddressKind[AddressKind["Invalid"] = 0] = "Invalid";
@@ -104,13 +104,13 @@ var Address = /** @class */ (function () {
                     var prefix = void 0;
                     switch (this.Kind) {
                         case AddressKind.User:
-                            prefix = "P";
+                            prefix = 'P';
                             break;
                         case AddressKind.Interop:
-                            prefix = "X";
+                            prefix = 'X';
                             break;
                         default:
-                            prefix = "S";
+                            prefix = 'S';
                             break;
                     }
                     this._text = prefix + bs58_1.default.encode(this._bytes);
@@ -143,17 +143,17 @@ var Address = /** @class */ (function () {
         var bytes = bs58_1.default.decode(text);
         addr = new Address(bytes);
         switch (prefix) {
-            case "P":
+            case 'P':
                 if (addr.Kind != AddressKind.User) {
                     throw new Error("Invalid address prefix. Expected 'P', got '".concat(prefix, "'"));
                 }
                 break;
-            case "S":
+            case 'S':
                 if (addr.Kind != AddressKind.System) {
                     throw new Error("Invalid address prefix. Expected 'S', got '".concat(prefix, "'"));
                 }
                 break;
-            case "X":
+            case 'X':
                 if (addr.Kind < AddressKind.Interop) {
                     throw new Error("Invalid address prefix. Expected 'X', got '".concat(prefix, "'"));
                 }
@@ -192,13 +192,13 @@ var Address = /** @class */ (function () {
             bytes.set(key.PublicKey.slice(0, 32), 1);
         }
         else {
-            throw new Error("Invalid public key length: " + key.PublicKey.length);
+            throw new Error('Invalid public key length: ' + key.PublicKey.length);
         }
         return new Address(bytes);
     };
     Address.FromHash = function (input) {
         var bytes;
-        if (typeof input === "string") {
+        if (typeof input === 'string') {
             bytes = new TextEncoder().encode(input);
         }
         else {
@@ -213,7 +213,7 @@ var Address = /** @class */ (function () {
     Address.FromWif = function (wif) {
         var privateKey = (0, tx_1.getPrivateKeyFromWif)(wif);
         var publicKey = (0, tx_1.getPublicKeyFromPrivateKey)(privateKey);
-        var addressHex = Buffer.from("0100" + publicKey, "hex");
+        var addressHex = Buffer.from('0100' + publicKey, 'hex');
         return this.FromBytes(addressHex);
     };
     Address.prototype.compareTo = function (other) {
@@ -242,13 +242,13 @@ var Address = /** @class */ (function () {
             var prefix = void 0;
             switch (this.Kind) {
                 case AddressKind.User:
-                    prefix = "P";
+                    prefix = 'P';
                     break;
                 case AddressKind.Interop:
-                    prefix = "X";
+                    prefix = 'X';
                     break;
                 default:
-                    prefix = "S";
+                    prefix = 'S';
                     break;
             }
             this._text = prefix + bs58_1.default.encode(this._bytes);
@@ -265,7 +265,7 @@ var Address = /** @class */ (function () {
         this._bytes = reader.readByteArray();
         this._text = null;
     };
-    Address.NullText = "NULL";
+    Address.NullText = 'NULL';
     Address.LengthInBytes = 34;
     Address.MaxPlatformNameLength = 10;
     Address.NullPublicKey = new Uint8Array(Address.LengthInBytes);

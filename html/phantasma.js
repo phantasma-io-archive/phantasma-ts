@@ -2338,7 +2338,26 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    PhantasmaLink.prototype.getWalletVersion = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getWalletVersion/', function (result) {
+            if (result.success) {
+                that.onMessage('Wallet Version Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback('Error: ' + result.error);
+                }
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
+    // Data needs to be in Base16 encode.
     PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback, signature) {
         if (signature === void 0) { signature = 'Ed25519'; }
         if (!this.socket) {
@@ -2367,7 +2386,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback('error');
+                    onErrorCallback(result);
                 }
             }
         });
@@ -3955,7 +3974,7 @@ var enc_hex_1 = __importDefault(require("crypto-js/enc-hex"));
 var tx_1 = require("../tx");
 var elliptic_1 = __importDefault(require("elliptic"));
 var eddsa = elliptic_1.default.eddsa;
-var curve = new eddsa("ed25519");
+var curve = new eddsa('ed25519');
 var AddressKind;
 (function (AddressKind) {
     AddressKind[AddressKind["Invalid"] = 0] = "Invalid";
@@ -4048,13 +4067,13 @@ var Address = /** @class */ (function () {
                     var prefix = void 0;
                     switch (this.Kind) {
                         case AddressKind.User:
-                            prefix = "P";
+                            prefix = 'P';
                             break;
                         case AddressKind.Interop:
-                            prefix = "X";
+                            prefix = 'X';
                             break;
                         default:
-                            prefix = "S";
+                            prefix = 'S';
                             break;
                     }
                     this._text = prefix + bs58_1.default.encode(this._bytes);
@@ -4087,17 +4106,17 @@ var Address = /** @class */ (function () {
         var bytes = bs58_1.default.decode(text);
         addr = new Address(bytes);
         switch (prefix) {
-            case "P":
+            case 'P':
                 if (addr.Kind != AddressKind.User) {
                     throw new Error("Invalid address prefix. Expected 'P', got '".concat(prefix, "'"));
                 }
                 break;
-            case "S":
+            case 'S':
                 if (addr.Kind != AddressKind.System) {
                     throw new Error("Invalid address prefix. Expected 'S', got '".concat(prefix, "'"));
                 }
                 break;
-            case "X":
+            case 'X':
                 if (addr.Kind < AddressKind.Interop) {
                     throw new Error("Invalid address prefix. Expected 'X', got '".concat(prefix, "'"));
                 }
@@ -4136,13 +4155,13 @@ var Address = /** @class */ (function () {
             bytes.set(key.PublicKey.slice(0, 32), 1);
         }
         else {
-            throw new Error("Invalid public key length: " + key.PublicKey.length);
+            throw new Error('Invalid public key length: ' + key.PublicKey.length);
         }
         return new Address(bytes);
     };
     Address.FromHash = function (input) {
         var bytes;
-        if (typeof input === "string") {
+        if (typeof input === 'string') {
             bytes = new TextEncoder().encode(input);
         }
         else {
@@ -4157,7 +4176,7 @@ var Address = /** @class */ (function () {
     Address.FromWif = function (wif) {
         var privateKey = (0, tx_1.getPrivateKeyFromWif)(wif);
         var publicKey = (0, tx_1.getPublicKeyFromPrivateKey)(privateKey);
-        var addressHex = Buffer.from("0100" + publicKey, "hex");
+        var addressHex = Buffer.from('0100' + publicKey, 'hex');
         return this.FromBytes(addressHex);
     };
     Address.prototype.compareTo = function (other) {
@@ -4186,13 +4205,13 @@ var Address = /** @class */ (function () {
             var prefix = void 0;
             switch (this.Kind) {
                 case AddressKind.User:
-                    prefix = "P";
+                    prefix = 'P';
                     break;
                 case AddressKind.Interop:
-                    prefix = "X";
+                    prefix = 'X';
                     break;
                 default:
-                    prefix = "S";
+                    prefix = 'S';
                     break;
             }
             this._text = prefix + bs58_1.default.encode(this._bytes);
@@ -4209,7 +4228,7 @@ var Address = /** @class */ (function () {
         this._bytes = reader.readByteArray();
         this._text = null;
     };
-    Address.NullText = "NULL";
+    Address.NullText = 'NULL';
     Address.LengthInBytes = 34;
     Address.MaxPlatformNameLength = 10;
     Address.NullPublicKey = new Uint8Array(Address.LengthInBytes);
@@ -4768,7 +4787,7 @@ exports.StakeReward = StakeReward;
 var DomainSettings = /** @class */ (function () {
     function DomainSettings() {
     }
-    DomainSettings.LatestKnownProtocol = 9;
+    DomainSettings.LatestKnownProtocol = 18;
     DomainSettings.Phantasma20Protocol = 7;
     DomainSettings.Phantasma30Protocol = 8;
     DomainSettings.MaxTxPerBlock = 1024;
@@ -4779,25 +4798,25 @@ var DomainSettings = /** @class */ (function () {
     DomainSettings.MAX_TOKEN_DECIMALS = 18;
     DomainSettings.DefaultMinimumGasFee = 100000;
     DomainSettings.InitialValidatorCount = 4;
-    DomainSettings.FuelTokenSymbol = "KCAL";
-    DomainSettings.FuelTokenName = "Phantasma Energy";
+    DomainSettings.FuelTokenSymbol = 'KCAL';
+    DomainSettings.FuelTokenName = 'Phantasma Energy';
     DomainSettings.FuelTokenDecimals = 10;
-    DomainSettings.NexusMainnet = "mainnet";
-    DomainSettings.NexusTestnet = "testnet";
-    DomainSettings.StakingTokenSymbol = "SOUL";
-    DomainSettings.StakingTokenName = "Phantasma Stake";
+    DomainSettings.NexusMainnet = 'mainnet';
+    DomainSettings.NexusTestnet = 'testnet';
+    DomainSettings.StakingTokenSymbol = 'SOUL';
+    DomainSettings.StakingTokenName = 'Phantasma Stake';
     DomainSettings.StakingTokenDecimals = 8;
-    DomainSettings.FiatTokenSymbol = "USD";
-    DomainSettings.FiatTokenName = "Dollars";
+    DomainSettings.FiatTokenSymbol = 'USD';
+    DomainSettings.FiatTokenName = 'Dollars';
     DomainSettings.FiatTokenDecimals = 8;
-    DomainSettings.RewardTokenSymbol = "CROWN";
-    DomainSettings.RewardTokenName = "Phantasma Crown";
-    DomainSettings.LiquidityTokenSymbol = "LP";
-    DomainSettings.LiquidityTokenName = "Phantasma Liquidity";
+    DomainSettings.RewardTokenSymbol = 'CROWN';
+    DomainSettings.RewardTokenName = 'Phantasma Crown';
+    DomainSettings.LiquidityTokenSymbol = 'LP';
+    DomainSettings.LiquidityTokenName = 'Phantasma Liquidity';
     DomainSettings.LiquidityTokenDecimals = 8;
-    DomainSettings.FuelPerContractDeployTag = "nexus.contract.cost";
-    DomainSettings.FuelPerTokenDeployTag = "nexus.token.cost";
-    DomainSettings.FuelPerOrganizationDeployTag = "nexus.organization.cost";
+    DomainSettings.FuelPerContractDeployTag = 'nexus.contract.cost';
+    DomainSettings.FuelPerTokenDeployTag = 'nexus.token.cost';
+    DomainSettings.FuelPerOrganizationDeployTag = 'nexus.organization.cost';
     DomainSettings.SystemTokens = [
         DomainSettings.FuelTokenSymbol,
         DomainSettings.StakingTokenSymbol,
@@ -4805,17 +4824,17 @@ var DomainSettings = /** @class */ (function () {
         DomainSettings.RewardTokenSymbol,
         DomainSettings.LiquidityTokenSymbol,
     ];
-    DomainSettings.RootChainName = "main";
-    DomainSettings.ValidatorsOrganizationName = "validators";
-    DomainSettings.MastersOrganizationName = "masters";
-    DomainSettings.StakersOrganizationName = "stakers";
-    DomainSettings.PhantomForceOrganizationName = "phantom_force";
+    DomainSettings.RootChainName = 'main';
+    DomainSettings.ValidatorsOrganizationName = 'validators';
+    DomainSettings.MastersOrganizationName = 'masters';
+    DomainSettings.StakersOrganizationName = 'stakers';
+    DomainSettings.PhantomForceOrganizationName = 'phantom_force';
     //public static PlatformSupply = UnitConversion.ToBigInteger(100000000, FuelTokenDecimals);
-    DomainSettings.PlatformName = "phantasma";
+    DomainSettings.PlatformName = 'phantasma';
     DomainSettings.ArchiveMinSize = 64;
     DomainSettings.ArchiveMaxSize = 104857600;
     //public static ArchiveBlockSize = MerkleTree.ChunkSize;
-    DomainSettings.InfusionName = "infusion";
+    DomainSettings.InfusionName = 'infusion';
     //public static InfusionAddress = SmartContract.GetAddressFromContractName(InfusionName);
     DomainSettings.NameMaxLength = 255;
     DomainSettings.UrlMaxLength = 2048;
