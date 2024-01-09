@@ -1,17 +1,13 @@
-import base58 from "bs58";
-import { encodeBase16, stringToUint8Array, uint8ArrayToString } from "../utils";
-import SHA256 from "crypto-js/sha256";
-import hexEncoding from "crypto-js/enc-hex";
-import { IKeyPair, ISerializable } from "../interfaces";
-import {
-  getPrivateKeyFromWif,
-  getPublicKeyFromPrivateKey,
-  getWifFromPrivateKey,
-} from "../tx";
+import base58 from 'bs58';
+import { encodeBase16, stringToUint8Array, uint8ArrayToString } from '../utils';
+import SHA256 from 'crypto-js/sha256';
+import hexEncoding from 'crypto-js/enc-hex';
+import { IKeyPair, ISerializable } from '../interfaces';
+import { getPrivateKeyFromWif, getPublicKeyFromPrivateKey, getWifFromPrivateKey } from '../tx';
 import pkg from 'elliptic';
-import { PBinaryWriter, PBinaryReader } from "./Extensions";
+import { PBinaryWriter, PBinaryReader } from './Extensions';
 const { eddsa } = pkg;
-const curve = new eddsa("ed25519");
+const curve = new eddsa('ed25519');
 
 export enum AddressKind {
   Invalid = 0,
@@ -21,7 +17,7 @@ export enum AddressKind {
 }
 
 export class Address implements ISerializable {
-  public static readonly NullText: string = "NULL";
+  public static readonly NullText: string = 'NULL';
   public static readonly LengthInBytes: number = 34;
   public static readonly MaxPlatformNameLength: number = 10;
 
@@ -98,13 +94,13 @@ export class Address implements ISerializable {
 
         switch (this.Kind) {
           case AddressKind.User:
-            prefix = "P";
+            prefix = 'P';
             break;
           case AddressKind.Interop:
-            prefix = "X";
+            prefix = 'X';
             break;
           default:
-            prefix = "S";
+            prefix = 'S';
             break;
         }
         this._text = prefix + base58.encode(this._bytes);
@@ -156,31 +152,23 @@ export class Address implements ISerializable {
     addr = new Address(bytes);
 
     switch (prefix) {
-      case "P":
+      case 'P':
         if (addr.Kind != AddressKind.User) {
-          throw new Error(
-            `Invalid address prefix. Expected 'P', got '${prefix}'`
-          );
+          throw new Error(`Invalid address prefix. Expected 'P', got '${prefix}'`);
         }
         break;
-      case "S":
+      case 'S':
         if (addr.Kind != AddressKind.System) {
-          throw new Error(
-            `Invalid address prefix. Expected 'S', got '${prefix}'`
-          );
+          throw new Error(`Invalid address prefix. Expected 'S', got '${prefix}'`);
         }
         break;
-      case "X":
+      case 'X':
         if (addr.Kind < AddressKind.Interop) {
-          throw new Error(
-            `Invalid address prefix. Expected 'X', got '${prefix}'`
-          );
+          throw new Error(`Invalid address prefix. Expected 'X', got '${prefix}'`);
         }
         break;
       default:
-        throw new Error(
-          `Invalid address prefix. Expected 'P', 'S' or 'X', got '${prefix}'`
-        );
+        throw new Error(`Invalid address prefix. Expected 'P', 'S' or 'X', got '${prefix}'`);
     }
 
     /*this._keyToTextCache.values().forEach((value) => {
@@ -215,7 +203,7 @@ export class Address implements ISerializable {
     } else if (key.PublicKey.length == 64) {
       bytes.set(key.PublicKey.slice(0, 32), 1);
     } else {
-      throw new Error("Invalid public key length: " + key.PublicKey.length);
+      throw new Error('Invalid public key length: ' + key.PublicKey.length);
     }
 
     return new Address(bytes);
@@ -225,7 +213,7 @@ export class Address implements ISerializable {
   public static FromHash(input: Uint8Array): Address;
   public static FromHash(input: any): Address {
     let bytes: Uint8Array;
-    if (typeof input === "string") {
+    if (typeof input === 'string') {
       bytes = new TextEncoder().encode(input);
     } else {
       bytes = input;
@@ -241,7 +229,7 @@ export class Address implements ISerializable {
   public static FromWif(wif: string): Address {
     const privateKey = getPrivateKeyFromWif(wif);
     const publicKey = getPublicKeyFromPrivateKey(privateKey);
-    var addressHex = Buffer.from("0100" + publicKey, "hex");
+    var addressHex = Buffer.from('0100' + publicKey, 'hex');
     return this.FromBytes(addressHex);
   }
 
@@ -273,13 +261,13 @@ export class Address implements ISerializable {
       let prefix: string;
       switch (this.Kind) {
         case AddressKind.User:
-          prefix = "P";
+          prefix = 'P';
           break;
         case AddressKind.Interop:
-          prefix = "X";
+          prefix = 'X';
           break;
         default:
-          prefix = "S";
+          prefix = 'S';
           break;
       }
       this._text = prefix + base58.encode(this._bytes);

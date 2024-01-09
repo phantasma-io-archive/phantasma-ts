@@ -27,6 +27,7 @@ export declare class PhantasmaLink {
     getPeer(callback: (result: string) => void, onErrorCallback: () => void): void;
     fetchWallet(callback: (result: any) => void, onErrorCallback: (message: any) => void): void;
     getNexus(callback: (message: any) => void, onErrorCallback: (message: any) => void): void;
+    getWalletVersion(callback: (message: any) => void, onErrorCallback: (message: any) => void): void;
     signData(data: string, callback: (success: string) => void, onErrorCallback: (message: string) => void, signature?: string): void;
     createSocket(isResume?: boolean): void;
     toggleMessageLogging(): void;

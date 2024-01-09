@@ -1,5 +1,5 @@
-import { Address } from "./Address";
-import { Timestamp } from "./Timestamp";
+import { Address } from './Address';
+import { Timestamp } from './Timestamp';
 export declare enum TriggerResult {
     Failure = 0,
     Missing = 1,

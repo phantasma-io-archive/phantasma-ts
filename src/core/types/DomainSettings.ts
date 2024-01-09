@@ -1,5 +1,5 @@
-import { Address } from "./Address";
-import { Timestamp } from "./Timestamp";
+import { Address } from './Address';
+import { Timestamp } from './Timestamp';
 
 export enum TriggerResult {
   Failure,
@@ -48,7 +48,7 @@ export class StakeReward {
 }
 
 export class DomainSettings {
-  public static LatestKnownProtocol = 9;
+  public static LatestKnownProtocol = 18;
 
   public static Phantasma20Protocol = 7;
   public static Phantasma30Protocol = 8;
@@ -68,31 +68,31 @@ export class DomainSettings {
   public static DefaultMinimumGasFee = 100000;
   public static InitialValidatorCount = 4;
 
-  public static FuelTokenSymbol = "KCAL";
-  public static FuelTokenName = "Phantasma Energy";
+  public static FuelTokenSymbol = 'KCAL';
+  public static FuelTokenName = 'Phantasma Energy';
   public static FuelTokenDecimals = 10;
 
-  public static NexusMainnet = "mainnet";
-  public static NexusTestnet = "testnet";
+  public static NexusMainnet = 'mainnet';
+  public static NexusTestnet = 'testnet';
 
-  public static StakingTokenSymbol = "SOUL";
-  public static StakingTokenName = "Phantasma Stake";
+  public static StakingTokenSymbol = 'SOUL';
+  public static StakingTokenName = 'Phantasma Stake';
   public static StakingTokenDecimals = 8;
 
-  public static FiatTokenSymbol = "USD";
-  public static FiatTokenName = "Dollars";
+  public static FiatTokenSymbol = 'USD';
+  public static FiatTokenName = 'Dollars';
   public static FiatTokenDecimals = 8;
 
-  public static RewardTokenSymbol = "CROWN";
-  public static RewardTokenName = "Phantasma Crown";
+  public static RewardTokenSymbol = 'CROWN';
+  public static RewardTokenName = 'Phantasma Crown';
 
-  public static LiquidityTokenSymbol = "LP";
-  public static LiquidityTokenName = "Phantasma Liquidity";
+  public static LiquidityTokenSymbol = 'LP';
+  public static LiquidityTokenName = 'Phantasma Liquidity';
   public static LiquidityTokenDecimals = 8;
 
-  public static FuelPerContractDeployTag = "nexus.contract.cost";
-  public static FuelPerTokenDeployTag = "nexus.token.cost";
-  public static FuelPerOrganizationDeployTag = "nexus.organization.cost";
+  public static FuelPerContractDeployTag = 'nexus.contract.cost';
+  public static FuelPerTokenDeployTag = 'nexus.token.cost';
+  public static FuelPerOrganizationDeployTag = 'nexus.organization.cost';
 
   public static SystemTokens = [
     DomainSettings.FuelTokenSymbol,
@@ -102,22 +102,22 @@ export class DomainSettings {
     DomainSettings.LiquidityTokenSymbol,
   ];
 
-  public static RootChainName = "main";
+  public static RootChainName = 'main';
 
-  public static ValidatorsOrganizationName = "validators";
-  public static MastersOrganizationName = "masters";
-  public static StakersOrganizationName = "stakers";
+  public static ValidatorsOrganizationName = 'validators';
+  public static MastersOrganizationName = 'masters';
+  public static StakersOrganizationName = 'stakers';
 
-  public static PhantomForceOrganizationName = "phantom_force";
+  public static PhantomForceOrganizationName = 'phantom_force';
 
   //public static PlatformSupply = UnitConversion.ToBigInteger(100000000, FuelTokenDecimals);
-  public static PlatformName = "phantasma";
+  public static PlatformName = 'phantasma';
 
   public static ArchiveMinSize = 64;
   public static ArchiveMaxSize = 104857600;
   //public static ArchiveBlockSize = MerkleTree.ChunkSize;
 
-  public static InfusionName = "infusion";
+  public static InfusionName = 'infusion';
   //public static InfusionAddress = SmartContract.GetAddressFromContractName(InfusionName);
 
   public static NameMaxLength = 255;

@@ -1,5 +1,5 @@
-import { IKeyPair, ISerializable } from "../interfaces";
-import { PBinaryWriter, PBinaryReader } from "./Extensions";
+import { IKeyPair, ISerializable } from '../interfaces';
+import { PBinaryWriter, PBinaryReader } from './Extensions';
 export declare enum AddressKind {
     Invalid = 0,
     User = 1,

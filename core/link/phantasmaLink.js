@@ -263,7 +263,26 @@ var PhantasmaLink = /** @class */ (function () {
             }
         });
     };
+    PhantasmaLink.prototype.getWalletVersion = function (callback, onErrorCallback) {
+        this.onError = onErrorCallback; //Sets Error Callback Function
+        var that = this; //Allows the use of 'this' inside sendLinkRequest Object
+        //Sends Signiture Request To Connected Wallet For Script
+        this.sendLinkRequest('getWalletVersion/', function (result) {
+            if (result.success) {
+                that.onMessage('Wallet Version Query,: ' + result);
+                if (callback) {
+                    callback(result);
+                }
+            }
+            else {
+                if (onErrorCallback) {
+                    onErrorCallback('Error: ' + result.error);
+                }
+            }
+        });
+    };
     //Uses Wallet To Sign Data With Signiture
+    // Data needs to be in Base16 encode.
     PhantasmaLink.prototype.signData = function (data, callback, onErrorCallback, signature) {
         if (signature === void 0) { signature = 'Ed25519'; }
         if (!this.socket) {
@@ -292,7 +311,7 @@ var PhantasmaLink = /** @class */ (function () {
             }
             else {
                 if (onErrorCallback) {
-                    onErrorCallback('error');
+                    onErrorCallback(result);
                 }
             }
         });

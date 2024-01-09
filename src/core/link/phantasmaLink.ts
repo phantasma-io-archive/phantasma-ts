@@ -319,7 +319,27 @@ export class PhantasmaLink {
     });
   }
 
+  getWalletVersion(callback: (message: any) => void, onErrorCallback: (message: any) => void) {
+    this.onError = onErrorCallback; //Sets Error Callback Function
+    let that = this; //Allows the use of 'this' inside sendLinkRequest Object
+
+    //Sends Signiture Request To Connected Wallet For Script
+    this.sendLinkRequest('getWalletVersion/', function (result) {
+      if (result.success) {
+        that.onMessage('Wallet Version Query,: ' + result);
+        if (callback) {
+          callback(result);
+        }
+      } else {
+        if (onErrorCallback) {
+          onErrorCallback('Error: ' + result.error);
+        }
+      }
+    });
+  }
+
   //Uses Wallet To Sign Data With Signiture
+  // Data needs to be in Base16 encode.
   signData(
     data: string,
     callback: (success: string) => void,
@@ -355,7 +375,7 @@ export class PhantasmaLink {
         }
       } else {
         if (onErrorCallback) {
-          onErrorCallback('error');
+          onErrorCallback(result);
         }
       }
     });
