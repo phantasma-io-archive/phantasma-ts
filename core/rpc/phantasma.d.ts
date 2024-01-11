@@ -35,8 +35,8 @@ export declare class PhantasmaAPI {
     setNexus(nexus: string): void;
     updateRpc(): void;
     convertDecimals(amount: number, decimals: number): number;
-    getAccount(account: string): Promise<Account>;
-    getAccounts(accounts: string[]): Promise<Account[]>;
+    getAccount(account: string, extended?: boolean): Promise<Account>;
+    getAccounts(accounts: string[], extended?: boolean): Promise<Account[]>;
     lookUpName(name: string): Promise<string>;
     getAddressesBySymbol(symbol: string, extended?: boolean): Promise<Account[]>;
     getBlockHeight(chainInput: string): Promise<number>;
@@ -54,16 +54,18 @@ export declare class PhantasmaAPI {
     invokeRawScript(chainInput: string, scriptData: string): Promise<Script>;
     getTransaction(hashText: string): Promise<TransactionData>;
     cancelTransaction(hashText: string): Promise<string>;
-    getChains(): Promise<Chain>;
-    getNexus(): Promise<Nexus>;
+    getChains(extended?: boolean): Promise<Chain[]>;
+    getChain(name: string, extended?: boolean): Promise<Chain>;
+    getNexus(extended?: boolean): Promise<Nexus>;
+    getContracts(chainAddressOrName?: string, extended?: boolean): Promise<Contract[]>;
     getContract(chainAddressOrName: string, contractName: string): Promise<Contract>;
     getContractByAddress(chainAddressOrName: string, contractAddress: string): Promise<Contract>;
-    getOrganization(ID: string): Promise<Organization>;
-    getOrganizationByName(name: string): Promise<Organization>;
+    getOrganization(ID: string, extended?: boolean): Promise<Organization>;
+    getOrganizationByName(name: string, extended?: boolean): Promise<Organization>;
     getOrganizations(extended?: boolean): Promise<Organization[]>;
     getLeaderboard(name: string): Promise<Leaderboard>;
-    getTokens(): Promise<Token[]>;
-    getToken(symbol: string): Promise<Token>;
+    getTokens(extended?: boolean): Promise<Token[]>;
+    getToken(symbol: string, extended?: boolean): Promise<Token>;
     getTokenData(symbol: string, IDtext: string): Promise<TokenData>;
     getTokenBalance(account: string, tokenSymbol: string, chainInput: string): Promise<Balance>;
     getAuctionsCount(chainAddressOrName: string, symbol: string): Promise<number>;
@@ -81,7 +83,7 @@ export declare class PhantasmaAPI {
     settleSwap(sourcePlatform: string, destPlatform: string, hashText: string): Promise<string>;
     getSwapsForAddressOld(account: string): Promise<Swap[]>;
     getSwapsForAddress(account: string, platform: string): Promise<Swap[]>;
-    getNFT(symbol: string, nftId: string): Promise<NFT>;
-    getNFTs(symbol: string, nftIDs: string[]): Promise<NFT[]>;
+    getNFT(symbol: string, nftId: string, extended?: boolean): Promise<NFT>;
+    getNFTs(symbol: string, nftIDs: string[], extended?: boolean): Promise<NFT[]>;
 }
 //# sourceMappingURL=phantasma.d.ts.map
