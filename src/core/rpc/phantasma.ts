@@ -143,14 +143,14 @@ export class PhantasmaAPI {
   }
 
   //Returns the account name and balance of given address.
-  async getAccount(account: string): Promise<Account> {
-    let params: Array<any> = [account];
+  async getAccount(account: string, extended: boolean = true): Promise<Account> {
+    let params: Array<any> = [account, extended];
     return (await this.JSONRPC('getAccount', params)) as Account;
   }
 
   //Returns the accounts name and balance of given addresses.
-  async getAccounts(accounts: string[]): Promise<Account[]> {
-    let params: Array<any> = [accounts.join(',')];
+  async getAccounts(accounts: string[], extended: boolean = true): Promise<Account[]> {
+    let params: Array<any> = [accounts.join(','), extended];
     return (await this.JSONRPC('getAccounts', params)) as Account[];
   }
 
@@ -264,15 +264,30 @@ export class PhantasmaAPI {
   }
 
   //Returns an array of all chains deployed in Phantasma.
-  async getChains(): Promise<Chain> {
-    let params: Array<any> = [];
-    return (await this.JSONRPC('getChains', params)) as Chain;
+  async getChains(extended: boolean = true): Promise<Chain[]> {
+    let params: Array<any> = [extended];
+    return (await this.JSONRPC('getChains', params)) as Chain[];
+  }
+
+  //Return the chain
+  async getChain(name: string, extended: boolean = true): Promise<Chain> {
+    let params: Array<any> = [name, extended];
+    return (await this.JSONRPC('getChain', params)) as Chain;
   }
 
   //Returns info about the nexus.
-  async getNexus(): Promise<Nexus> {
-    let params: Array<any> = [];
+  async getNexus(extended: boolean = true): Promise<Nexus> {
+    let params: Array<any> = [extended];
     return (await this.JSONRPC('getNexus', params)) as Nexus;
+  }
+
+  //Returns an array of contracts  deployed in Phantasma.
+  async getContracts(
+    chainAddressOrName: string = 'main',
+    extended: boolean = true
+  ): Promise<Contract[]> {
+    let params: Array<any> = [chainAddressOrName, extended];
+    return (await this.JSONRPC('getContracts', params)) as Contract[];
   }
 
   //Returns the contract info deployed in Phantasma.
@@ -290,13 +305,13 @@ export class PhantasmaAPI {
   }
 
   //Returns info about an organization.
-  async getOrganization(ID: string): Promise<Organization> {
-    let params: Array<any> = [ID];
+  async getOrganization(ID: string, extended: boolean = true): Promise<Organization> {
+    let params: Array<any> = [ID, extended];
     return (await this.JSONRPC('getOrganization', params)) as Organization;
   }
 
-  async getOrganizationByName(name: string): Promise<Organization> {
-    let params: Array<any> = [name];
+  async getOrganizationByName(name: string, extended: boolean = true): Promise<Organization> {
+    let params: Array<any> = [name, extended];
     return (await this.JSONRPC('getOrganizationByName', params)) as Organization;
   }
 
@@ -312,14 +327,14 @@ export class PhantasmaAPI {
   }
 
   //Returns an array of tokens deployed in Phantasma.
-  async getTokens(): Promise<Token[]> {
-    let params: Array<any> = [];
+  async getTokens(extended: boolean = true): Promise<Token[]> {
+    let params: Array<any> = [extended];
     return (await this.JSONRPC('getTokens', params)) as Token[];
   }
 
   //Returns info about a specific token deployed in Phantasma.
-  async getToken(symbol: string): Promise<Token> {
-    let params: Array<any> = [symbol];
+  async getToken(symbol: string, extended: boolean = true): Promise<Token> {
+    let params: Array<any> = [symbol, extended];
     return (await this.JSONRPC('getToken', params)) as Token;
   }
 
@@ -439,13 +454,13 @@ export class PhantasmaAPI {
   }
 
   //Returns info of a nft.
-  async getNFT(symbol: string, nftId: string): Promise<NFT> {
-    let params: Array<any> = [symbol, nftId, true];
+  async getNFT(symbol: string, nftId: string, extended: boolean = true): Promise<NFT> {
+    let params: Array<any> = [symbol, nftId, extended];
     return (await this.JSONRPC('getNFT', params)) as NFT;
   }
 
-  async getNFTs(symbol: string, nftIDs: string[]): Promise<NFT[]> {
-    let params: Array<any> = [symbol, nftIDs.join(','), true];
+  async getNFTs(symbol: string, nftIDs: string[], extended: boolean = true): Promise<NFT[]> {
+    let params: Array<any> = [symbol, nftIDs.join(','), extended];
     return (await this.JSONRPC('getNFTs', params)) as NFT[];
   }
 }

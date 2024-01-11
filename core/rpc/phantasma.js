@@ -183,13 +183,14 @@ var PhantasmaAPI = /** @class */ (function () {
         return amount / mult;
     };
     //Returns the account name and balance of given address.
-    PhantasmaAPI.prototype.getAccount = function (account) {
+    PhantasmaAPI.prototype.getAccount = function (account, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [account];
+                        params = [account, extended];
                         return [4 /*yield*/, this.JSONRPC('getAccount', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
@@ -197,13 +198,14 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns the accounts name and balance of given addresses.
-    PhantasmaAPI.prototype.getAccounts = function (accounts) {
+    PhantasmaAPI.prototype.getAccounts = function (accounts, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [accounts.join(',')];
+                        params = [accounts.join(','), extended];
                         return [4 /*yield*/, this.JSONRPC('getAccounts', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
@@ -450,28 +452,61 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns an array of all chains deployed in Phantasma.
-    PhantasmaAPI.prototype.getChains = function () {
+    PhantasmaAPI.prototype.getChains = function (extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [];
+                        params = [extended];
                         return [4 /*yield*/, this.JSONRPC('getChains', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
         });
     };
-    //Returns info about the nexus.
-    PhantasmaAPI.prototype.getNexus = function () {
+    //Return the chain
+    PhantasmaAPI.prototype.getChain = function (name, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [];
+                        params = [name, extended];
+                        return [4 /*yield*/, this.JSONRPC('getChain', params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    //Returns info about the nexus.
+    PhantasmaAPI.prototype.getNexus = function (extended) {
+        if (extended === void 0) { extended = true; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [extended];
                         return [4 /*yield*/, this.JSONRPC('getNexus', params)];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    //Returns an array of contracts  deployed in Phantasma.
+    PhantasmaAPI.prototype.getContracts = function (chainAddressOrName, extended) {
+        if (chainAddressOrName === void 0) { chainAddressOrName = 'main'; }
+        if (extended === void 0) { extended = true; }
+        return __awaiter(this, void 0, void 0, function () {
+            var params;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        params = [chainAddressOrName, extended];
+                        return [4 /*yield*/, this.JSONRPC('getContracts', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
@@ -507,26 +542,28 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns info about an organization.
-    PhantasmaAPI.prototype.getOrganization = function (ID) {
+    PhantasmaAPI.prototype.getOrganization = function (ID, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [ID];
+                        params = [ID, extended];
                         return [4 /*yield*/, this.JSONRPC('getOrganization', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
         });
     };
-    PhantasmaAPI.prototype.getOrganizationByName = function (name) {
+    PhantasmaAPI.prototype.getOrganizationByName = function (name, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [name];
+                        params = [name, extended];
                         return [4 /*yield*/, this.JSONRPC('getOrganizationByName', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
@@ -562,13 +599,14 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns an array of tokens deployed in Phantasma.
-    PhantasmaAPI.prototype.getTokens = function () {
+    PhantasmaAPI.prototype.getTokens = function (extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [];
+                        params = [extended];
                         return [4 /*yield*/, this.JSONRPC('getTokens', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
@@ -576,13 +614,14 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns info about a specific token deployed in Phantasma.
-    PhantasmaAPI.prototype.getToken = function (symbol) {
+    PhantasmaAPI.prototype.getToken = function (symbol, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [symbol];
+                        params = [symbol, extended];
                         return [4 /*yield*/, this.JSONRPC('getToken', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
@@ -828,26 +867,28 @@ var PhantasmaAPI = /** @class */ (function () {
         });
     };
     //Returns info of a nft.
-    PhantasmaAPI.prototype.getNFT = function (symbol, nftId) {
+    PhantasmaAPI.prototype.getNFT = function (symbol, nftId, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [symbol, nftId, true];
+                        params = [symbol, nftId, extended];
                         return [4 /*yield*/, this.JSONRPC('getNFT', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
             });
         });
     };
-    PhantasmaAPI.prototype.getNFTs = function (symbol, nftIDs) {
+    PhantasmaAPI.prototype.getNFTs = function (symbol, nftIDs, extended) {
+        if (extended === void 0) { extended = true; }
         return __awaiter(this, void 0, void 0, function () {
             var params;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        params = [symbol, nftIDs.join(','), true];
+                        params = [symbol, nftIDs.join(','), extended];
                         return [4 /*yield*/, this.JSONRPC('getNFTs', params)];
                     case 1: return [2 /*return*/, (_a.sent())];
                 }
